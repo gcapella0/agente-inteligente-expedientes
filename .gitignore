@@ -1,0 +1,34 @@
+# Entorno / dependencias
+venv/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Datos locales
+data/
+src/data/input/
+src/data/processed/
+src/data/results/
+src/data/vectorstore/
+
+# Mantener estructuras vacías
+!src/data/.gitkeep
+!src/data/input/.gitkeep
+!src/data/processed/.gitkeep
+!src/data/results/.gitkeep
+!src/data/vectorstore/.gitkeep
