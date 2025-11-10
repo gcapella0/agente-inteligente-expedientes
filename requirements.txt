@@ -10,5 +10,5 @@ aiohttp==3.10.5
 loguru==0.7.2
 pytesseract==0.3.13
 pillow==11.0.0
-deepseek-ocr==1.0.0    # (placeholder del modelo OCR)
+#deepseek-ocr==1.0.0    # (placeholder del modelo OCR)
 pytest==8.3.3
