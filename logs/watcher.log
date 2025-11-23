@@ -1,0 +1,272 @@
+2025-11-22 16:33:54.135 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-22 16:33:54.137 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-22 16:33:54.138 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #1 de monitoreo iniciado
+2025-11-22 16:33:56.017 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 16:33:56.018 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 16:33:56.019 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 16:33:56.579 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 16:34:56.581 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #2 de monitoreo iniciado
+2025-11-22 16:34:58.325 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 16:34:58.326 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 16:34:58.326 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #2: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 16:34:59.056 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 16:35:07.061 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-22 16:41:03.837 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-22 16:41:03.846 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-22 16:41:03.847 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #1 de monitoreo iniciado
+2025-11-22 16:41:05.555 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 16:41:05.555 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 16:41:05.556 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 16:41:06.064 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 16:41:43.464 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-22 16:49:40.124 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-22 16:49:40.126 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-22 16:49:40.126 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #1 de monitoreo iniciado
+2025-11-22 16:49:41.581 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 16:49:41.582 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID %s
+2025-11-22 16:49:41.582 | INFO     | src.agents.watcher_agent:_process_email:227 - UID %s ya procesado previamente, se omite
+2025-11-22 16:49:41.583 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID %s
+2025-11-22 16:49:41.583 | INFO     | src.agents.watcher_agent:_process_email:227 - UID %s ya procesado previamente, se omite
+2025-11-22 16:49:41.584 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID %s
+2025-11-22 16:49:41.584 | INFO     | src.agents.watcher_agent:_process_email:227 - UID %s ya procesado previamente, se omite
+2025-11-22 16:49:41.584 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID %s
+2025-11-22 16:49:41.585 | INFO     | src.agents.watcher_agent:_process_email:227 - UID %s ya procesado previamente, se omite
+2025-11-22 16:49:41.585 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID %s
+2025-11-22 16:49:41.586 | INFO     | src.agents.watcher_agent:_process_email:227 - UID %s ya procesado previamente, se omite
+2025-11-22 16:49:41.586 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 16:49:41.587 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 16:49:42.023 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 16:50:42.024 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #2 de monitoreo iniciado
+2025-11-22 16:50:43.871 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 16:50:43.872 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID %s
+2025-11-22 16:50:43.873 | INFO     | src.agents.watcher_agent:_process_email:227 - UID %s ya procesado previamente, se omite
+2025-11-22 16:50:43.873 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID %s
+2025-11-22 16:50:43.874 | INFO     | src.agents.watcher_agent:_process_email:227 - UID %s ya procesado previamente, se omite
+2025-11-22 16:50:43.874 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID %s
+2025-11-22 16:50:43.875 | INFO     | src.agents.watcher_agent:_process_email:227 - UID %s ya procesado previamente, se omite
+2025-11-22 16:50:43.875 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID %s
+2025-11-22 16:50:43.876 | INFO     | src.agents.watcher_agent:_process_email:227 - UID %s ya procesado previamente, se omite
+2025-11-22 16:50:43.876 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID %s
+2025-11-22 16:50:43.877 | INFO     | src.agents.watcher_agent:_process_email:227 - UID %s ya procesado previamente, se omite
+2025-11-22 16:50:43.877 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 16:50:43.878 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #2: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 16:50:44.402 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 16:51:17.924 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-22 17:02:33.179 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-22 17:02:33.180 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-22 17:02:33.181 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #1 de monitoreo iniciado
+2025-11-22 17:02:34.956 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 17:02:34.958 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-22 17:02:34.959 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-22 17:02:34.960 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-22 17:02:34.960 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-22 17:02:34.961 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-22 17:02:34.963 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-22 17:02:34.963 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-22 17:02:34.964 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10538 ya procesado previamente, se omite
+2025-11-22 17:02:34.964 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10552
+2025-11-22 17:02:34.965 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10552 ya procesado previamente, se omite
+2025-11-22 17:02:34.966 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 17:02:34.966 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 17:02:35.501 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 17:03:11.350 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-22 17:09:44.652 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-22 17:09:44.654 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-22 17:09:44.654 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #1 de monitoreo iniciado
+2025-11-22 17:09:46.424 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 17:09:46.425 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-22 17:09:46.425 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-22 17:09:46.426 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-22 17:09:46.426 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-22 17:09:46.427 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-22 17:09:46.427 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-22 17:09:46.428 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-22 17:09:46.428 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10538 ya procesado previamente, se omite
+2025-11-22 17:09:46.428 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10552
+2025-11-22 17:09:46.429 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10552 ya procesado previamente, se omite
+2025-11-22 17:09:46.429 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 17:09:46.430 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 17:09:46.905 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 17:10:07.086 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-22 17:10:54.008 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-22 17:10:54.009 | WARNING  | src.agents.watcher_agent:_load_processed_uids:417 - El archivo de UIDs está corrupto, se reiniciará
+2025-11-22 17:10:54.010 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-22 17:10:54.011 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #1 de monitoreo iniciado
+2025-11-22 17:10:55.862 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 17:10:55.863 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-22 17:10:56.810 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10481 Subject='Expediente Docente - Test 1'
+2025-11-22 17:10:56.812 | INFO     | src.agents.watcher_agent:_process_email:261 - Carpeta destino para UID 10481: /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Test_1
+2025-11-22 17:10:56.815 | INFO     | src.agents.watcher_agent:_process_email:265 - Cuerpo guardado en info_mail_Test_1.txt
+2025-11-22 17:10:56.822 | INFO     | src.agents.watcher_agent:_process_email:268 - Adjuntos guardados para UID 10481: 1 archivo(s)
+2025-11-22 17:10:57.125 | SUCCESS  | src.agents.watcher_agent:_process_email:278 - Procesado UID 10481: 1 adjunto(s) guardado(s) en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Test_1
+2025-11-22 17:10:57.126 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-22 17:10:57.654 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10536 Subject='Expediente Docente - Testeo 5'
+2025-11-22 17:10:57.655 | INFO     | src.agents.watcher_agent:_process_email:261 - Carpeta destino para UID 10536: /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Testeo_5
+2025-11-22 17:10:57.659 | INFO     | src.agents.watcher_agent:_process_email:265 - Cuerpo guardado en info_mail_Testeo_5.txt
+2025-11-22 17:10:57.665 | INFO     | src.agents.watcher_agent:_process_email:268 - Adjuntos guardados para UID 10536: 1 archivo(s)
+2025-11-22 17:10:57.906 | SUCCESS  | src.agents.watcher_agent:_process_email:278 - Procesado UID 10536: 1 adjunto(s) guardado(s) en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Testeo_5
+2025-11-22 17:10:57.907 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-22 17:10:58.895 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10537 Subject='Expediente Docente'
+2025-11-22 17:10:58.896 | INFO     | src.agents.watcher_agent:_process_email:261 - Carpeta destino para UID 10537: /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Expediente_SinNombre_UID10537
+2025-11-22 17:10:58.901 | INFO     | src.agents.watcher_agent:_process_email:265 - Cuerpo guardado en info_mail_UID10537.txt
+2025-11-22 17:10:58.933 | INFO     | src.agents.watcher_agent:_process_email:268 - Adjuntos guardados para UID 10537: 1 archivo(s)
+2025-11-22 17:10:59.174 | SUCCESS  | src.agents.watcher_agent:_process_email:278 - Procesado UID 10537: 1 adjunto(s) guardado(s) en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Expediente_SinNombre_UID10537
+2025-11-22 17:10:59.176 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-22 17:10:59.655 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10538 Subject='expediente docente'
+2025-11-22 17:10:59.656 | INFO     | src.agents.watcher_agent:_process_email:261 - Carpeta destino para UID 10538: /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Expediente_SinNombre_UID10538
+2025-11-22 17:10:59.663 | INFO     | src.agents.watcher_agent:_process_email:265 - Cuerpo guardado en info_mail_UID10538.txt
+2025-11-22 17:10:59.672 | INFO     | src.agents.watcher_agent:_process_email:268 - Adjuntos guardados para UID 10538: 1 archivo(s)
+2025-11-22 17:10:59.913 | SUCCESS  | src.agents.watcher_agent:_process_email:278 - Procesado UID 10538: 1 adjunto(s) guardado(s) en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Expediente_SinNombre_UID10538
+2025-11-22 17:10:59.914 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10552
+2025-11-22 17:11:00.456 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10552 Subject='Expediente Docente – Pedro Perez Testing'
+2025-11-22 17:11:00.458 | INFO     | src.agents.watcher_agent:_process_email:261 - Carpeta destino para UID 10552: /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Expediente_SinNombre_UID10552
+2025-11-22 17:11:00.462 | INFO     | src.agents.watcher_agent:_process_email:265 - Cuerpo guardado en info_mail_UID10552.txt
+2025-11-22 17:11:00.471 | INFO     | src.agents.watcher_agent:_process_email:268 - Adjuntos guardados para UID 10552: 2 archivo(s)
+2025-11-22 17:11:00.723 | SUCCESS  | src.agents.watcher_agent:_process_email:278 - Procesado UID 10552: 2 adjunto(s) guardado(s) en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Expediente_SinNombre_UID10552
+2025-11-22 17:11:00.724 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 5 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 17:11:00.725 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 5 correo(s) procesado(s) en esta consulta.
+2025-11-22 17:11:01.264 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 17:12:01.265 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #2 de monitoreo iniciado
+2025-11-22 17:12:03.378 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 17:12:03.379 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-22 17:12:03.380 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-22 17:12:03.380 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-22 17:12:03.381 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-22 17:12:03.381 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-22 17:12:03.381 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-22 17:12:03.382 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-22 17:12:03.382 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10538 ya procesado previamente, se omite
+2025-11-22 17:12:03.383 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10552
+2025-11-22 17:12:03.383 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10552 ya procesado previamente, se omite
+2025-11-22 17:12:03.384 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 17:12:03.384 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #2: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 17:12:03.886 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 17:12:35.784 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-22 17:21:00.376 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-22 17:21:00.377 | WARNING  | src.agents.watcher_agent:_load_processed_uids:435 - El archivo de UIDs está corrupto, se reiniciará
+2025-11-22 17:21:00.378 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-22 17:21:00.379 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #1 de monitoreo iniciado
+2025-11-22 17:21:02.502 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 17:21:02.503 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-22 17:21:03.670 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10481 Subject='Expediente Docente - Test 1'
+2025-11-22 17:21:03.672 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 10481: Test 1
+2025-11-22 17:21:03.673 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 10481: /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Test_1
+2025-11-22 17:21:03.677 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_Test_1.txt
+2025-11-22 17:21:03.683 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 10481: 1 archivo(s)
+2025-11-22 17:21:03.974 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 10481: 1 adjunto(s) guardado(s) en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Test_1
+2025-11-22 17:21:03.975 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-22 17:21:04.581 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10536 Subject='Expediente Docente - Testeo 5'
+2025-11-22 17:21:04.582 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 10536: Testeo 5
+2025-11-22 17:21:04.583 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 10536: /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Testeo_5
+2025-11-22 17:21:04.586 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_Testeo_5.txt
+2025-11-22 17:21:04.591 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 10536: 1 archivo(s)
+2025-11-22 17:21:04.975 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 10536: 1 adjunto(s) guardado(s) en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Testeo_5
+2025-11-22 17:21:04.976 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-22 17:21:06.294 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10537 Subject='Expediente Docente'
+2025-11-22 17:21:06.294 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 10537: None
+2025-11-22 17:21:06.296 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 10537: /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Expediente_SinNombre_UID10537
+2025-11-22 17:21:06.298 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_UID10537.txt
+2025-11-22 17:21:06.328 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 10537: 1 archivo(s)
+2025-11-22 17:21:06.614 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 10537: 1 adjunto(s) guardado(s) en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Expediente_SinNombre_UID10537
+2025-11-22 17:21:06.616 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-22 17:21:07.088 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10538 Subject='expediente docente'
+2025-11-22 17:21:07.089 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 10538: None
+2025-11-22 17:21:07.090 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 10538: /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Expediente_SinNombre_UID10538
+2025-11-22 17:21:07.094 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_UID10538.txt
+2025-11-22 17:21:07.101 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 10538: 1 archivo(s)
+2025-11-22 17:21:07.516 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 10538: 1 adjunto(s) guardado(s) en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Expediente_SinNombre_UID10538
+2025-11-22 17:21:07.517 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10552
+2025-11-22 17:21:08.183 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10552 Subject='Expediente Docente – Pedro Perez Testing'
+2025-11-22 17:21:08.184 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 10552: Pedro Perez Testing
+2025-11-22 17:21:08.186 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 10552: /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Pedro_Perez_Testing
+2025-11-22 17:21:08.191 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_Pedro_Perez_Testing.txt
+2025-11-22 17:21:08.199 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 10552: 2 archivo(s)
+2025-11-22 17:21:08.559 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 10552: 2 adjunto(s) guardado(s) en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input/Pedro_Perez_Testing
+2025-11-22 17:21:08.560 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 5 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 17:21:08.565 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 5 correo(s) procesado(s) en esta consulta.
+2025-11-22 17:21:09.467 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 17:22:09.468 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #2 de monitoreo iniciado
+2025-11-22 17:22:12.539 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 17:22:12.540 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-22 17:22:12.541 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-22 17:22:12.541 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-22 17:22:12.542 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-22 17:22:12.542 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-22 17:22:12.543 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-22 17:22:12.543 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-22 17:22:12.543 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10538 ya procesado previamente, se omite
+2025-11-22 17:22:12.544 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10552
+2025-11-22 17:22:12.544 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10552 ya procesado previamente, se omite
+2025-11-22 17:22:12.545 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 17:22:12.545 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #2: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 17:22:13.889 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 17:23:13.890 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #3 de monitoreo iniciado
+2025-11-22 17:23:15.867 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 17:23:15.868 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-22 17:23:15.869 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-22 17:23:15.869 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-22 17:23:15.870 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-22 17:23:15.870 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-22 17:23:15.871 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-22 17:23:15.871 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-22 17:23:15.872 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10538 ya procesado previamente, se omite
+2025-11-22 17:23:15.872 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10552
+2025-11-22 17:23:15.873 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10552 ya procesado previamente, se omite
+2025-11-22 17:23:15.873 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 17:23:15.874 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #3: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 17:23:16.349 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 17:24:16.350 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #4 de monitoreo iniciado
+2025-11-22 17:24:18.029 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 5 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 17:24:18.030 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-22 17:24:18.031 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-22 17:24:18.031 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-22 17:24:18.032 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-22 17:24:18.032 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-22 17:24:18.032 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-22 17:24:18.033 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-22 17:24:18.033 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10538 ya procesado previamente, se omite
+2025-11-22 17:24:18.034 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10552
+2025-11-22 17:24:18.034 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10552 ya procesado previamente, se omite
+2025-11-22 17:24:18.035 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 5 candidato(s).
+2025-11-22 17:24:18.035 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #4: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 17:24:18.446 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 17:25:08.907 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-22 23:21:15.586 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10552
+2025-11-22 23:21:15.594 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10552 Subject='Expediente Docente - Juan Pérez'
+2025-11-22 23:21:15.596 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 10552: Juan Pérez
+2025-11-22 23:21:15.597 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 10552: /tmp/pytest-of-genghis/pytest-0/test_expediente_estandar_crea_0/Juan_Perez
+2025-11-22 23:21:15.600 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2025-11-22 23:21:15.604 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 10552: 2 archivo(s)
+2025-11-22 23:21:15.605 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 10552: 2 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-0/test_expediente_estandar_crea_0/Juan_Perez
+2025-11-22 23:21:15.611 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 20001
+2025-11-22 23:21:15.613 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=20001 Subject='Expediente Docente'
+2025-11-22 23:21:15.614 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 20001: None
+2025-11-22 23:21:15.615 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 20001: /tmp/pytest-of-genghis/pytest-0/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2025-11-22 23:21:15.617 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_UID20001.txt
+2025-11-22 23:21:15.618 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 20001: 0 archivo(s)
+2025-11-22 23:21:15.620 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 20001: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-0/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2025-11-22 23:21:15.627 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 99999
+2025-11-22 23:21:15.628 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 99999 ya procesado previamente, se omite
+2025-11-22 23:21:15.648 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 30001
+2025-11-22 23:21:15.654 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=30001 Subject='Expediente Docente - Juan Pérez'
+2025-11-22 23:21:15.655 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 30001: Juan Pérez
+2025-11-22 23:21:15.656 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 30001: /tmp/pytest-of-genghis/pytest-0/test_adjuntos_con_extension_no0/Juan_Perez
+2025-11-22 23:21:15.659 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2025-11-22 23:21:15.662 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 30001: 1 archivo(s)
+2025-11-22 23:21:15.663 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 30001: 1 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-0/test_adjuntos_con_extension_no0/Juan_Perez
+2025-11-22 23:26:44.308 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-22 23:26:44.310 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-22 23:26:44.311 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #1 de monitoreo iniciado
+2025-11-22 23:26:46.020 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 4 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-22 23:26:46.021 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-22 23:26:46.022 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-22 23:26:46.022 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-22 23:26:46.023 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-22 23:26:46.023 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-22 23:26:46.024 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-22 23:26:46.024 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-22 23:26:46.024 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10538 ya procesado previamente, se omite
+2025-11-22 23:26:46.025 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 4 candidato(s).
+2025-11-22 23:26:46.025 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-22 23:26:46.420 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-22 23:26:58.635 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
