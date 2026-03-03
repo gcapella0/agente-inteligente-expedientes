@@ -9,7 +9,7 @@ def main() -> None:
     Ejecuta el WatcherAgent en modo continuo.
     """
 
-    logger.info("🚀 Iniciando servicio Watcher Agent desde main.py")
+    logger.info(" Iniciando servicio Watcher Agent desde main.py")
     watcher = WatcherAgent()
     watcher.run()
 

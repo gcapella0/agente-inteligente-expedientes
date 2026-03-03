@@ -6,6 +6,7 @@ import imaplib
 import json
 import os
 import re
+import signal
 import time
 import unicodedata
 from email import policy
@@ -21,7 +22,9 @@ from src.core.logger import logger
 
 load_dotenv()
 
-SUBJECT_TOKEN = "Expediente Docente"
+SUBJECT_TOKEN = os.getenv("SUBJECT_KEYWORD", "Expediente Docente")
+_raw_body_kw = os.getenv("BODY_KEYWORD", "")
+BODY_KEYWORDS: list[str] = [kw.strip() for kw in _raw_body_kw.split(",") if kw.strip()]
 ATTACHMENT_EXTENSIONS = {
     ".pdf",
     ".doc",
@@ -54,24 +57,7 @@ class WatcherAgent:
         )
         self.imap_client: Optional[imaplib.IMAP4_SSL] = None
 
-        self._validate_credentials()
         self.processed_uids = self._load_processed_uids()
-
-    def _validate_credentials(self) -> None:
-        missing = [
-            key
-            for key, value in {
-                "MAIL_USER": self.user,
-                "MAIL_PASS": self.password,
-                "MAIL_HOST": self.host,
-                "MAIL_FOLDER": self.folder,
-            }.items()
-            if not value
-        ]
-        if missing:
-            raise EnvironmentError(
-                f"Variables de entorno faltantes para el watcher: {', '.join(missing)}"
-            )
 
     def run(self) -> None:
         """Ejecuta el watcher en un loop infinito."""
@@ -80,12 +66,17 @@ class WatcherAgent:
         config.validate()
         config.ensure_directories()
 
+        def _handle_sigterm(signum, frame):
+            raise KeyboardInterrupt
+
+        signal.signal(signal.SIGTERM, _handle_sigterm)
+
         cycle = 0
 
         try:
             while True:
                 cycle += 1
-                logger.info(f"🌀 Ciclo #{cycle} de monitoreo iniciado")
+                logger.info(f" Ciclo #{cycle} de monitoreo iniciado")
 
                 if not self._connect_imap():
                     logger.warning(
@@ -98,14 +89,14 @@ class WatcherAgent:
                 processed_in_cycle = self._check_new_emails()
 
                 logger.info(
-                    f"📊 Resumen ciclo #{cycle}: {processed_in_cycle} correo(s) procesado(s) "
+                    f" Resumen ciclo #{cycle}: {processed_in_cycle} correo(s) procesado(s) "
                     f"en esta consulta."
                 )
 
                 self._disconnect_imap()
 
                 logger.info(
-                    f"⏱ El Watcher volverá a ejecutarse automáticamente en "
+                    f" El Watcher volverá a ejecutarse automáticamente en "
                     f"{int(self.poll_interval)} segundos..."
                 )
                 time.sleep(self.poll_interval)
@@ -127,12 +118,12 @@ class WatcherAgent:
                 logger.warning("No se pudo conectar a IMAP en este ciclo de consulta.")
                 return processed_count
 
-            identifiers = self._search_emails_with_subject()
+            identifiers = self._search_emails()
             total_ids = len(identifiers)
 
             logger.info(
-                f"🔍 Inicio de consulta: se encontraron {total_ids} correo(s) candidato(s) "
-                f"con asunto '{SUBJECT_TOKEN}'."
+                f" Inicio de consulta: se encontraron {total_ids} correo(s) candidato(s) "
+                f"por asunto o palabras clave en el cuerpo."
             )
 
             for identifier in identifiers:
@@ -140,7 +131,7 @@ class WatcherAgent:
                     processed_count += 1
 
             logger.info(
-                f"✅ Fin de consulta: se procesaron {processed_count} correo(s) con expediente docente "
+                f" Fin de consulta: se procesaron {processed_count} correo(s) con expediente docente "
                 f"de un total de {total_ids} candidato(s)."
             )
 
@@ -181,47 +172,60 @@ class WatcherAgent:
 
         self.imap_client = None
 
-    def _search_emails_with_subject(self) -> list[str]:
+    def _search_emails(self) -> list[str]:
+        """Busca correos que coincidan por asunto o por palabras clave en el cuerpo."""
         if not self.imap_client:
             return []
 
-        queries = [
-            ("X-GM-RAW", f'subject:"{SUBJECT_TOKEN}"'),
-            (None, f'(SUBJECT "{SUBJECT_TOKEN}")'),
-        ]
+        # --- Intento 1: Gmail X-GM-RAW con query combinada (asunto OR keywords) ---
+        gmail_terms = [f'subject:"{SUBJECT_TOKEN}"']
+        for kw in BODY_KEYWORDS:
+            gmail_terms.append(f'"{kw}"')
+        gmail_query = " OR ".join(gmail_terms)
 
-        for charset, query in queries:
+        try:
+            status, data = self.imap_client.uid("SEARCH", "X-GM-RAW", gmail_query)
+            if status == "OK" and data and data[0]:
+                return self._parse_uid_list(data[0])
+        except imaplib.IMAP4.error as exc:
+            logger.debug(f"X-GM-RAW no soportado, usando búsqueda estándar: {exc}")
+
+        # --- Intento 2: IMAP estándar - búsqueda por asunto ---
+        all_uids: list[str] = []
+
+        try:
+            status, data = self.imap_client.uid("SEARCH", None, f'(SUBJECT "{SUBJECT_TOKEN}")')
+            if status == "OK" and data and data[0]:
+                all_uids = self._parse_uid_list(data[0])
+        except imaplib.IMAP4.error as exc:
+            logger.debug(f"Error en búsqueda por asunto: {exc}")
+
+        # --- Intento 2b: IMAP estándar - búsqueda por body keywords ---
+        for kw in BODY_KEYWORDS:
             try:
-                if charset:
-                    status, data = self.imap_client.uid("SEARCH", charset, query)
-                else:
-                    status, data = self.imap_client.uid("SEARCH", None, query)
+                status, data = self.imap_client.uid("SEARCH", None, f'(BODY "{kw}")')
+                if status == "OK" and data and data[0]:
+                    for uid_str in self._parse_uid_list(data[0]):
+                        if uid_str not in all_uids:
+                            all_uids.append(uid_str)
             except imaplib.IMAP4.error as exc:
-                logger.debug(f"Error ejecutando búsqueda {query}: {exc}")
+                logger.debug(f"Error en búsqueda por body keyword '{kw}': {exc}")
+
+        return all_uids
+
+    @staticmethod
+    def _parse_uid_list(raw_data: bytes) -> list[str]:
+        uids: list[str] = []
+        for uid in raw_data.split():
+            if not isinstance(uid, (bytes, bytearray)) or not uid:
                 continue
-
-            if status != "OK":
-                continue
-
-            raw_uids = data[0] if data else b""
-            if not raw_uids:
-                continue
-
-            uids: list[str] = []
-            for uid in raw_uids.split():
-                if not isinstance(uid, (bytes, bytearray)) or not uid:
-                    continue
-                uid_str = uid.decode("utf-8").strip()
-                if uid_str and uid_str not in uids:
-                    uids.append(uid_str)
-
-            if uids:
-                return uids
-
-        return []
+            uid_str = uid.decode("utf-8").strip()
+            if uid_str and uid_str not in uids:
+                uids.append(uid_str)
+        return uids
 
     def _process_email(self, uid_str: str) -> bool:
-        logger.info(f"🚚 Iniciando procesamiento para UID {uid_str}")
+        logger.info(f" Iniciando procesamiento para UID {uid_str}")
 
         if uid_str in self.processed_uids:
             logger.info(f"UID {uid_str} ya procesado previamente, se omite")
@@ -247,10 +251,17 @@ class WatcherAgent:
         subject = self._decode_subject(email_msg)
         logger.info(f"UID={uid_str} Subject='{subject}'")
 
-        normalized_subject = subject.lower()
-        if "expediente docente" not in normalized_subject:
+        body = self._extract_text_body(email_msg)
+
+        subject_match = SUBJECT_TOKEN.lower() in subject.lower()
+        body_match = bool(BODY_KEYWORDS) and any(
+            kw.lower() in body.lower() for kw in BODY_KEYWORDS
+        )
+
+        if not subject_match and not body_match:
             logger.info(
-                f"UID {uid_str} descartado: el asunto '{subject}' no contiene la frase objetivo"
+                f"UID {uid_str} descartado: ni el asunto ni el cuerpo contienen "
+                f"las palabras clave configuradas"
             )
             self.processed_uids.add(uid_str)
             self._save_processed_uids()
@@ -258,12 +269,21 @@ class WatcherAgent:
 
         teacher_name = self._extract_teacher_name(subject)
         logger.info(f"Nombre extraído para UID {uid_str}: {teacher_name}")
+
         case_dir, safe_label = self._prepare_case_assets(teacher_name, uid_str)
         logger.info(f"Carpeta destino para UID {uid_str}: {case_dir}")
 
-        body = self._extract_text_body(email_msg)
-        body_path = self._write_body(case_dir, safe_label, body)
-        logger.info(f"Cuerpo guardado en {body_path.name}")
+        try:
+            body_path = self._write_body(case_dir, safe_label, body)
+            logger.info(f"Cuerpo guardado en {body_path.name}")
+        except OSError:
+            logger.error(
+                f"UID {uid_str} abortado: no se pudo guardar el cuerpo del correo. "
+                f"Se marca como procesado para evitar reintentos infinitos."
+            )
+            self.processed_uids.add(uid_str)
+            self._save_processed_uids()
+            return False
 
         attachments = self._save_attachments(email_msg, case_dir)
         logger.info(f"Adjuntos guardados para UID {uid_str}: {attachments} archivo(s)")
@@ -281,17 +301,6 @@ class WatcherAgent:
         )
         return True
 
-    def _fetch_message(self, uid: str) -> EmailMessage:
-        if not self.imap_client:
-            raise RuntimeError("No hay conexión IMAP activa")
-
-        status, data = self.imap_client.uid("fetch", uid, "(RFC822)")
-        if status != "OK" or not data or data[0] is None:
-            raise RuntimeError(f"No se pudo descargar el correo UID {uid}")
-
-        raw_email = data[0][1]
-        return email.message_from_bytes(raw_email, policy=policy.default)
-
     @staticmethod
     def _decode_subject(message: EmailMessage) -> str:
         raw_subject = message["subject"]
@@ -300,6 +309,9 @@ class WatcherAgent:
         try:
             return str(make_header(decode_header(raw_subject)))
         except (email.errors.HeaderParseError, UnicodeDecodeError):
+            logger.debug(
+                f"No se pudo decodificar el asunto del correo, se usa el valor raw: {raw_subject!r}"
+            )
             return str(raw_subject)
 
     @staticmethod
@@ -410,6 +422,7 @@ class WatcherAgent:
 
     @staticmethod
     def _sanitize_filename(filename: str) -> str:
+        filename = os.path.basename(filename)
         normalized = unicodedata.normalize("NFKD", filename)
         ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
         ascii_text = re.sub(r"[^\w.\- ]", "_", ascii_text)

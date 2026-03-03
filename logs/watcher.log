@@ -270,3 +270,304 @@
 2025-11-22 23:26:46.025 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
 2025-11-22 23:26:46.420 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
 2025-11-22 23:26:58.635 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-27 08:12:08.501 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-27 08:12:08.502 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-27 08:12:08.503 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #1 de monitoreo iniciado
+2025-11-27 08:12:10.785 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 4 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-27 08:12:10.786 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-27 08:12:10.787 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-27 08:12:10.787 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-27 08:12:10.788 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-27 08:12:10.788 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-27 08:12:10.789 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-27 08:12:10.789 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-27 08:12:10.789 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10538 ya procesado previamente, se omite
+2025-11-27 08:12:10.790 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 4 candidato(s).
+2025-11-27 08:12:10.790 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-27 08:12:11.379 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-27 08:12:37.017 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-27 09:25:15.195 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-27 09:25:15.196 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-27 09:25:15.197 | INFO     | src.agents.watcher_agent:run:88 - 🌀 Ciclo #1 de monitoreo iniciado
+2025-11-27 09:25:17.045 | INFO     | src.agents.watcher_agent:_check_new_emails:133 - 🔍 Inicio de consulta: se encontraron 4 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-27 09:25:17.046 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10481
+2025-11-27 09:25:17.047 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-27 09:25:17.047 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10536
+2025-11-27 09:25:17.048 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-27 09:25:17.048 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10537
+2025-11-27 09:25:17.049 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-27 09:25:17.049 | INFO     | src.agents.watcher_agent:_process_email:224 - 🚚 Iniciando procesamiento para UID 10538
+2025-11-27 09:25:17.049 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10538 ya procesado previamente, se omite
+2025-11-27 09:25:17.050 | INFO     | src.agents.watcher_agent:_check_new_emails:142 - ✅ Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 4 candidato(s).
+2025-11-27 09:25:17.050 | INFO     | src.agents.watcher_agent:run:100 - 📊 Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-27 09:25:17.446 | INFO     | src.agents.watcher_agent:run:107 - ⏱ El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-27 09:25:26.239 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-27 09:25:31.844 | INFO     | __main__:main:12 - 🚀 Iniciando servicio Watcher Agent desde main.py
+2025-11-27 09:25:31.845 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-27 09:25:31.846 | INFO     | src.agents.watcher_agent:run:88 -  Ciclo #1 de monitoreo iniciado
+2025-11-27 09:25:33.841 | INFO     | src.agents.watcher_agent:_check_new_emails:133 -  Inicio de consulta: se encontraron 4 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-27 09:25:33.842 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10481
+2025-11-27 09:25:33.843 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-27 09:25:33.843 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10536
+2025-11-27 09:25:33.844 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-27 09:25:33.844 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10537
+2025-11-27 09:25:33.845 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-27 09:25:33.845 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10538
+2025-11-27 09:25:33.846 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10538 ya procesado previamente, se omite
+2025-11-27 09:25:33.846 | INFO     | src.agents.watcher_agent:_check_new_emails:142 -  Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 4 candidato(s).
+2025-11-27 09:25:33.847 | INFO     | src.agents.watcher_agent:run:100 -  Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-27 09:25:34.271 | INFO     | src.agents.watcher_agent:run:107 -  El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-27 09:25:54.830 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-27 10:05:14.114 | INFO     | __main__:main:12 -  Iniciando servicio Watcher Agent desde main.py
+2025-11-27 10:05:14.116 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-27 10:05:14.117 | INFO     | src.agents.watcher_agent:run:88 -  Ciclo #1 de monitoreo iniciado
+2025-11-27 10:05:15.915 | INFO     | src.agents.watcher_agent:_check_new_emails:133 -  Inicio de consulta: se encontraron 3 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-27 10:05:15.916 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10481
+2025-11-27 10:05:15.917 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-27 10:05:15.917 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10536
+2025-11-27 10:05:15.918 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-27 10:05:15.918 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10537
+2025-11-27 10:05:15.919 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-27 10:05:15.919 | INFO     | src.agents.watcher_agent:_check_new_emails:142 -  Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 3 candidato(s).
+2025-11-27 10:05:15.919 | INFO     | src.agents.watcher_agent:run:100 -  Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-27 10:05:16.440 | INFO     | src.agents.watcher_agent:run:107 -  El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-27 10:05:35.522 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-27 11:02:47.444 | INFO     | __main__:main:12 -  Iniciando servicio Watcher Agent desde main.py
+2025-11-27 11:02:47.446 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-27 11:02:47.447 | INFO     | src.agents.watcher_agent:run:88 -  Ciclo #1 de monitoreo iniciado
+2025-11-27 11:02:49.169 | INFO     | src.agents.watcher_agent:_check_new_emails:133 -  Inicio de consulta: se encontraron 3 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-27 11:02:49.171 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10481
+2025-11-27 11:02:49.172 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-27 11:02:49.172 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10536
+2025-11-27 11:02:49.173 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-27 11:02:49.174 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10537
+2025-11-27 11:02:49.175 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-27 11:02:49.175 | INFO     | src.agents.watcher_agent:_check_new_emails:142 -  Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 3 candidato(s).
+2025-11-27 11:02:49.176 | INFO     | src.agents.watcher_agent:run:100 -  Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-27 11:02:49.565 | INFO     | src.agents.watcher_agent:run:107 -  El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-27 11:03:21.364 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-27 11:05:09.297 | INFO     | __main__:main:12 -  Iniciando servicio Watcher Agent desde main.py
+2025-11-27 11:05:09.298 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-27 11:05:09.300 | INFO     | src.agents.watcher_agent:run:88 -  Ciclo #1 de monitoreo iniciado
+2025-11-27 11:05:10.930 | INFO     | src.agents.watcher_agent:_check_new_emails:133 -  Inicio de consulta: se encontraron 3 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-27 11:05:10.930 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10481
+2025-11-27 11:05:10.931 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-27 11:05:10.931 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10536
+2025-11-27 11:05:10.932 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-27 11:05:10.932 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10537
+2025-11-27 11:05:10.933 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-27 11:05:10.933 | INFO     | src.agents.watcher_agent:_check_new_emails:142 -  Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 3 candidato(s).
+2025-11-27 11:05:10.934 | INFO     | src.agents.watcher_agent:run:100 -  Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-27 11:05:11.350 | INFO     | src.agents.watcher_agent:run:107 -  El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-27 11:06:10.852 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2025-11-27 11:06:17.571 | INFO     | __main__:main:12 -  Iniciando servicio Watcher Agent desde main.py
+2025-11-27 11:06:17.573 | INFO     | src.agents.watcher_agent:run:79 - Watcher Agent iniciado
+2025-11-27 11:06:17.576 | INFO     | src.agents.watcher_agent:run:88 -  Ciclo #1 de monitoreo iniciado
+2025-11-27 11:06:19.313 | INFO     | src.agents.watcher_agent:_check_new_emails:133 -  Inicio de consulta: se encontraron 3 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-27 11:06:19.314 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10481
+2025-11-27 11:06:19.314 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-27 11:06:19.315 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10536
+2025-11-27 11:06:19.315 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-27 11:06:19.316 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10537
+2025-11-27 11:06:19.316 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-27 11:06:19.316 | INFO     | src.agents.watcher_agent:_check_new_emails:142 -  Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 3 candidato(s).
+2025-11-27 11:06:19.317 | INFO     | src.agents.watcher_agent:run:100 -  Resumen ciclo #1: 0 correo(s) procesado(s) en esta consulta.
+2025-11-27 11:06:19.714 | INFO     | src.agents.watcher_agent:run:107 -  El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-27 11:07:19.715 | INFO     | src.agents.watcher_agent:run:88 -  Ciclo #2 de monitoreo iniciado
+2025-11-27 11:07:21.637 | INFO     | src.agents.watcher_agent:_check_new_emails:133 -  Inicio de consulta: se encontraron 3 correo(s) candidato(s) con asunto 'Expediente Docente'.
+2025-11-27 11:07:21.638 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10481
+2025-11-27 11:07:21.639 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10481 ya procesado previamente, se omite
+2025-11-27 11:07:21.639 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10536
+2025-11-27 11:07:21.640 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10536 ya procesado previamente, se omite
+2025-11-27 11:07:21.640 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10537
+2025-11-27 11:07:21.641 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 10537 ya procesado previamente, se omite
+2025-11-27 11:07:21.642 | INFO     | src.agents.watcher_agent:_check_new_emails:142 -  Fin de consulta: se procesaron 0 correo(s) con expediente docente de un total de 3 candidato(s).
+2025-11-27 11:07:21.642 | INFO     | src.agents.watcher_agent:run:100 -  Resumen ciclo #2: 0 correo(s) procesado(s) en esta consulta.
+2025-11-27 11:07:22.095 | INFO     | src.agents.watcher_agent:run:107 -  El Watcher volverá a ejecutarse automáticamente en 60 segundos...
+2025-11-27 11:07:27.917 | INFO     | src.agents.watcher_agent:run:114 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2026-03-03 13:01:45.810 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 10552
+2026-03-03 13:01:45.815 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=10552 Subject='Expediente Docente - Juan Pérez'
+2026-03-03 13:01:45.817 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 10552: Juan Pérez
+2026-03-03 13:01:45.819 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 10552: /tmp/pytest-of-genghis/pytest-0/test_expediente_estandar_crea_0/Juan_Perez
+2026-03-03 13:01:45.822 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2026-03-03 13:01:45.825 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 10552: 2 archivo(s)
+2026-03-03 13:01:45.826 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 10552: 2 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-0/test_expediente_estandar_crea_0/Juan_Perez
+2026-03-03 13:01:45.832 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 20001
+2026-03-03 13:01:45.834 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=20001 Subject='Expediente Docente'
+2026-03-03 13:01:45.834 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 20001: None
+2026-03-03 13:01:45.835 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 20001: /tmp/pytest-of-genghis/pytest-0/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2026-03-03 13:01:45.838 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_UID20001.txt
+2026-03-03 13:01:45.838 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 20001: 0 archivo(s)
+2026-03-03 13:01:45.839 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 20001: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-0/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2026-03-03 13:01:45.846 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 99999
+2026-03-03 13:01:45.846 | INFO     | src.agents.watcher_agent:_process_email:227 - UID 99999 ya procesado previamente, se omite
+2026-03-03 13:01:45.863 | INFO     | src.agents.watcher_agent:_process_email:224 -  Iniciando procesamiento para UID 30001
+2026-03-03 13:01:45.870 | INFO     | src.agents.watcher_agent:_process_email:248 - UID=30001 Subject='Expediente Docente - Juan Pérez'
+2026-03-03 13:01:45.871 | INFO     | src.agents.watcher_agent:_process_email:260 - Nombre extraído para UID 30001: Juan Pérez
+2026-03-03 13:01:45.872 | INFO     | src.agents.watcher_agent:_process_email:262 - Carpeta destino para UID 30001: /tmp/pytest-of-genghis/pytest-0/test_adjuntos_con_extension_no0/Juan_Perez
+2026-03-03 13:01:45.875 | INFO     | src.agents.watcher_agent:_process_email:266 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2026-03-03 13:01:45.877 | INFO     | src.agents.watcher_agent:_process_email:269 - Adjuntos guardados para UID 30001: 1 archivo(s)
+2026-03-03 13:01:45.878 | SUCCESS  | src.agents.watcher_agent:_process_email:279 - Procesado UID 30001: 1 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-0/test_adjuntos_con_extension_no0/Juan_Perez
+2026-03-03 13:08:39.565 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 10552
+2026-03-03 13:08:39.573 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=10552 Subject='Expediente Docente - Juan Pérez'
+2026-03-03 13:08:39.575 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 10552: Juan Pérez
+2026-03-03 13:08:39.576 | INFO     | src.agents.watcher_agent:_process_email:253 - Carpeta destino para UID 10552: /tmp/pytest-of-genghis/pytest-1/test_expediente_estandar_crea_0/Juan_Perez
+2026-03-03 13:08:39.579 | INFO     | src.agents.watcher_agent:_process_email:270 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2026-03-03 13:08:39.583 | INFO     | src.agents.watcher_agent:_process_email:281 - Adjuntos guardados para UID 10552: 2 archivo(s)
+2026-03-03 13:08:39.584 | SUCCESS  | src.agents.watcher_agent:_process_email:291 - Procesado UID 10552: 2 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-1/test_expediente_estandar_crea_0/Juan_Perez
+2026-03-03 13:08:39.590 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 20001
+2026-03-03 13:08:39.592 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=20001 Subject='Expediente Docente'
+2026-03-03 13:08:39.593 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 20001: None
+2026-03-03 13:08:39.593 | INFO     | src.agents.watcher_agent:_process_email:253 - Carpeta destino para UID 20001: /tmp/pytest-of-genghis/pytest-1/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2026-03-03 13:08:39.596 | INFO     | src.agents.watcher_agent:_process_email:270 - Cuerpo guardado en info_mail_UID20001.txt
+2026-03-03 13:08:39.597 | INFO     | src.agents.watcher_agent:_process_email:281 - Adjuntos guardados para UID 20001: 0 archivo(s)
+2026-03-03 13:08:39.598 | SUCCESS  | src.agents.watcher_agent:_process_email:291 - Procesado UID 20001: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-1/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2026-03-03 13:08:39.604 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 99999
+2026-03-03 13:08:39.604 | INFO     | src.agents.watcher_agent:_process_email:218 - UID 99999 ya procesado previamente, se omite
+2026-03-03 13:08:39.620 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 30001
+2026-03-03 13:08:39.625 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=30001 Subject='Expediente Docente - Juan Pérez'
+2026-03-03 13:08:39.626 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 30001: Juan Pérez
+2026-03-03 13:08:39.627 | INFO     | src.agents.watcher_agent:_process_email:253 - Carpeta destino para UID 30001: /tmp/pytest-of-genghis/pytest-1/test_adjuntos_con_extension_no0/Juan_Perez
+2026-03-03 13:08:39.630 | INFO     | src.agents.watcher_agent:_process_email:270 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2026-03-03 13:08:39.632 | INFO     | src.agents.watcher_agent:_process_email:281 - Adjuntos guardados para UID 30001: 1 archivo(s)
+2026-03-03 13:08:39.633 | SUCCESS  | src.agents.watcher_agent:_process_email:291 - Procesado UID 30001: 1 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-1/test_adjuntos_con_extension_no0/Juan_Perez
+2026-03-03 13:08:39.639 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 40001
+2026-03-03 13:08:39.641 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=40001 Subject='Expediente Docente - Maria Lopez'
+2026-03-03 13:08:39.641 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 40001: Maria Lopez
+2026-03-03 13:08:39.642 | INFO     | src.agents.watcher_agent:_process_email:253 - Carpeta destino para UID 40001: /tmp/pytest-of-genghis/pytest-1/test_body_keyword_filtra_corre0/Maria_Lopez
+2026-03-03 13:08:39.644 | INFO     | src.agents.watcher_agent:_process_email:260 - UID 40001 descartado: el cuerpo no contiene ninguna de las palabras clave configuradas: ['Certificado', 'Hoja de vida', 'Curriculum']
+2026-03-03 13:08:39.692 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 40002
+2026-03-03 13:08:39.694 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=40002 Subject='Expediente Docente - Carlos Ruiz'
+2026-03-03 13:08:39.694 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 40002: Carlos Ruiz
+2026-03-03 13:08:39.695 | INFO     | src.agents.watcher_agent:_process_email:253 - Carpeta destino para UID 40002: /tmp/pytest-of-genghis/pytest-1/test_body_keyword_acepta_corre0/Carlos_Ruiz
+2026-03-03 13:08:39.697 | INFO     | src.agents.watcher_agent:_process_email:270 - Cuerpo guardado en info_mail_Carlos_Ruiz.txt
+2026-03-03 13:08:39.697 | INFO     | src.agents.watcher_agent:_process_email:281 - Adjuntos guardados para UID 40002: 0 archivo(s)
+2026-03-03 13:08:39.699 | SUCCESS  | src.agents.watcher_agent:_process_email:291 - Procesado UID 40002: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-1/test_body_keyword_acepta_corre0/Carlos_Ruiz
+2026-03-03 13:08:39.703 | WARNING  | src.agents.watcher_agent:_load_processed_uids:440 - El archivo de UIDs está corrupto, se reiniciará
+2026-03-03 13:08:39.706 | INFO     | src.agents.watcher_agent:run:65 - Watcher Agent iniciado
+2026-03-03 13:08:39.707 | INFO     | src.agents.watcher_agent:run:79 -  Ciclo #1 de monitoreo iniciado
+2026-03-03 13:08:39.707 | WARNING  | src.agents.watcher_agent:run:82 - No se pudo establecer conexión IMAP en el ciclo #1. Se reintentará en 60 segundos...
+2026-03-03 13:08:39.708 | INFO     | src.agents.watcher_agent:run:105 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2026-03-03 13:09:05.326 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 10552
+2026-03-03 13:09:05.331 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=10552 Subject='Expediente Docente - Juan Pérez'
+2026-03-03 13:09:05.332 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 10552: Juan Pérez
+2026-03-03 13:09:05.335 | INFO     | src.agents.watcher_agent:_process_email:267 - Carpeta destino para UID 10552: /tmp/pytest-of-genghis/pytest-2/test_expediente_estandar_crea_0/Juan_Perez
+2026-03-03 13:09:05.336 | INFO     | src.agents.watcher_agent:_process_email:271 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2026-03-03 13:09:05.339 | INFO     | src.agents.watcher_agent:_process_email:282 - Adjuntos guardados para UID 10552: 2 archivo(s)
+2026-03-03 13:09:05.341 | SUCCESS  | src.agents.watcher_agent:_process_email:292 - Procesado UID 10552: 2 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-2/test_expediente_estandar_crea_0/Juan_Perez
+2026-03-03 13:09:05.347 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 20001
+2026-03-03 13:09:05.348 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=20001 Subject='Expediente Docente'
+2026-03-03 13:09:05.349 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 20001: None
+2026-03-03 13:09:05.350 | INFO     | src.agents.watcher_agent:_process_email:267 - Carpeta destino para UID 20001: /tmp/pytest-of-genghis/pytest-2/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2026-03-03 13:09:05.352 | INFO     | src.agents.watcher_agent:_process_email:271 - Cuerpo guardado en info_mail_UID20001.txt
+2026-03-03 13:09:05.353 | INFO     | src.agents.watcher_agent:_process_email:282 - Adjuntos guardados para UID 20001: 0 archivo(s)
+2026-03-03 13:09:05.354 | SUCCESS  | src.agents.watcher_agent:_process_email:292 - Procesado UID 20001: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-2/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2026-03-03 13:09:05.360 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 99999
+2026-03-03 13:09:05.361 | INFO     | src.agents.watcher_agent:_process_email:218 - UID 99999 ya procesado previamente, se omite
+2026-03-03 13:09:05.378 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 30001
+2026-03-03 13:09:05.382 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=30001 Subject='Expediente Docente - Juan Pérez'
+2026-03-03 13:09:05.383 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 30001: Juan Pérez
+2026-03-03 13:09:05.385 | INFO     | src.agents.watcher_agent:_process_email:267 - Carpeta destino para UID 30001: /tmp/pytest-of-genghis/pytest-2/test_adjuntos_con_extension_no0/Juan_Perez
+2026-03-03 13:09:05.386 | INFO     | src.agents.watcher_agent:_process_email:271 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2026-03-03 13:09:05.389 | INFO     | src.agents.watcher_agent:_process_email:282 - Adjuntos guardados para UID 30001: 1 archivo(s)
+2026-03-03 13:09:05.390 | SUCCESS  | src.agents.watcher_agent:_process_email:292 - Procesado UID 30001: 1 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-2/test_adjuntos_con_extension_no0/Juan_Perez
+2026-03-03 13:09:05.396 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 40001
+2026-03-03 13:09:05.397 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=40001 Subject='Expediente Docente - Maria Lopez'
+2026-03-03 13:09:05.398 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 40001: Maria Lopez
+2026-03-03 13:09:05.399 | INFO     | src.agents.watcher_agent:_process_email:258 - UID 40001 descartado: el cuerpo no contiene ninguna de las palabras clave configuradas: ['Certificado', 'Hoja de vida', 'Curriculum']
+2026-03-03 13:09:05.448 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 40002
+2026-03-03 13:09:05.450 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=40002 Subject='Expediente Docente - Carlos Ruiz'
+2026-03-03 13:09:05.451 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 40002: Carlos Ruiz
+2026-03-03 13:09:05.452 | INFO     | src.agents.watcher_agent:_process_email:267 - Carpeta destino para UID 40002: /tmp/pytest-of-genghis/pytest-2/test_body_keyword_acepta_corre0/Carlos_Ruiz
+2026-03-03 13:09:05.454 | INFO     | src.agents.watcher_agent:_process_email:271 - Cuerpo guardado en info_mail_Carlos_Ruiz.txt
+2026-03-03 13:09:05.455 | INFO     | src.agents.watcher_agent:_process_email:282 - Adjuntos guardados para UID 40002: 0 archivo(s)
+2026-03-03 13:09:05.456 | SUCCESS  | src.agents.watcher_agent:_process_email:292 - Procesado UID 40002: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-2/test_body_keyword_acepta_corre0/Carlos_Ruiz
+2026-03-03 13:09:05.460 | WARNING  | src.agents.watcher_agent:_load_processed_uids:441 - El archivo de UIDs está corrupto, se reiniciará
+2026-03-03 13:09:05.463 | INFO     | src.agents.watcher_agent:run:65 - Watcher Agent iniciado
+2026-03-03 13:09:05.464 | INFO     | src.agents.watcher_agent:run:79 -  Ciclo #1 de monitoreo iniciado
+2026-03-03 13:09:05.465 | WARNING  | src.agents.watcher_agent:run:82 - No se pudo establecer conexión IMAP en el ciclo #1. Se reintentará en 60 segundos...
+2026-03-03 13:09:05.465 | INFO     | src.agents.watcher_agent:run:105 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2026-03-03 13:09:21.437 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 10552
+2026-03-03 13:09:21.442 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=10552 Subject='Expediente Docente - Juan Pérez'
+2026-03-03 13:09:21.443 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 10552: Juan Pérez
+2026-03-03 13:09:21.446 | INFO     | src.agents.watcher_agent:_process_email:267 - Carpeta destino para UID 10552: /tmp/pytest-of-genghis/pytest-3/test_expediente_estandar_crea_0/Juan_Perez
+2026-03-03 13:09:21.447 | INFO     | src.agents.watcher_agent:_process_email:271 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2026-03-03 13:09:21.451 | INFO     | src.agents.watcher_agent:_process_email:282 - Adjuntos guardados para UID 10552: 2 archivo(s)
+2026-03-03 13:09:21.452 | SUCCESS  | src.agents.watcher_agent:_process_email:292 - Procesado UID 10552: 2 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-3/test_expediente_estandar_crea_0/Juan_Perez
+2026-03-03 13:09:21.458 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 20001
+2026-03-03 13:09:21.460 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=20001 Subject='Expediente Docente'
+2026-03-03 13:09:21.460 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 20001: None
+2026-03-03 13:09:21.462 | INFO     | src.agents.watcher_agent:_process_email:267 - Carpeta destino para UID 20001: /tmp/pytest-of-genghis/pytest-3/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2026-03-03 13:09:21.464 | INFO     | src.agents.watcher_agent:_process_email:271 - Cuerpo guardado en info_mail_UID20001.txt
+2026-03-03 13:09:21.465 | INFO     | src.agents.watcher_agent:_process_email:282 - Adjuntos guardados para UID 20001: 0 archivo(s)
+2026-03-03 13:09:21.466 | SUCCESS  | src.agents.watcher_agent:_process_email:292 - Procesado UID 20001: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-3/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2026-03-03 13:09:21.473 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 99999
+2026-03-03 13:09:21.473 | INFO     | src.agents.watcher_agent:_process_email:218 - UID 99999 ya procesado previamente, se omite
+2026-03-03 13:09:21.490 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 30001
+2026-03-03 13:09:21.495 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=30001 Subject='Expediente Docente - Juan Pérez'
+2026-03-03 13:09:21.495 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 30001: Juan Pérez
+2026-03-03 13:09:21.498 | INFO     | src.agents.watcher_agent:_process_email:267 - Carpeta destino para UID 30001: /tmp/pytest-of-genghis/pytest-3/test_adjuntos_con_extension_no0/Juan_Perez
+2026-03-03 13:09:21.499 | INFO     | src.agents.watcher_agent:_process_email:271 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2026-03-03 13:09:21.502 | INFO     | src.agents.watcher_agent:_process_email:282 - Adjuntos guardados para UID 30001: 1 archivo(s)
+2026-03-03 13:09:21.503 | SUCCESS  | src.agents.watcher_agent:_process_email:292 - Procesado UID 30001: 1 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-3/test_adjuntos_con_extension_no0/Juan_Perez
+2026-03-03 13:09:21.508 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 40001
+2026-03-03 13:09:21.510 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=40001 Subject='Expediente Docente - Maria Lopez'
+2026-03-03 13:09:21.511 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 40001: Maria Lopez
+2026-03-03 13:09:21.512 | INFO     | src.agents.watcher_agent:_process_email:258 - UID 40001 descartado: el cuerpo no contiene ninguna de las palabras clave configuradas: ['Certificado', 'Hoja de vida', 'Curriculum']
+2026-03-03 13:09:21.518 | INFO     | src.agents.watcher_agent:_process_email:215 -  Iniciando procesamiento para UID 40002
+2026-03-03 13:09:21.520 | INFO     | src.agents.watcher_agent:_process_email:239 - UID=40002 Subject='Expediente Docente - Carlos Ruiz'
+2026-03-03 13:09:21.520 | INFO     | src.agents.watcher_agent:_process_email:251 - Nombre extraído para UID 40002: Carlos Ruiz
+2026-03-03 13:09:21.522 | INFO     | src.agents.watcher_agent:_process_email:267 - Carpeta destino para UID 40002: /tmp/pytest-of-genghis/pytest-3/test_body_keyword_acepta_corre0/Carlos_Ruiz
+2026-03-03 13:09:21.523 | INFO     | src.agents.watcher_agent:_process_email:271 - Cuerpo guardado en info_mail_Carlos_Ruiz.txt
+2026-03-03 13:09:21.524 | INFO     | src.agents.watcher_agent:_process_email:282 - Adjuntos guardados para UID 40002: 0 archivo(s)
+2026-03-03 13:09:21.525 | SUCCESS  | src.agents.watcher_agent:_process_email:292 - Procesado UID 40002: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-3/test_body_keyword_acepta_corre0/Carlos_Ruiz
+2026-03-03 13:09:21.529 | WARNING  | src.agents.watcher_agent:_load_processed_uids:441 - El archivo de UIDs está corrupto, se reiniciará
+2026-03-03 13:09:21.532 | INFO     | src.agents.watcher_agent:run:65 - Watcher Agent iniciado
+2026-03-03 13:09:21.533 | INFO     | src.agents.watcher_agent:run:79 -  Ciclo #1 de monitoreo iniciado
+2026-03-03 13:09:21.533 | WARNING  | src.agents.watcher_agent:run:82 - No se pudo establecer conexión IMAP en el ciclo #1. Se reintentará en 60 segundos...
+2026-03-03 13:09:21.534 | INFO     | src.agents.watcher_agent:run:105 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
+2026-03-03 13:33:52.504 | INFO     | src.agents.watcher_agent:_process_email:228 -  Iniciando procesamiento para UID 10552
+2026-03-03 13:33:52.509 | INFO     | src.agents.watcher_agent:_process_email:252 - UID=10552 Subject='Expediente Docente - Juan Pérez'
+2026-03-03 13:33:52.515 | INFO     | src.agents.watcher_agent:_process_email:271 - Nombre extraído para UID 10552: Juan Pérez
+2026-03-03 13:33:52.516 | INFO     | src.agents.watcher_agent:_process_email:274 - Carpeta destino para UID 10552: /tmp/pytest-of-genghis/pytest-4/test_expediente_estandar_crea_0/Juan_Perez
+2026-03-03 13:33:52.518 | INFO     | src.agents.watcher_agent:_process_email:278 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2026-03-03 13:33:52.521 | INFO     | src.agents.watcher_agent:_process_email:289 - Adjuntos guardados para UID 10552: 2 archivo(s)
+2026-03-03 13:33:52.522 | SUCCESS  | src.agents.watcher_agent:_process_email:299 - Procesado UID 10552: 2 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-4/test_expediente_estandar_crea_0/Juan_Perez
+2026-03-03 13:33:52.529 | INFO     | src.agents.watcher_agent:_process_email:228 -  Iniciando procesamiento para UID 20001
+2026-03-03 13:33:52.530 | INFO     | src.agents.watcher_agent:_process_email:252 - UID=20001 Subject='Expediente Docente'
+2026-03-03 13:33:52.532 | INFO     | src.agents.watcher_agent:_process_email:271 - Nombre extraído para UID 20001: None
+2026-03-03 13:33:52.533 | INFO     | src.agents.watcher_agent:_process_email:274 - Carpeta destino para UID 20001: /tmp/pytest-of-genghis/pytest-4/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2026-03-03 13:33:52.534 | INFO     | src.agents.watcher_agent:_process_email:278 - Cuerpo guardado en info_mail_UID20001.txt
+2026-03-03 13:33:52.535 | INFO     | src.agents.watcher_agent:_process_email:289 - Adjuntos guardados para UID 20001: 0 archivo(s)
+2026-03-03 13:33:52.536 | SUCCESS  | src.agents.watcher_agent:_process_email:299 - Procesado UID 20001: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-4/test_expediente_sin_nombre_usa0/Expediente_SinNombre_UID20001
+2026-03-03 13:33:52.543 | INFO     | src.agents.watcher_agent:_process_email:228 -  Iniciando procesamiento para UID 99999
+2026-03-03 13:33:52.544 | INFO     | src.agents.watcher_agent:_process_email:231 - UID 99999 ya procesado previamente, se omite
+2026-03-03 13:33:52.561 | INFO     | src.agents.watcher_agent:_process_email:228 -  Iniciando procesamiento para UID 30001
+2026-03-03 13:33:52.566 | INFO     | src.agents.watcher_agent:_process_email:252 - UID=30001 Subject='Expediente Docente - Juan Pérez'
+2026-03-03 13:33:52.569 | INFO     | src.agents.watcher_agent:_process_email:271 - Nombre extraído para UID 30001: Juan Pérez
+2026-03-03 13:33:52.570 | INFO     | src.agents.watcher_agent:_process_email:274 - Carpeta destino para UID 30001: /tmp/pytest-of-genghis/pytest-4/test_adjuntos_con_extension_no0/Juan_Perez
+2026-03-03 13:33:52.572 | INFO     | src.agents.watcher_agent:_process_email:278 - Cuerpo guardado en info_mail_Juan_Perez.txt
+2026-03-03 13:33:52.575 | INFO     | src.agents.watcher_agent:_process_email:289 - Adjuntos guardados para UID 30001: 1 archivo(s)
+2026-03-03 13:33:52.576 | SUCCESS  | src.agents.watcher_agent:_process_email:299 - Procesado UID 30001: 1 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-4/test_adjuntos_con_extension_no0/Juan_Perez
+2026-03-03 13:33:52.583 | INFO     | src.agents.watcher_agent:_process_email:228 -  Iniciando procesamiento para UID 40001
+2026-03-03 13:33:52.585 | INFO     | src.agents.watcher_agent:_process_email:252 - UID=40001 Subject='Consulta administrativa - Maria Lopez'
+2026-03-03 13:33:52.587 | INFO     | src.agents.watcher_agent:_process_email:262 - UID 40001 descartado: ni el asunto ni el cuerpo contienen las palabras clave configuradas
+2026-03-03 13:33:52.595 | INFO     | src.agents.watcher_agent:_process_email:228 -  Iniciando procesamiento para UID 40002
+2026-03-03 13:33:52.596 | INFO     | src.agents.watcher_agent:_process_email:252 - UID=40002 Subject='Documentos adjuntos - Carlos Ruiz'
+2026-03-03 13:33:52.598 | INFO     | src.agents.watcher_agent:_process_email:271 - Nombre extraído para UID 40002: Carlos Ruiz
+2026-03-03 13:33:52.600 | INFO     | src.agents.watcher_agent:_process_email:274 - Carpeta destino para UID 40002: /tmp/pytest-of-genghis/pytest-4/test_correo_con_keyword_solo_e0/Carlos_Ruiz
+2026-03-03 13:33:52.601 | INFO     | src.agents.watcher_agent:_process_email:278 - Cuerpo guardado en info_mail_Carlos_Ruiz.txt
+2026-03-03 13:33:52.602 | INFO     | src.agents.watcher_agent:_process_email:289 - Adjuntos guardados para UID 40002: 0 archivo(s)
+2026-03-03 13:33:52.603 | SUCCESS  | src.agents.watcher_agent:_process_email:299 - Procesado UID 40002: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-4/test_correo_con_keyword_solo_e0/Carlos_Ruiz
+2026-03-03 13:33:52.611 | INFO     | src.agents.watcher_agent:_process_email:228 -  Iniciando procesamiento para UID 50001
+2026-03-03 13:33:52.612 | INFO     | src.agents.watcher_agent:_process_email:252 - UID=50001 Subject='Expediente Docente - Ana Torres'
+2026-03-03 13:33:52.614 | INFO     | src.agents.watcher_agent:_process_email:271 - Nombre extraído para UID 50001: Ana Torres
+2026-03-03 13:33:52.615 | INFO     | src.agents.watcher_agent:_process_email:274 - Carpeta destino para UID 50001: /tmp/pytest-of-genghis/pytest-4/test_correo_con_keyword_solo_e1/Ana_Torres
+2026-03-03 13:33:52.617 | INFO     | src.agents.watcher_agent:_process_email:278 - Cuerpo guardado en info_mail_Ana_Torres.txt
+2026-03-03 13:33:52.617 | INFO     | src.agents.watcher_agent:_process_email:289 - Adjuntos guardados para UID 50001: 0 archivo(s)
+2026-03-03 13:33:52.618 | SUCCESS  | src.agents.watcher_agent:_process_email:299 - Procesado UID 50001: 0 adjunto(s) guardado(s) en /tmp/pytest-of-genghis/pytest-4/test_correo_con_keyword_solo_e1/Ana_Torres
+2026-03-03 13:33:52.623 | WARNING  | src.agents.watcher_agent:_load_processed_uids:448 - El archivo de UIDs está corrupto, se reiniciará
+2026-03-03 13:33:52.628 | INFO     | src.agents.watcher_agent:run:65 - Watcher Agent iniciado
+2026-03-03 13:33:52.629 | INFO     | src.agents.watcher_agent:run:79 -  Ciclo #1 de monitoreo iniciado
+2026-03-03 13:33:52.629 | WARNING  | src.agents.watcher_agent:run:82 - No se pudo establecer conexión IMAP en el ciclo #1. Se reintentará en 60 segundos...
+2026-03-03 13:33:52.630 | INFO     | src.agents.watcher_agent:run:105 - Watcher Agent detenido por el usuario (KeyboardInterrupt)
