@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import email
+import hashlib
 import imaplib
 import json
 import os
@@ -22,20 +23,16 @@ from src.core.logger import logger
 
 load_dotenv()
 
-SUBJECT_TOKEN = os.getenv("SUBJECT_KEYWORD", "Expediente Docente")
+_raw_subject_kw = os.getenv("SUBJECT_KEYWORD", "Expediente Docente")
+SUBJECT_KEYWORDS: list[str] = [kw.strip() for kw in _raw_subject_kw.split(",") if kw.strip()]
 _raw_body_kw = os.getenv("BODY_KEYWORD", "")
 BODY_KEYWORDS: list[str] = [kw.strip() for kw in _raw_body_kw.split(",") if kw.strip()]
 ATTACHMENT_EXTENSIONS = {
     ".pdf",
-    ".doc",
-    ".docx",
     ".jpg",
     ".jpeg",
-    ".png",
-    ".gif",
-    ".tif",
-    ".tiff",
 }
+REQUIRED_ATTACHMENT_EXTENSIONS = ATTACHMENT_EXTENSIONS
 UID_STATE_FILE = config.PROCESSED_UIDS_FILE
 INPUT_DIR = config.INPUT_DIR
 
@@ -57,7 +54,9 @@ class WatcherAgent:
         )
         self.imap_client: Optional[imaplib.IMAP4_SSL] = None
 
-        self.processed_uids = self._load_processed_uids()
+        state = self._load_state()
+        self.processed_uids: Set[str] = state[0]
+        self.processed_fingerprints: Set[str] = state[1]
 
     def run(self) -> None:
         """Ejecuta el watcher en un loop infinito."""
@@ -136,7 +135,7 @@ class WatcherAgent:
             )
 
             if processed_count:
-                self._save_processed_uids()
+                self._save_state()
 
         except Exception as exc:
             logger.error(f"Error al procesar correos en este ciclo: {exc}")
@@ -178,10 +177,13 @@ class WatcherAgent:
             return []
 
         # --- Intento 1: Gmail X-GM-RAW con query combinada (asunto OR keywords) ---
-        gmail_terms = [f'subject:"{SUBJECT_TOKEN}"']
+        # in:inbox excluye categorías como Promociones, Social y Notificaciones
+        gmail_terms: list[str] = []
+        for kw in SUBJECT_KEYWORDS:
+            gmail_terms.append(f'subject:"{kw}"')
         for kw in BODY_KEYWORDS:
             gmail_terms.append(f'"{kw}"')
-        gmail_query = " OR ".join(gmail_terms)
+        gmail_query = "in:inbox (" + " OR ".join(gmail_terms) + ") has:attachment"
 
         try:
             status, data = self.imap_client.uid("SEARCH", "X-GM-RAW", gmail_query)
@@ -193,12 +195,15 @@ class WatcherAgent:
         # --- Intento 2: IMAP estándar - búsqueda por asunto ---
         all_uids: list[str] = []
 
-        try:
-            status, data = self.imap_client.uid("SEARCH", None, f'(SUBJECT "{SUBJECT_TOKEN}")')
-            if status == "OK" and data and data[0]:
-                all_uids = self._parse_uid_list(data[0])
-        except imaplib.IMAP4.error as exc:
-            logger.debug(f"Error en búsqueda por asunto: {exc}")
+        for kw in SUBJECT_KEYWORDS:
+            try:
+                status, data = self.imap_client.uid("SEARCH", None, f'(SUBJECT "{kw}")')
+                if status == "OK" and data and data[0]:
+                    for uid_str in self._parse_uid_list(data[0]):
+                        if uid_str not in all_uids:
+                            all_uids.append(uid_str)
+            except imaplib.IMAP4.error as exc:
+                logger.debug(f"Error en búsqueda por asunto keyword '{kw}': {exc}")
 
         # --- Intento 2b: IMAP estándar - búsqueda por body keywords ---
         for kw in BODY_KEYWORDS:
@@ -253,7 +258,16 @@ class WatcherAgent:
 
         body = self._extract_text_body(email_msg)
 
-        subject_match = SUBJECT_TOKEN.lower() in subject.lower()
+        fingerprint = self._compute_fingerprint(subject, body, email_msg)
+        if fingerprint in self.processed_fingerprints:
+            logger.info(
+                f"UID {uid_str} es un duplicado por contenido (fingerprint={fingerprint[:12]}…), se omite"
+            )
+            self.processed_uids.add(uid_str)
+            self._save_state()
+            return False
+
+        subject_match = any(kw.lower() in subject.lower() for kw in SUBJECT_KEYWORDS)
         body_match = bool(BODY_KEYWORDS) and any(
             kw.lower() in body.lower() for kw in BODY_KEYWORDS
         )
@@ -264,7 +278,16 @@ class WatcherAgent:
                 f"las palabras clave configuradas"
             )
             self.processed_uids.add(uid_str)
-            self._save_processed_uids()
+            self._save_state()
+            return False
+
+        if not self._has_required_attachments(email_msg):
+            logger.info(
+                f"UID {uid_str} descartado: no contiene adjuntos en formato "
+                f"PDF o JPG requeridos"
+            )
+            self.processed_uids.add(uid_str)
+            self._save_state()
             return False
 
         teacher_name = self._extract_teacher_name(subject)
@@ -282,7 +305,7 @@ class WatcherAgent:
                 f"Se marca como procesado para evitar reintentos infinitos."
             )
             self.processed_uids.add(uid_str)
-            self._save_processed_uids()
+            self._save_state()
             return False
 
         attachments = self._save_attachments(email_msg, case_dir)
@@ -294,7 +317,8 @@ class WatcherAgent:
             logger.warning(f"No se pudo marcar como leído el UID {uid_str}: {exc}")
 
         self.processed_uids.add(uid_str)
-        self._save_processed_uids()
+        self.processed_fingerprints.add(fingerprint)
+        self._save_state()
 
         logger.success(
             f"Procesado UID {uid_str}: {attachments} adjunto(s) guardado(s) en {case_dir}"
@@ -320,15 +344,16 @@ class WatcherAgent:
         if not subject:
             return None
 
-        primary_pattern = re.compile(
-            rf"{re.escape(SUBJECT_TOKEN)}\s*[-–—:]\s*(.+)$",
-            flags=re.IGNORECASE,
-        )
-        match = primary_pattern.search(subject)
-        if match:
-            candidate = match.group(1).strip(" -–—:\t")
-            if candidate:
-                return candidate
+        for kw in SUBJECT_KEYWORDS:
+            primary_pattern = re.compile(
+                rf"{re.escape(kw)}\s*[-–—:]\s*(.+)$",
+                flags=re.IGNORECASE,
+            )
+            match = primary_pattern.search(subject)
+            if match:
+                candidate = match.group(1).strip(" -–—:\t")
+                if candidate:
+                    return candidate
 
         separators = ["-", "–", "—", ":"]
         for separator in separators:
@@ -385,6 +410,18 @@ class WatcherAgent:
         return saved
 
     @staticmethod
+    def _has_required_attachments(message: EmailMessage) -> bool:
+        """Verifica que el correo tenga al menos un adjunto PDF o JPG."""
+        for attachment in message.iter_attachments():
+            filename = attachment.get_filename()
+            if not filename:
+                continue
+            extension = Path(filename).suffix.lower()
+            if extension in REQUIRED_ATTACHMENT_EXTENSIONS:
+                return True
+        return False
+
+    @staticmethod
     def _extract_text_body(message: EmailMessage) -> str:
         texts: list[str] = []
         if message.is_multipart():
@@ -438,33 +475,60 @@ class WatcherAgent:
             counter += 1
         return target
 
-    def _load_processed_uids(self) -> Set[str]:
+    def _load_state(self) -> Tuple[Set[str], Set[str]]:
         if not UID_STATE_FILE.exists():
-            return set()
+            return set(), set()
 
         try:
             content = json.loads(UID_STATE_FILE.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             logger.warning("El archivo de UIDs está corrupto, se reiniciará")
-            return set()
+            return set(), set()
 
         if isinstance(content, dict):
-            candidates = content.get("uids", [])
+            uid_candidates = content.get("uids", [])
+            fp_candidates = content.get("fingerprints", [])
         elif isinstance(content, list):
-            candidates = content
+            uid_candidates = content
+            fp_candidates = []
         else:
-            candidates = []
+            uid_candidates = []
+            fp_candidates = []
 
-        return {str(uid) for uid in candidates}
+        return (
+            {str(uid) for uid in uid_candidates},
+            {str(fp) for fp in fp_candidates},
+        )
 
-    def _save_processed_uids(self) -> None:
+    def _save_state(self) -> None:
         try:
             UID_STATE_FILE.write_text(
-                json.dumps({"uids": sorted(self.processed_uids)}, ensure_ascii=False, indent=2),
+                json.dumps(
+                    {
+                        "uids": sorted(self.processed_uids),
+                        "fingerprints": sorted(self.processed_fingerprints),
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
                 encoding="utf-8",
             )
         except OSError as exc:
             logger.exception(f"No se pudieron guardar los UIDs procesados: {exc}")
+
+    @staticmethod
+    def _compute_fingerprint(subject: str, body: str, message: EmailMessage) -> str:
+        hasher = hashlib.sha256()
+        sender = message.get("From", "") or ""
+        hasher.update(sender.encode("utf-8"))
+        hasher.update(subject.encode("utf-8"))
+        hasher.update(body.encode("utf-8"))
+        for attachment in message.iter_attachments():
+            filename = attachment.get_filename() or ""
+            hasher.update(filename.encode("utf-8"))
+            payload = attachment.get_payload(decode=True) or b""
+            hasher.update(payload)
+        return hasher.hexdigest()
 
 
 def run_watcher() -> None:
