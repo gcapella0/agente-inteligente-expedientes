@@ -17,14 +17,35 @@ LOG_DIR = Path(os.getenv("LOG_DIR", ROOT_DIR / "logs"))
 POLL_INTERVAL_SECONDS = float(os.getenv("POLL_INTERVAL_SECONDS", "60"))
 REQUIRED_ENV_VARS = ("MAIL_USER", "MAIL_PASS", "MAIL_HOST")
 
+# --- OCR / Storage / API ---
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_DB = os.getenv("MONGO_DB", "expedientes_uneg")
+STORAGE_DIR = Path(os.getenv("STORAGE_DIR", DATA_DIR / "storage"))
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3.1-8b-instruct:free")
+OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+AUDIT_RETENTION = os.getenv("AUDIT_RETENTION", "90 days")
+AUDIT_ROTATION = os.getenv("AUDIT_ROTATION", "50 MB")
+
 
 def validate() -> None:
-    """Valida que las variables de entorno críticas estén disponibles."""
+    """Valida que las variables de entorno críticas del watcher estén disponibles."""
 
     missing = [env for env in REQUIRED_ENV_VARS if not os.getenv(env)]
     if missing:
         raise EnvironmentError(
             f"Variables de entorno faltantes para el watcher: {', '.join(sorted(missing))}"
+        )
+
+
+def validate_ocr() -> None:
+    """Valida variables de entorno requeridas por los agentes OCR y storage."""
+
+    required = ("MONGO_URI", "OPENROUTER_API_KEY")
+    missing = [env for env in required if not os.getenv(env)]
+    if missing:
+        raise EnvironmentError(
+            f"Variables de entorno faltantes para OCR/storage: {', '.join(sorted(missing))}"
         )
 
 
@@ -34,4 +55,5 @@ def ensure_directories() -> None:
     INPUT_DIR.mkdir(parents=True, exist_ok=True)
     PROCESSED_UIDS_FILE.parent.mkdir(parents=True, exist_ok=True)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
+    STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 
