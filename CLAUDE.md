@@ -120,6 +120,11 @@ Pydantic v2 models for MongoDB: `DocenteModel` (teacher profile with nested cont
 - `sample_input_dir` fixture: creates `tmp_path` with subdirectory structure mimicking `data/input/`. Call as `factory(carpetas={"Docente_A": [("file.pdf", b"content")]})`
 - Tests use `monkeypatch` extensively because module-level constants are set at import time
 
+## Git and attribution
+
+- **Nunca** agregar líneas `Co-Authored-By` ni menciones de herramientas de IA en los mensajes de commit
+- **Nunca** incluir menciones de herramientas de IA en comentarios del código
+
 ## Language
 
 The project is in Spanish (comments, variable names in domain context, commit messages). Use Spanish for user-facing text and commit messages.
