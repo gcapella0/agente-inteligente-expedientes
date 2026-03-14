@@ -227,6 +227,46 @@ class TestContarPalabras:
 
 
 # ===========================================================================
+# Tests para OcrService.simplificar_json
+# ===========================================================================
+
+
+class TestSimplificarJson:
+    """Tests del método estático simplificar_json."""
+
+    def test_simplifica_palabras_a_lineas(self):
+        json_output = build_doctr_export([("Hola", 0.9), ("mundo", 0.8)])
+        resultado = OcrService.simplificar_json(json_output)
+        assert resultado == {"pages": [{"page": 0, "blocks": [{"lines": ["Hola mundo"]}]}]}
+
+    def test_multiples_paginas(self):
+        json_output = build_doctr_export([("texto", 0.9)], pages=2)
+        resultado = OcrService.simplificar_json(json_output)
+        assert len(resultado["pages"]) == 2
+        for page in resultado["pages"]:
+            assert page["blocks"][0]["lines"] == ["texto"]
+
+    def test_sin_paginas(self):
+        assert OcrService.simplificar_json({"pages": []}) == {"pages": []}
+
+    def test_dict_vacio(self):
+        assert OcrService.simplificar_json({}) == {"pages": []}
+
+    def test_sin_palabras(self):
+        json_output = {"pages": [{"page_idx": 0, "blocks": [{"lines": [{"words": []}]}]}]}
+        resultado = OcrService.simplificar_json(json_output)
+        assert resultado == {"pages": [{"page": 0, "blocks": [{"lines": [""]}]}]}
+
+    def test_no_contiene_geometria_ni_confianza(self):
+        json_output = build_doctr_export([("a", 0.9), ("b", 0.8)])
+        resultado = OcrService.simplificar_json(json_output)
+        resultado_str = str(resultado)
+        assert "geometry" not in resultado_str
+        assert "confidence" not in resultado_str
+        assert "objectness_score" not in resultado_str
+
+
+# ===========================================================================
 # Tests para OcrService.process_file
 # ===========================================================================
 
@@ -250,6 +290,8 @@ class TestOcrServiceProcessFile:
         assert resultado["palabras_detectadas"] == 4
         assert isinstance(resultado["confianza_promedio"], float)
         assert isinstance(resultado["json_export"], dict)
+        assert isinstance(resultado["json_ligero"], dict)
+        assert "pages" in resultado["json_ligero"]
 
     def test_procesa_jpg_exitosamente(self, fake_ocr_service, tmp_path):
         img = tmp_path / "foto.jpg"
@@ -379,7 +421,7 @@ class TestOcrServiceProcessFile:
             resultado = service.process_file(pdf)
 
         expected_keys = {
-            "texto_completo", "json_export", "confianza_promedio",
+            "texto_completo", "json_export", "json_ligero", "confianza_promedio",
             "paginas", "idioma_detectado", "palabras_detectadas",
         }
         assert set(resultado.keys()) == expected_keys
