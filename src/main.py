@@ -43,12 +43,12 @@ def test_ocr() -> None:
             )
             logger.info("Texto (primeros 200 chars): {}", ocr["texto_completo"][:200])
 
-            # Guardar json_export en data/ocr_output/{carpeta}/{archivo}.json
+            # Guardar json_ligero en data/ocr_output/{carpeta}/{archivo}.json
             carpeta_dir = output_dir / r["carpeta_origen"]
             carpeta_dir.mkdir(parents=True, exist_ok=True)
             json_path = carpeta_dir / f"{Path(r['archivo_nombre']).stem}.json"
             json_path.write_text(
-                json.dumps(ocr["json_export"], ensure_ascii=False, indent=2),
+                json.dumps(ocr["json_ligero"], ensure_ascii=False, indent=2),
                 encoding="utf-8",
             )
             logger.info("JSON guardado en: {}", json_path)

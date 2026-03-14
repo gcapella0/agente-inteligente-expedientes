@@ -40,13 +40,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Run the watcher agent (production)
+# Run the main entry point (__main__ currently calls test_ocr() on data/input/)
 python -m src.main
 
-# Run OCR test on data/input/ files (currently set as default in __main__)
-python -m src.main
-
-# Run all tests
+# Run all tests (Python 3.12+ required)
 pytest tests/ -v
 
 # Run only watcher tests
@@ -90,7 +87,7 @@ Polling loop: connect IMAP → search emails → process each → save to `data/
 
 ### OcrAgent (`src/agents/ocr_agent.py`) + OcrService (`src/services/ocr_service.py`)
 
-- `OcrService` wraps docTR (`python-doctr[torch]`). Initializes `ocr_predictor(pretrained=True)` **once** (model is ~500MB). `process_file(path)` returns dict with `texto_completo`, `json_export`, `confianza_promedio`, `paginas`, `idioma_detectado`, `palabras_detectadas`.
+- `OcrService` wraps docTR (`python-doctr[torch]`). Initializes `ocr_predictor(pretrained=True)` **once** (model is ~500MB). `process_file(path)` returns dict with `texto_completo`, `json_export`, `json_ligero` (lightweight text-only version), `confianza_promedio`, `paginas`, `idioma_detectado`, `palabras_detectadas`.
 - `OcrAgent` receives `OcrService` via injection. `process_directory()` scans `config.INPUT_DIR` subdirectories, processes `.pdf/.jpg/.jpeg/.png` files, ignores `.txt`. Failures are logged via `audit_log()` but don't stop the pipeline.
 - Each file result includes `hash_sha256`, `tamano_bytes`, `formato`, `carpeta_origen`, and `ocr_resultado`.
 
