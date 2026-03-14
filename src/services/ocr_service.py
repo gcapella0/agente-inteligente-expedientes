@@ -65,6 +65,7 @@ class OcrService:
         return {
             "texto_completo": texto_completo,
             "json_export": json_output,
+            "json_ligero": self.simplificar_json(json_output),
             "confianza_promedio": self.calcular_confianza_promedio(json_output),
             "paginas": len(paginas),
             "idioma_detectado": idioma_detectado,
@@ -98,3 +99,24 @@ class OcrService:
                 for line in block.get("lines", []):
                     total += len(line.get("words", []))
         return total
+
+    @staticmethod
+    def simplificar_json(json_output: dict) -> dict:
+        """Genera una versión ligera del JSON con solo las líneas de texto.
+
+        Extrae las palabras de cada línea y las une en strings,
+        agrupadas por bloque y página. El resultado pesa mucho menos
+        que el json_export completo, ideal para enviar a un LLM.
+        """
+        pages = []
+        for page in json_output.get("pages", []):
+            blocks = []
+            for block in page.get("blocks", []):
+                lines = []
+                for line in block.get("lines", []):
+                    words = line.get("words", [])
+                    text = " ".join(w["value"] for w in words)
+                    lines.append(text)
+                blocks.append({"lines": lines})
+            pages.append({"page": page.get("page_idx", 0), "blocks": blocks})
+        return {"pages": pages}
