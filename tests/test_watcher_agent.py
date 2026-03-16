@@ -655,6 +655,64 @@ def test_keyword_case_insensitive_en_cuerpo(watcher_factory, tmp_path, monkeypat
     assert processed is True
 
 
+def test_keyword_accent_insensitive_en_asunto(watcher_factory, tmp_path, monkeypatch):
+    """Keywords sin tilde deben matchear asuntos con tilde y viceversa."""
+    monkeypatch.setattr(wa, "SUBJECT_KEYWORDS", ["Curriculum"])
+    raw_email = build_email(
+        subject="Currículum Vitae - María López",
+        body="Adjunto documentos.",
+        attachments=[("cv.pdf", b"pdf")],
+    )
+    watcher = watcher_factory(messages={"90001": raw_email})
+
+    processed = watcher._process_email("90001")
+
+    assert processed is True
+
+
+def test_keyword_accent_insensitive_en_cuerpo(watcher_factory, tmp_path, monkeypatch):
+    """Body keywords sin tilde deben matchear cuerpo con tildes."""
+    monkeypatch.setattr(wa, "SUBJECT_KEYWORDS", ["NingunaKeyword"])
+    monkeypatch.setattr(wa, "BODY_KEYWORDS", ["curriculum"])
+    raw_email = build_email(
+        subject="Documentos - Ana Torres",
+        body="Envío mi currículum actualizado para el expediente.",
+        attachments=[("cv.pdf", b"pdf")],
+    )
+    watcher = watcher_factory(messages={"90002": raw_email})
+
+    processed = watcher._process_email("90002")
+
+    assert processed is True
+
+
+def test_extract_teacher_name_accent_insensitive(monkeypatch):
+    """_extract_teacher_name extrae nombre aunque keyword no matchee por acentos.
+
+    Cuando el keyword no coincide por diferencia de acentos, el fallback
+    genérico por separadores (-, –, —, :) extrae el nombre correctamente.
+    """
+    monkeypatch.setattr(wa, "SUBJECT_KEYWORDS", ["Curriculum Docente"])
+    result = WatcherAgent._extract_teacher_name("Currículum Docente - José García")
+    assert result == "José García"
+
+
+def test_keyword_variants_genera_version_sin_acentos():
+    """_keyword_variants agrega versión sin acentos cuando difiere del original."""
+    variants = WatcherAgent._keyword_variants(["Currículum", "Diploma"])
+    assert "Currículum" in variants
+    assert "Curriculum" in variants
+    assert "Diploma" in variants
+    # "Diploma" no tiene acentos, no debe duplicarse
+    assert variants.count("Diploma") == 1
+
+
+def test_keyword_variants_sin_duplicados():
+    """_keyword_variants no duplica keywords que ya son ASCII."""
+    variants = WatcherAgent._keyword_variants(["Certificado", "Certificado"])
+    assert variants.count("Certificado") == 1
+
+
 def test_sigterm_handler_raises_keyboard_interrupt(watcher_factory, monkeypatch):
     captured_handlers: dict = {}
 

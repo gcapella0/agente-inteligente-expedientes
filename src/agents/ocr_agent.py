@@ -20,12 +20,18 @@ class OcrAgent:
     def __init__(self, ocr_service: OcrService) -> None:
         self.ocr_service = ocr_service
 
-    def process_directory(self, directory: Path | None = None) -> list[dict]:
+    def process_directory(
+        self,
+        directory: Path | None = None,
+        skip_hashes: set[str] | None = None,
+    ) -> list[dict]:
         """Escanea subcarpetas del directorio y procesa archivos con OCR.
 
         Args:
             directory: Directorio raíz a escanear. Por defecto usa
                 ``config.INPUT_DIR``.
+            skip_hashes: Conjunto de hashes SHA-256 de archivos ya procesados.
+                Los archivos cuyo hash coincida se omiten sin ejecutar OCR.
 
         Returns:
             Lista de diccionarios con los resultados de OCR por archivo.
@@ -66,6 +72,15 @@ class OcrAgent:
             )
 
             for archivo in archivos:
+                if skip_hashes:
+                    file_hash = hashlib.sha256(archivo.read_bytes()).hexdigest()
+                    if file_hash in skip_hashes:
+                        logger.info(
+                            "Omitido '{}': ya procesado (hash {}…)",
+                            archivo.name,
+                            file_hash[:12],
+                        )
+                        continue
                 resultado = self._process_single_file(archivo, subcarpeta.name)
                 resultados.append(resultado)
 
