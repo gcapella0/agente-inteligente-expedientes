@@ -654,6 +654,43 @@ class TestOcrAgentProcessDirectory:
 
         assert len(resultados) == 1
 
+    def test_skip_hashes_omite_archivos_ya_procesados(
+        self, fake_ocr_service, sample_input_dir
+    ):
+        """process_directory con skip_hashes omite archivos cuyo hash coincida."""
+        input_dir = sample_input_dir({
+            "Docente_A": [
+                ("titulo.pdf", b"%PDF-content-A"),
+                ("cedula.jpg", b"\xff\xd8\xff\xe0-content-B"),
+            ],
+        })
+        # Calcular hash del primer archivo para marcarlo como procesado
+        pdf_content = (input_dir / "Docente_A" / "titulo.pdf").read_bytes()
+        pdf_hash = hashlib.sha256(pdf_content).hexdigest()
+
+        service = fake_ocr_service()
+        with patch("src.services.ocr_service.DocumentFile"):
+            agent = OcrAgent(service)
+            resultados = agent.process_directory(input_dir, skip_hashes={pdf_hash})
+
+        # Solo el JPG debe procesarse (el PDF fue omitido)
+        assert len(resultados) == 1
+        assert resultados[0]["archivo_nombre"] == "cedula.jpg"
+
+    def test_skip_hashes_vacio_procesa_todos(
+        self, fake_ocr_service, sample_input_dir
+    ):
+        """skip_hashes vacío o None procesa todos los archivos."""
+        input_dir = sample_input_dir({
+            "Docente_A": [("titulo.pdf", b"%PDF-X")],
+        })
+        service = fake_ocr_service()
+        with patch("src.services.ocr_service.DocumentFile"):
+            agent = OcrAgent(service)
+            resultados = agent.process_directory(input_dir, skip_hashes=set())
+
+        assert len(resultados) == 1
+
 
 # ===========================================================================
 # Tests para SUPPORTED_EXTENSIONS

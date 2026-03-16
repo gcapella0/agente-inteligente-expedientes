@@ -32,6 +32,12 @@ ATTACHMENT_EXTENSIONS = {
     ".jpg",
     ".jpeg",
 }
+
+
+def _normalize_text(text: str) -> str:
+    """Elimina diacríticos/tildes para comparación insensible a acentos."""
+    nfkd = unicodedata.normalize("NFKD", text)
+    return "".join(c for c in nfkd if unicodedata.category(c) != "Mn").lower()
 REQUIRED_ATTACHMENT_EXTENSIONS = ATTACHMENT_EXTENSIONS
 UID_STATE_FILE = config.PROCESSED_UIDS_FILE
 INPUT_DIR = config.INPUT_DIR
@@ -171,33 +177,67 @@ class WatcherAgent:
 
         self.imap_client = None
 
+    @staticmethod
+    def _keyword_variants(keywords: list[str]) -> list[str]:
+        """Genera variantes de keywords incluyendo versiones sin acentos.
+
+        Esto permite que keyword 'Currículum' también busque 'Curriculum'
+        y viceversa en servidores IMAP que no normalicen acentos.
+        """
+        seen: set[str] = set()
+        variants: list[str] = []
+        for kw in keywords:
+            if kw not in seen:
+                seen.add(kw)
+                variants.append(kw)
+            norm = _normalize_text(kw)
+            # Si la versión sin acentos es diferente, agregarla con el case original
+            norm_titled = norm.title() if kw[0:1].isupper() else norm
+            if norm_titled not in seen and norm_titled.lower() != kw.lower():
+                seen.add(norm_titled)
+                variants.append(norm_titled)
+        return variants
+
     def _search_emails(self) -> list[str]:
         """Busca correos que coincidan por asunto o por palabras clave en el cuerpo."""
         if not self.imap_client:
             return []
 
+        subject_kws = self._keyword_variants(SUBJECT_KEYWORDS)
+        body_kws = self._keyword_variants(BODY_KEYWORDS)
+
         # --- Intento 1: Gmail X-GM-RAW con query combinada (asunto OR keywords) ---
         # in:inbox excluye categorías como Promociones, Social y Notificaciones
         gmail_terms: list[str] = []
-        for kw in SUBJECT_KEYWORDS:
+        for kw in subject_kws:
             gmail_terms.append(f'subject:"{kw}"')
-        for kw in BODY_KEYWORDS:
+        for kw in body_kws:
             gmail_terms.append(f'"{kw}"')
         gmail_query = "in:inbox (" + " OR ".join(gmail_terms) + ") has:attachment"
 
         try:
-            status, data = self.imap_client.uid("SEARCH", "X-GM-RAW", gmail_query)
+            status, data = self.imap_client.uid(
+                "SEARCH", "X-GM-RAW", gmail_query.encode("utf-8"),
+            )
             if status == "OK" and data and data[0]:
                 return self._parse_uid_list(data[0])
-        except imaplib.IMAP4.error as exc:
+        except (imaplib.IMAP4.error, UnicodeEncodeError) as exc:
             logger.debug(f"X-GM-RAW no soportado, usando búsqueda estándar: {exc}")
 
         # --- Intento 2: IMAP estándar - búsqueda por asunto ---
+        # Gmail IMAP no soporta CHARSET UTF-8 ni búsqueda accent-insensitive,
+        # así que solo se usan keywords ASCII. Los emails con asuntos acentuados
+        # se capturan por la búsqueda amplia por fecha (intento 2c) y se filtran
+        # localmente con _normalize_text() en _process_email().
         all_uids: list[str] = []
 
-        for kw in SUBJECT_KEYWORDS:
+        for kw in subject_kws:
+            if not kw.isascii():
+                continue
             try:
-                status, data = self.imap_client.uid("SEARCH", None, f'(SUBJECT "{kw}")')
+                status, data = self.imap_client.uid(
+                    "SEARCH", None, f'(SUBJECT "{kw}")',
+                )
                 if status == "OK" and data and data[0]:
                     for uid_str in self._parse_uid_list(data[0]):
                         if uid_str not in all_uids:
@@ -206,15 +246,37 @@ class WatcherAgent:
                 logger.debug(f"Error en búsqueda por asunto keyword '{kw}': {exc}")
 
         # --- Intento 2b: IMAP estándar - búsqueda por body keywords ---
-        for kw in BODY_KEYWORDS:
+        for kw in body_kws:
+            if not kw.isascii():
+                continue
             try:
-                status, data = self.imap_client.uid("SEARCH", None, f'(BODY "{kw}")')
+                status, data = self.imap_client.uid(
+                    "SEARCH", None, f'(BODY "{kw}")',
+                )
                 if status == "OK" and data and data[0]:
                     for uid_str in self._parse_uid_list(data[0]):
                         if uid_str not in all_uids:
                             all_uids.append(uid_str)
             except imaplib.IMAP4.error as exc:
                 logger.debug(f"Error en búsqueda por body keyword '{kw}': {exc}")
+
+        # --- Intento 2c: búsqueda amplia por fecha ---
+        # Captura emails recientes con adjuntos que las keywords ASCII no encuentran
+        # (ej: asuntos con acentos como "Currículum"). Se filtran localmente después.
+        try:
+            since_date = (
+                __import__("datetime").datetime.now()
+                - __import__("datetime").timedelta(days=7)
+            ).strftime("%d-%b-%Y")
+            status, data = self.imap_client.uid(
+                "SEARCH", None, f'(SINCE "{since_date}")',
+            )
+            if status == "OK" and data and data[0]:
+                for uid_str in self._parse_uid_list(data[0]):
+                    if uid_str not in all_uids:
+                        all_uids.append(uid_str)
+        except imaplib.IMAP4.error as exc:
+            logger.debug(f"Error en búsqueda amplia por fecha: {exc}")
 
         return all_uids
 
@@ -267,9 +329,11 @@ class WatcherAgent:
             self._save_state()
             return False
 
-        subject_match = any(kw.lower() in subject.lower() for kw in SUBJECT_KEYWORDS)
+        subject_match = any(
+            _normalize_text(kw) in _normalize_text(subject) for kw in SUBJECT_KEYWORDS
+        )
         body_match = bool(BODY_KEYWORDS) and any(
-            kw.lower() in body.lower() for kw in BODY_KEYWORDS
+            _normalize_text(kw) in _normalize_text(body) for kw in BODY_KEYWORDS
         )
 
         if not subject_match and not body_match:
