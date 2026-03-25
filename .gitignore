@@ -36,3 +36,6 @@ src/data/vectorstore/
 # Claude / Testing cache
 .claude/
 .pytest_cache/
+
+# Claude Code - solo local
+CLAUDE.md
