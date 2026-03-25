@@ -159,7 +159,7 @@ def _save_processed_hashes(state_file: "Path", hashes: set[str]) -> None:
 
 
 def test_pipeline() -> None:
-    """Pipeline completo: Watcher (1 ciclo) → OCR → Clasificador.
+    """Pipeline completo: Watcher (1 ciclo) → OCR → Clasificador → Almacenamiento.
 
     Archivos ya clasificados (por hash SHA-256) se omiten automáticamente
     para evitar gastar tokens del LLM innecesariamente.
@@ -258,10 +258,36 @@ def test_pipeline() -> None:
         )
 
     logger.info(
-        "Pipeline completo: {}/{} válidos. Resultados en: {}",
+        "Clasificación: {}/{} válidos. Resultados en: {}",
         validos,
         len(resultados_clasificados),
         output_dir,
+    )
+
+    # 4. Almacenamiento
+    logger.info("=== Paso 4: Almacenamiento ===")
+    from src.services.mongo_service import MongoService
+    from src.services.file_service import FileService
+    from src.agents.storage_agent import StorageAgent
+
+    mongo_service = MongoService()
+    file_service = FileService()
+    storage_agent = StorageAgent(mongo_service, file_service)
+
+    almacenados = 0
+    errores_storage = 0
+    for resultado in resultados_clasificados:
+        storage_result = storage_agent.process(resultado)
+        if storage_result.get("exito"):
+            almacenados += 1
+        elif storage_result.get("accion") != "skip":
+            errores_storage += 1
+
+    logger.info(
+        "Pipeline completo: {} almacenados, {} omitidos, {} errores",
+        almacenados,
+        len(resultados_clasificados) - almacenados - errores_storage,
+        errores_storage,
     )
 
 
