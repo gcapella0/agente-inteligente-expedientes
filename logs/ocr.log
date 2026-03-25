@@ -310,3 +310,806 @@
 2026-03-08 22:34:50.550 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
 2026-03-08 22:34:50.551 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
 2026-03-08 22:34:50.552 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-10 17:32:27.672 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-10 17:32:27.677 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpg
+2026-03-10 17:32:27.683 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpeg
+2026-03-10 17:32:27.687 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.png
+2026-03-10 17:32:27.697 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.PDF
+2026-03-10 17:32:27.702 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: largo.pdf
+2026-03-10 17:32:27.706 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-10 17:32:27.712 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-10 17:32:27.717 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-10 17:32:27.722 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-10 17:32:27.726 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_procesa_archivos_en_subca0
+2026-03-10 17:32:27.728 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Maria_Elena_Garcia': 2 archivo(s) a procesar
+2026-03-10 17:32:27.729 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas_pregrado.jpg
+2026-03-10 17:32:27.730 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:32:27.732 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas_pregrado.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-10 17:32:27.734 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo_universitario.pdf
+2026-03-10 17:32:27.735 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:32:27.736 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo_universitario.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-10 17:32:27.737 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-10 17:32:27.741 | WARNING  | src.agents.ocr_agent:process_directory:37 - El directorio de entrada no existe: /tmp/pytest-of-genghis/pytest-0/test_directorio_inexistente_re0/no_existe
+2026-03-10 17:32:27.745 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_directorio_vacio_retorna_0
+2026-03-10 17:32:27.746 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-10 17:32:27.750 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_subcarpeta_sin_archivos_p0
+2026-03-10 17:32:27.752 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-10 17:32:27.757 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 3 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_multiples_subcarpetas0
+2026-03-10 17:32:27.759 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_A': 1 archivo(s) a procesar
+2026-03-10 17:32:27.760 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo.pdf
+2026-03-10 17:32:27.762 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:32:27.763 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-10 17:32:27.765 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_B': 1 archivo(s) a procesar
+2026-03-10 17:32:27.766 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: cedula.jpg
+2026-03-10 17:32:27.767 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:32:27.768 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'cedula.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-10 17:32:27.771 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_C': 1 archivo(s) a procesar
+2026-03-10 17:32:27.772 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas.png
+2026-03-10 17:32:27.772 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:32:27.773 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas.png' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-10 17:32:27.774 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 3 archivo(s) procesados
+2026-03-10 17:32:27.779 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_metadatos_del_resultado0
+2026-03-10 17:32:27.781 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Test_Docente': 1 archivo(s) a procesar
+2026-03-10 17:32:27.782 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-10 17:32:27.785 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:32:27.786 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 3 ms
+2026-03-10 17:32:27.786 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-10 17:32:27.792 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_hash_sha256_es_correcto0
+2026-03-10 17:32:27.793 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Hash_Test': 1 archivo(s) a procesar
+2026-03-10 17:32:27.794 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: archivo.jpg
+2026-03-10 17:32:27.796 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:32:27.797 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'archivo.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-10 17:32:27.797 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-10 17:32:27.803 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_formato_se_normaliza_a_mi0
+2026-03-10 17:32:27.805 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mayuscula': 1 archivo(s) a procesar
+2026-03-10 17:32:27.806 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: DOC.PDF
+2026-03-10 17:32:27.808 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:32:27.809 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'DOC.PDF' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-10 17:32:27.809 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-10 17:32:27.816 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_fallo_ocr_continua_con_si0
+2026-03-10 17:32:27.817 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mixto': 2 archivo(s) a procesar
+2026-03-10 17:32:27.818 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: bueno.jpg
+2026-03-10 17:32:27.819 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:32:27.821 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'bueno.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-10 17:32:27.822 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'malo.pdf': PDF corrupto
+2026-03-10 17:32:27.823 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_fallido: error
+2026-03-10 17:32:27.824 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-10 17:32:27.829 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_fallo_ocr_registra_audit_0
+2026-03-10 17:32:27.830 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Fallo': 1 archivo(s) a procesar
+2026-03-10 17:32:27.832 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-10 17:32:27.833 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'corrupto.pdf': Error simulado de docTR
+2026-03-10 17:32:27.833 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-10 17:32:27.838 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_exito_ocr_registra_audit_0
+2026-03-10 17:32:27.839 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Exito': 1 archivo(s) a procesar
+2026-03-10 17:32:27.841 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-10 17:32:27.842 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-10 17:32:27.843 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-10 17:32:27.847 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_ignora_archivos_en_raiz0
+2026-03-10 17:32:27.848 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-10 17:32:27.853 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_usa_config_input_dir_por_0
+2026-03-10 17:32:27.854 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'docente': 1 archivo(s) a procesar
+2026-03-10 17:32:27.855 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-10 17:32:27.857 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:32:27.858 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-10 17:32:27.858 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-10 17:33:35.680 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-10 17:33:40.198 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-10 17:33:40.200 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-10 17:33:40.203 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-10 17:33:40.213 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_1.jpg
+2026-03-10 17:34:04.079 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:34:04.081 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_1.jpg' — 1 pág, 612 palabras, confianza 88.16%, 23866 ms
+2026-03-10 17:34:04.085 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_2.jpg
+2026-03-10 17:34:23.505 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-10 17:34:23.508 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_2.jpg' — 1 pág, 494 palabras, confianza 88.49%, 19420 ms
+2026-03-10 17:34:23.509 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-13 22:12:53.254 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:12:53.259 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpg
+2026-03-13 22:12:53.264 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpeg
+2026-03-13 22:12:53.268 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.png
+2026-03-13 22:12:53.279 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.PDF
+2026-03-13 22:12:53.286 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: largo.pdf
+2026-03-13 22:12:53.292 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:12:53.301 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:12:53.308 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-13 22:12:53.315 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:12:53.321 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_procesa_archivos_en_subca0
+2026-03-13 22:12:53.323 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Maria_Elena_Garcia': 2 archivo(s) a procesar
+2026-03-13 22:12:53.327 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas_pregrado.jpg
+2026-03-13 22:12:53.330 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:12:53.332 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas_pregrado.jpg' — 1 pág, 4 palabras, confianza 96.75%, 3 ms
+2026-03-13 22:12:53.334 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo_universitario.pdf
+2026-03-13 22:12:53.336 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:12:53.338 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo_universitario.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-13 22:12:53.338 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-13 22:12:53.345 | WARNING  | src.agents.ocr_agent:process_directory:37 - El directorio de entrada no existe: /tmp/pytest-of-genghis/pytest-0/test_directorio_inexistente_re0/no_existe
+2026-03-13 22:12:53.349 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_directorio_vacio_retorna_0
+2026-03-13 22:12:53.350 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-13 22:12:53.355 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_subcarpeta_sin_archivos_p0
+2026-03-13 22:12:53.357 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-13 22:12:53.362 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 3 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_multiples_subcarpetas0
+2026-03-13 22:12:53.363 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_A': 1 archivo(s) a procesar
+2026-03-13 22:12:53.364 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo.pdf
+2026-03-13 22:12:53.366 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:12:53.367 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:12:53.369 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_B': 1 archivo(s) a procesar
+2026-03-13 22:12:53.370 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: cedula.jpg
+2026-03-13 22:12:53.372 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:12:53.373 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'cedula.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:12:53.375 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_C': 1 archivo(s) a procesar
+2026-03-13 22:12:53.376 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas.png
+2026-03-13 22:12:53.377 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:12:53.378 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas.png' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:12:53.379 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 3 archivo(s) procesados
+2026-03-13 22:12:53.384 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_metadatos_del_resultado0
+2026-03-13 22:12:53.386 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Test_Docente': 1 archivo(s) a procesar
+2026-03-13 22:12:53.387 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:12:53.388 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:12:53.389 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-13 22:12:53.390 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:12:53.395 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_hash_sha256_es_correcto0
+2026-03-13 22:12:53.397 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Hash_Test': 1 archivo(s) a procesar
+2026-03-13 22:12:53.398 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: archivo.jpg
+2026-03-13 22:12:53.399 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:12:53.400 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'archivo.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:12:53.401 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:12:53.407 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_formato_se_normaliza_a_mi0
+2026-03-13 22:12:53.408 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mayuscula': 1 archivo(s) a procesar
+2026-03-13 22:12:53.409 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: DOC.PDF
+2026-03-13 22:12:53.411 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:12:53.412 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'DOC.PDF' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:12:53.412 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:12:53.419 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_fallo_ocr_continua_con_si0
+2026-03-13 22:12:53.420 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mixto': 2 archivo(s) a procesar
+2026-03-13 22:12:53.421 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: bueno.jpg
+2026-03-13 22:12:53.422 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:12:53.423 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'bueno.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:12:53.425 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'malo.pdf': PDF corrupto
+2026-03-13 22:12:53.426 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_fallido: error
+2026-03-13 22:12:53.428 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-13 22:12:53.435 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_fallo_ocr_registra_audit_0
+2026-03-13 22:12:53.436 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Fallo': 1 archivo(s) a procesar
+2026-03-13 22:12:53.438 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-13 22:12:53.439 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'corrupto.pdf': Error simulado de docTR
+2026-03-13 22:12:53.440 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:12:53.445 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_exito_ocr_registra_audit_0
+2026-03-13 22:12:53.446 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Exito': 1 archivo(s) a procesar
+2026-03-13 22:12:53.448 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:12:53.449 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-13 22:12:53.450 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:12:53.455 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_ignora_archivos_en_raiz0
+2026-03-13 22:12:53.455 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-13 22:12:53.460 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_usa_config_input_dir_por_0
+2026-03-13 22:12:53.461 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'docente': 1 archivo(s) a procesar
+2026-03-13 22:12:53.463 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:12:53.464 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:12:53.465 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:12:53.465 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:15:23.147 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:15:23.153 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpg
+2026-03-13 22:15:23.157 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpeg
+2026-03-13 22:15:23.162 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.png
+2026-03-13 22:15:23.171 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.PDF
+2026-03-13 22:15:23.176 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: largo.pdf
+2026-03-13 22:15:23.181 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:15:23.186 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:15:23.191 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-13 22:15:23.196 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:15:23.200 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_procesa_archivos_en_subca0
+2026-03-13 22:15:23.202 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Maria_Elena_Garcia': 2 archivo(s) a procesar
+2026-03-13 22:15:23.203 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas_pregrado.jpg
+2026-03-13 22:15:23.204 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:15:23.205 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas_pregrado.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:15:23.206 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo_universitario.pdf
+2026-03-13 22:15:23.208 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:15:23.209 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo_universitario.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:15:23.209 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-13 22:15:23.215 | WARNING  | src.agents.ocr_agent:process_directory:37 - El directorio de entrada no existe: /tmp/pytest-of-genghis/pytest-1/test_directorio_inexistente_re0/no_existe
+2026-03-13 22:15:23.219 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_directorio_vacio_retorna_0
+2026-03-13 22:15:23.219 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-13 22:15:23.224 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_subcarpeta_sin_archivos_p0
+2026-03-13 22:15:23.225 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-13 22:15:23.232 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 3 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_multiples_subcarpetas0
+2026-03-13 22:15:23.234 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_A': 1 archivo(s) a procesar
+2026-03-13 22:15:23.235 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo.pdf
+2026-03-13 22:15:23.237 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:15:23.238 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:15:23.240 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_B': 1 archivo(s) a procesar
+2026-03-13 22:15:23.241 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: cedula.jpg
+2026-03-13 22:15:23.242 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:15:23.243 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'cedula.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:15:23.245 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_C': 1 archivo(s) a procesar
+2026-03-13 22:15:23.246 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas.png
+2026-03-13 22:15:23.247 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:15:23.248 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas.png' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:15:23.249 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 3 archivo(s) procesados
+2026-03-13 22:15:23.254 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_metadatos_del_resultado0
+2026-03-13 22:15:23.255 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Test_Docente': 1 archivo(s) a procesar
+2026-03-13 22:15:23.257 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:15:23.258 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:15:23.259 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:15:23.260 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:15:23.265 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_hash_sha256_es_correcto0
+2026-03-13 22:15:23.266 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Hash_Test': 1 archivo(s) a procesar
+2026-03-13 22:15:23.267 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: archivo.jpg
+2026-03-13 22:15:23.269 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:15:23.270 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'archivo.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:15:23.271 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:15:23.276 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_formato_se_normaliza_a_mi0
+2026-03-13 22:15:23.277 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mayuscula': 1 archivo(s) a procesar
+2026-03-13 22:15:23.278 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: DOC.PDF
+2026-03-13 22:15:23.280 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:15:23.281 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'DOC.PDF' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:15:23.281 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:15:23.287 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_fallo_ocr_continua_con_si0
+2026-03-13 22:15:23.288 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mixto': 2 archivo(s) a procesar
+2026-03-13 22:15:23.290 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: bueno.jpg
+2026-03-13 22:15:23.291 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:15:23.292 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'bueno.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:15:23.293 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'malo.pdf': PDF corrupto
+2026-03-13 22:15:23.293 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_fallido: error
+2026-03-13 22:15:23.294 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-13 22:15:23.300 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_fallo_ocr_registra_audit_0
+2026-03-13 22:15:23.301 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Fallo': 1 archivo(s) a procesar
+2026-03-13 22:15:23.302 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-13 22:15:23.303 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'corrupto.pdf': Error simulado de docTR
+2026-03-13 22:15:23.304 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:15:23.309 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_exito_ocr_registra_audit_0
+2026-03-13 22:15:23.310 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Exito': 1 archivo(s) a procesar
+2026-03-13 22:15:23.311 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:15:23.313 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-13 22:15:23.313 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-13 22:15:23.318 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_ignora_archivos_en_raiz0
+2026-03-13 22:15:23.318 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-13 22:15:23.323 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_usa_config_input_dir_por_0
+2026-03-13 22:15:23.324 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'docente': 1 archivo(s) a procesar
+2026-03-13 22:15:23.325 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-13 22:15:23.326 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-13 22:15:23.327 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-13 22:15:23.328 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:09:42.775 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:09:42.784 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpg
+2026-03-15 15:09:42.790 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpeg
+2026-03-15 15:09:42.796 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.png
+2026-03-15 15:09:42.809 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.PDF
+2026-03-15 15:09:42.816 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: largo.pdf
+2026-03-15 15:09:42.822 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:09:42.829 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:09:42.835 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-15 15:09:42.847 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:09:42.853 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_procesa_archivos_en_subca0
+2026-03-15 15:09:42.855 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Maria_Elena_Garcia': 2 archivo(s) a procesar
+2026-03-15 15:09:42.857 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas_pregrado.jpg
+2026-03-15 15:09:42.858 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:09:42.860 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas_pregrado.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:09:42.863 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo_universitario.pdf
+2026-03-15 15:09:42.865 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:09:42.866 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo_universitario.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:09:42.867 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 15:09:42.874 | WARNING  | src.agents.ocr_agent:process_directory:37 - El directorio de entrada no existe: /tmp/pytest-of-genghis/pytest-0/test_directorio_inexistente_re0/no_existe
+2026-03-15 15:09:42.885 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_directorio_vacio_retorna_0
+2026-03-15 15:09:42.886 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 15:09:42.891 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_subcarpeta_sin_archivos_p0
+2026-03-15 15:09:42.893 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 15:09:42.900 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 3 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_multiples_subcarpetas0
+2026-03-15 15:09:42.902 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_A': 1 archivo(s) a procesar
+2026-03-15 15:09:42.903 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo.pdf
+2026-03-15 15:09:42.906 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:09:42.915 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:09:42.918 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_B': 1 archivo(s) a procesar
+2026-03-15 15:09:42.920 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: cedula.jpg
+2026-03-15 15:09:42.923 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:09:42.924 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'cedula.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:09:42.926 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_C': 1 archivo(s) a procesar
+2026-03-15 15:09:42.928 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas.png
+2026-03-15 15:09:42.930 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:09:42.931 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas.png' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:09:42.932 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 3 archivo(s) procesados
+2026-03-15 15:09:42.940 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_metadatos_del_resultado0
+2026-03-15 15:09:42.941 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Test_Docente': 1 archivo(s) a procesar
+2026-03-15 15:09:42.943 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:09:42.945 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:09:42.947 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:09:42.948 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:09:42.955 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_hash_sha256_es_correcto0
+2026-03-15 15:09:42.957 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Hash_Test': 1 archivo(s) a procesar
+2026-03-15 15:09:42.958 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: archivo.jpg
+2026-03-15 15:09:42.960 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:09:42.961 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'archivo.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:09:42.962 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:09:42.969 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_formato_se_normaliza_a_mi0
+2026-03-15 15:09:42.971 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mayuscula': 1 archivo(s) a procesar
+2026-03-15 15:09:42.975 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: DOC.PDF
+2026-03-15 15:09:42.980 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:09:42.982 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'DOC.PDF' — 1 pág, 4 palabras, confianza 96.75%, 5 ms
+2026-03-15 15:09:42.983 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:09:42.991 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_fallo_ocr_continua_con_si0
+2026-03-15 15:09:42.992 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mixto': 2 archivo(s) a procesar
+2026-03-15 15:09:42.994 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: bueno.jpg
+2026-03-15 15:09:42.996 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:09:42.997 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'bueno.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:09:42.999 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'malo.pdf': PDF corrupto
+2026-03-15 15:09:43.000 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_fallido: error
+2026-03-15 15:09:43.001 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 15:09:43.017 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_fallo_ocr_registra_audit_0
+2026-03-15 15:09:43.019 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Fallo': 1 archivo(s) a procesar
+2026-03-15 15:09:43.021 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-15 15:09:43.022 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'corrupto.pdf': Error simulado de docTR
+2026-03-15 15:09:43.023 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:09:43.032 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_exito_ocr_registra_audit_0
+2026-03-15 15:09:43.034 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Exito': 1 archivo(s) a procesar
+2026-03-15 15:09:43.035 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:09:43.038 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:09:43.039 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:09:43.050 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_ignora_archivos_en_raiz0
+2026-03-15 15:09:43.052 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 15:09:43.058 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-0/test_usa_config_input_dir_por_0
+2026-03-15 15:09:43.060 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'docente': 1 archivo(s) a procesar
+2026-03-15 15:09:43.062 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:09:43.064 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:09:43.065 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:09:43.066 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:17:56.384 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 15:18:01.176 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 15:18:01.179 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 15:18:01.182 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 15:18:01.191 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_1.jpg
+2026-03-15 15:18:25.196 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:18:25.198 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_1.jpg' — 1 pág, 612 palabras, confianza 88.16%, 24005 ms
+2026-03-15 15:18:25.203 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_2.jpg
+2026-03-15 15:18:44.472 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:18:44.474 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_2.jpg' — 1 pág, 494 palabras, confianza 88.49%, 19269 ms
+2026-03-15 15:18:44.476 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 15:31:35.176 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:31:35.182 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpg
+2026-03-15 15:31:35.188 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpeg
+2026-03-15 15:31:35.193 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.png
+2026-03-15 15:31:35.203 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.PDF
+2026-03-15 15:31:35.210 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: largo.pdf
+2026-03-15 15:31:35.215 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:31:35.221 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:31:35.228 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-15 15:31:35.234 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:31:35.239 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_procesa_archivos_en_subca0
+2026-03-15 15:31:35.242 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Maria_Elena_Garcia': 2 archivo(s) a procesar
+2026-03-15 15:31:35.243 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas_pregrado.jpg
+2026-03-15 15:31:35.245 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:31:35.246 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas_pregrado.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 15:31:35.249 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo_universitario.pdf
+2026-03-15 15:31:35.251 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:31:35.252 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo_universitario.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:31:35.252 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 15:31:35.259 | WARNING  | src.agents.ocr_agent:process_directory:37 - El directorio de entrada no existe: /tmp/pytest-of-genghis/pytest-1/test_directorio_inexistente_re0/no_existe
+2026-03-15 15:31:35.263 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_directorio_vacio_retorna_0
+2026-03-15 15:31:35.264 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 15:31:35.269 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_subcarpeta_sin_archivos_p0
+2026-03-15 15:31:35.270 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 15:31:35.276 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 3 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_multiples_subcarpetas0
+2026-03-15 15:31:35.277 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_A': 1 archivo(s) a procesar
+2026-03-15 15:31:35.279 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo.pdf
+2026-03-15 15:31:35.280 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:31:35.282 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:31:35.285 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_B': 1 archivo(s) a procesar
+2026-03-15 15:31:35.286 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: cedula.jpg
+2026-03-15 15:31:35.288 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:31:35.289 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'cedula.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 15:31:35.292 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_C': 1 archivo(s) a procesar
+2026-03-15 15:31:35.293 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas.png
+2026-03-15 15:31:35.294 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:31:35.295 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas.png' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 15:31:35.296 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 3 archivo(s) procesados
+2026-03-15 15:31:35.303 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_metadatos_del_resultado0
+2026-03-15 15:31:35.305 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Test_Docente': 1 archivo(s) a procesar
+2026-03-15 15:31:35.306 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:31:35.308 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:31:35.309 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:31:35.309 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:31:35.317 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_hash_sha256_es_correcto0
+2026-03-15 15:31:35.318 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Hash_Test': 1 archivo(s) a procesar
+2026-03-15 15:31:35.320 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: archivo.jpg
+2026-03-15 15:31:35.321 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:31:35.323 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'archivo.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 15:31:35.324 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:31:35.330 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_formato_se_normaliza_a_mi0
+2026-03-15 15:31:35.332 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mayuscula': 1 archivo(s) a procesar
+2026-03-15 15:31:35.334 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: DOC.PDF
+2026-03-15 15:31:35.335 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:31:35.336 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'DOC.PDF' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 15:31:35.337 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:31:35.343 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_fallo_ocr_continua_con_si0
+2026-03-15 15:31:35.345 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mixto': 2 archivo(s) a procesar
+2026-03-15 15:31:35.346 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: bueno.jpg
+2026-03-15 15:31:35.348 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:31:35.349 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'bueno.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:31:35.352 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'malo.pdf': PDF corrupto
+2026-03-15 15:31:35.353 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_fallido: error
+2026-03-15 15:31:35.354 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 15:31:35.361 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_fallo_ocr_registra_audit_0
+2026-03-15 15:31:35.362 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Fallo': 1 archivo(s) a procesar
+2026-03-15 15:31:35.363 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-15 15:31:35.365 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'corrupto.pdf': Error simulado de docTR
+2026-03-15 15:31:35.366 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:31:35.372 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_exito_ocr_registra_audit_0
+2026-03-15 15:31:35.374 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Exito': 1 archivo(s) a procesar
+2026-03-15 15:31:35.375 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:31:35.376 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 15:31:35.377 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:31:35.383 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_ignora_archivos_en_raiz0
+2026-03-15 15:31:35.384 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 15:31:35.389 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-1/test_usa_config_input_dir_por_0
+2026-03-15 15:31:35.391 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'docente': 1 archivo(s) a procesar
+2026-03-15 15:31:35.393 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:31:35.394 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:31:35.395 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:31:35.396 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:32:56.282 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 15:33:00.942 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 15:33:00.944 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 15:33:00.947 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 15:33:00.952 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_1.jpg
+2026-03-15 15:33:25.719 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:33:25.721 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_1.jpg' — 1 pág, 612 palabras, confianza 88.16%, 24766 ms
+2026-03-15 15:33:25.727 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_2.jpg
+2026-03-15 15:33:44.704 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:33:44.706 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_2.jpg' — 1 pág, 494 palabras, confianza 88.49%, 18977 ms
+2026-03-15 15:33:44.707 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 15:37:10.975 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 15:37:15.745 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 15:37:15.747 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 15:37:15.750 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 15:37:15.754 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_1.jpg
+2026-03-15 15:37:39.465 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:37:39.468 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_1.jpg' — 1 pág, 612 palabras, confianza 88.16%, 23710 ms
+2026-03-15 15:37:39.475 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_2.jpg
+2026-03-15 15:37:58.668 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:37:58.672 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_2.jpg' — 1 pág, 494 palabras, confianza 88.49%, 19193 ms
+2026-03-15 15:37:58.673 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 15:46:03.923 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 15:46:08.776 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 15:46:08.779 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 15:46:08.782 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 15:46:08.786 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_1.jpg
+2026-03-15 15:46:32.839 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:46:32.843 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_1.jpg' — 1 pág, 612 palabras, confianza 88.16%, 24053 ms
+2026-03-15 15:46:32.851 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_2.jpg
+2026-03-15 15:46:51.912 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:46:51.914 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_2.jpg' — 1 pág, 494 palabras, confianza 88.49%, 19062 ms
+2026-03-15 15:46:51.916 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 15:56:27.896 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:56:27.901 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpg
+2026-03-15 15:56:27.906 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpeg
+2026-03-15 15:56:27.912 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.png
+2026-03-15 15:56:27.922 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.PDF
+2026-03-15 15:56:27.927 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: largo.pdf
+2026-03-15 15:56:27.932 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:56:27.938 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:56:27.944 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-15 15:56:27.949 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:56:27.954 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_procesa_archivos_en_subca0
+2026-03-15 15:56:27.956 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Maria_Elena_Garcia': 2 archivo(s) a procesar
+2026-03-15 15:56:27.957 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas_pregrado.jpg
+2026-03-15 15:56:27.959 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:56:27.960 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas_pregrado.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:56:27.963 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo_universitario.pdf
+2026-03-15 15:56:27.965 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:56:27.966 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo_universitario.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:56:27.967 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 15:56:27.973 | WARNING  | src.agents.ocr_agent:process_directory:37 - El directorio de entrada no existe: /tmp/pytest-of-genghis/pytest-2/test_directorio_inexistente_re0/no_existe
+2026-03-15 15:56:27.977 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_directorio_vacio_retorna_0
+2026-03-15 15:56:27.978 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 15:56:27.982 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_subcarpeta_sin_archivos_p0
+2026-03-15 15:56:27.984 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 15:56:27.989 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 3 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_multiples_subcarpetas0
+2026-03-15 15:56:27.990 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_A': 1 archivo(s) a procesar
+2026-03-15 15:56:27.992 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo.pdf
+2026-03-15 15:56:27.994 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:56:27.995 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:56:27.997 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_B': 1 archivo(s) a procesar
+2026-03-15 15:56:27.999 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: cedula.jpg
+2026-03-15 15:56:28.002 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:56:28.004 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'cedula.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:56:28.006 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_C': 1 archivo(s) a procesar
+2026-03-15 15:56:28.008 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas.png
+2026-03-15 15:56:28.009 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:56:28.010 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas.png' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 15:56:28.011 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 3 archivo(s) procesados
+2026-03-15 15:56:28.019 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_metadatos_del_resultado0
+2026-03-15 15:56:28.021 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Test_Docente': 1 archivo(s) a procesar
+2026-03-15 15:56:28.023 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:56:28.024 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:56:28.026 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 15:56:28.027 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:56:28.034 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_hash_sha256_es_correcto0
+2026-03-15 15:56:28.036 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Hash_Test': 1 archivo(s) a procesar
+2026-03-15 15:56:28.038 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: archivo.jpg
+2026-03-15 15:56:28.040 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:56:28.041 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'archivo.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:56:28.042 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:56:28.049 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_formato_se_normaliza_a_mi0
+2026-03-15 15:56:28.051 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mayuscula': 1 archivo(s) a procesar
+2026-03-15 15:56:28.053 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: DOC.PDF
+2026-03-15 15:56:28.055 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:56:28.056 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'DOC.PDF' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:56:28.057 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:56:28.063 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_fallo_ocr_continua_con_si0
+2026-03-15 15:56:28.065 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mixto': 2 archivo(s) a procesar
+2026-03-15 15:56:28.067 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: bueno.jpg
+2026-03-15 15:56:28.069 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:56:28.070 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'bueno.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:56:28.072 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'malo.pdf': PDF corrupto
+2026-03-15 15:56:28.073 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_fallido: error
+2026-03-15 15:56:28.074 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 15:56:28.082 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_fallo_ocr_registra_audit_0
+2026-03-15 15:56:28.083 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Fallo': 1 archivo(s) a procesar
+2026-03-15 15:56:28.085 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-15 15:56:28.087 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'corrupto.pdf': Error simulado de docTR
+2026-03-15 15:56:28.088 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:56:28.094 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_exito_ocr_registra_audit_0
+2026-03-15 15:56:28.096 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Exito': 1 archivo(s) a procesar
+2026-03-15 15:56:28.097 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:56:28.099 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:56:28.100 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:56:28.105 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_ignora_archivos_en_raiz0
+2026-03-15 15:56:28.106 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 15:56:28.112 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-2/test_usa_config_input_dir_por_0
+2026-03-15 15:56:28.114 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'docente': 1 archivo(s) a procesar
+2026-03-15 15:56:28.116 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 15:56:28.118 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:56:28.120 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 15:56:28.120 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 15:58:56.764 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 15:59:01.762 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 15:59:01.764 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 2 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 15:59:01.766 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 15:59:01.769 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_1.jpg
+2026-03-15 15:59:24.947 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:59:24.949 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_1.jpg' — 1 pág, 612 palabras, confianza 88.16%, 23177 ms
+2026-03-15 15:59:24.956 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_2.jpg
+2026-03-15 15:59:44.358 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:59:44.363 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_2.jpg' — 1 pág, 494 palabras, confianza 88.49%, 19402 ms
+2026-03-15 15:59:44.365 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Expediente_SinNombre_UID11107': 1 archivo(s) a procesar
+2026-03-15 15:59:44.368 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Certificado-Automatizacion-y-Agentes-IA-con-N8N-EducacionIT.jpeg
+2026-03-15 15:59:48.475 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 15:59:48.477 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Certificado-Automatizacion-y-Agentes-IA-con-N8N-EducacionIT.jpeg' — 1 pág, 50 palabras, confianza 93.84%, 4106 ms
+2026-03-15 15:59:48.478 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 3 archivo(s) procesados
+2026-03-15 16:18:20.994 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 16:18:20.999 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpg
+2026-03-15 16:18:21.005 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpeg
+2026-03-15 16:18:21.010 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.png
+2026-03-15 16:18:21.020 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.PDF
+2026-03-15 16:18:21.026 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: largo.pdf
+2026-03-15 16:18:21.031 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 16:18:21.037 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 16:18:21.042 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-15 16:18:21.047 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 16:18:21.053 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_procesa_archivos_en_subca0
+2026-03-15 16:18:21.055 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Maria_Elena_Garcia': 2 archivo(s) a procesar
+2026-03-15 16:18:21.056 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas_pregrado.jpg
+2026-03-15 16:18:21.058 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:18:21.059 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas_pregrado.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 16:18:21.061 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo_universitario.pdf
+2026-03-15 16:18:21.063 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:18:21.064 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo_universitario.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 16:18:21.065 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 16:18:21.072 | WARNING  | src.agents.ocr_agent:process_directory:37 - El directorio de entrada no existe: /tmp/pytest-of-genghis/pytest-5/test_directorio_inexistente_re0/no_existe
+2026-03-15 16:18:21.077 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_directorio_vacio_retorna_0
+2026-03-15 16:18:21.078 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 16:18:21.083 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_subcarpeta_sin_archivos_p0
+2026-03-15 16:18:21.084 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 16:18:21.090 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 3 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_multiples_subcarpetas0
+2026-03-15 16:18:21.092 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_A': 1 archivo(s) a procesar
+2026-03-15 16:18:21.093 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo.pdf
+2026-03-15 16:18:21.095 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:18:21.096 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'titulo.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 16:18:21.098 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_B': 1 archivo(s) a procesar
+2026-03-15 16:18:21.100 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: cedula.jpg
+2026-03-15 16:18:21.101 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:18:21.102 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'cedula.jpg' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 16:18:21.104 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Docente_C': 1 archivo(s) a procesar
+2026-03-15 16:18:21.105 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas.png
+2026-03-15 16:18:21.106 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:18:21.107 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'notas.png' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 16:18:21.108 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 3 archivo(s) procesados
+2026-03-15 16:18:21.115 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_metadatos_del_resultado0
+2026-03-15 16:18:21.117 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Test_Docente': 1 archivo(s) a procesar
+2026-03-15 16:18:21.118 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 16:18:21.119 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:18:21.120 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 16:18:21.121 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 16:18:21.127 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_hash_sha256_es_correcto0
+2026-03-15 16:18:21.129 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Hash_Test': 1 archivo(s) a procesar
+2026-03-15 16:18:21.130 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: archivo.jpg
+2026-03-15 16:18:21.132 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:18:21.133 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'archivo.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 16:18:21.134 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 16:18:21.141 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_formato_se_normaliza_a_mi0
+2026-03-15 16:18:21.142 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mayuscula': 1 archivo(s) a procesar
+2026-03-15 16:18:21.144 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: DOC.PDF
+2026-03-15 16:18:21.145 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:18:21.146 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'DOC.PDF' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 16:18:21.147 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 16:18:21.154 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_fallo_ocr_continua_con_si0
+2026-03-15 16:18:21.156 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Mixto': 2 archivo(s) a procesar
+2026-03-15 16:18:21.157 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: bueno.jpg
+2026-03-15 16:18:21.159 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:18:21.160 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'bueno.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 16:18:21.162 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'malo.pdf': PDF corrupto
+2026-03-15 16:18:21.162 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_fallido: error
+2026-03-15 16:18:21.163 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 16:18:21.170 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_fallo_ocr_registra_audit_0
+2026-03-15 16:18:21.172 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Fallo': 1 archivo(s) a procesar
+2026-03-15 16:18:21.173 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-15 16:18:21.175 | ERROR    | src.agents.ocr_agent:_process_single_file:108 - Error al procesar 'corrupto.pdf': Error simulado de docTR
+2026-03-15 16:18:21.175 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 16:18:21.182 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_exito_ocr_registra_audit_0
+2026-03-15 16:18:21.184 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Exito': 1 archivo(s) a procesar
+2026-03-15 16:18:21.186 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 16:18:21.187 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 16:18:21.188 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 16:18:21.194 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_ignora_archivos_en_raiz0
+2026-03-15 16:18:21.196 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 16:18:21.202 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-5/test_usa_config_input_dir_por_0
+2026-03-15 16:18:21.204 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'docente': 1 archivo(s) a procesar
+2026-03-15 16:18:21.205 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 16:18:21.207 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:18:21.208 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 16:18:21.208 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 16:23:29.493 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 16:23:34.215 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 16:23:34.218 | INFO     | src.agents.ocr_agent:process_directory:43 - Iniciando procesamiento OCR — 2 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 16:23:34.221 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 16:23:34.225 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_1.jpg
+2026-03-15 16:23:59.390 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:23:59.395 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_1.jpg' — 1 pág, 612 palabras, confianza 88.16%, 25164 ms
+2026-03-15 16:23:59.401 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Notas_Cruz_2.jpg
+2026-03-15 16:24:18.214 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:24:18.216 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Notas_Cruz_2.jpg' — 1 pág, 494 palabras, confianza 88.49%, 18813 ms
+2026-03-15 16:24:18.221 | INFO     | src.agents.ocr_agent:process_directory:62 - Subcarpeta 'Expediente_SinNombre_UID11107': 1 archivo(s) a procesar
+2026-03-15 16:24:18.224 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: Certificado-Automatizacion-y-Agentes-IA-con-N8N-EducacionIT.jpeg
+2026-03-15 16:24:22.473 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 16:24:22.475 | INFO     | src.agents.ocr_agent:_process_single_file:148 - OCR completado: 'Certificado-Automatizacion-y-Agentes-IA-con-N8N-EducacionIT.jpeg' — 1 pág, 50 palabras, confianza 93.84%, 4249 ms
+2026-03-15 16:24:22.476 | INFO     | src.agents.ocr_agent:process_directory:72 - Procesamiento OCR finalizado — 3 archivo(s) procesados
+2026-03-15 17:27:36.143 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 17:27:36.148 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpg
+2026-03-15 17:27:36.154 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.jpeg
+2026-03-15 17:27:36.158 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: foto.png
+2026-03-15 17:27:36.169 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.PDF
+2026-03-15 17:27:36.174 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: largo.pdf
+2026-03-15 17:27:36.181 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 17:27:36.190 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 17:27:36.196 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-15 17:27:36.202 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 17:27:36.208 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_procesa_archivos_en_subca0
+2026-03-15 17:27:36.211 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Maria_Elena_Garcia': 2 archivo(s) a procesar
+2026-03-15 17:27:36.213 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas_pregrado.jpg
+2026-03-15 17:27:36.214 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.216 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'notas_pregrado.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 17:27:36.218 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo_universitario.pdf
+2026-03-15 17:27:36.220 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.221 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'titulo_universitario.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 17:27:36.222 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 17:27:36.231 | WARNING  | src.agents.ocr_agent:process_directory:43 - El directorio de entrada no existe: /tmp/pytest-of-genghis/pytest-6/test_directorio_inexistente_re0/no_existe
+2026-03-15 17:27:36.237 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_directorio_vacio_retorna_0
+2026-03-15 17:27:36.238 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 17:27:36.244 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_subcarpeta_sin_archivos_p0
+2026-03-15 17:27:36.245 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 17:27:36.252 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 3 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_multiples_subcarpetas0
+2026-03-15 17:27:36.254 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Docente_A': 1 archivo(s) a procesar
+2026-03-15 17:27:36.255 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo.pdf
+2026-03-15 17:27:36.257 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.259 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'titulo.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 17:27:36.263 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Docente_B': 1 archivo(s) a procesar
+2026-03-15 17:27:36.264 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: cedula.jpg
+2026-03-15 17:27:36.266 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.268 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'cedula.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 17:27:36.272 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Docente_C': 1 archivo(s) a procesar
+2026-03-15 17:27:36.273 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: notas.png
+2026-03-15 17:27:36.276 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.279 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'notas.png' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 17:27:36.281 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 3 archivo(s) procesados
+2026-03-15 17:27:36.288 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_metadatos_del_resultado0
+2026-03-15 17:27:36.290 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Test_Docente': 1 archivo(s) a procesar
+2026-03-15 17:27:36.293 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 17:27:36.294 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.295 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 17:27:36.296 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 17:27:36.308 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_hash_sha256_es_correcto0
+2026-03-15 17:27:36.311 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Hash_Test': 1 archivo(s) a procesar
+2026-03-15 17:27:36.315 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: archivo.jpg
+2026-03-15 17:27:36.318 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.321 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'archivo.jpg' — 1 pág, 4 palabras, confianza 96.75%, 4 ms
+2026-03-15 17:27:36.322 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 17:27:36.331 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_formato_se_normaliza_a_mi0
+2026-03-15 17:27:36.333 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Mayuscula': 1 archivo(s) a procesar
+2026-03-15 17:27:36.335 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: DOC.PDF
+2026-03-15 17:27:36.337 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.338 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'DOC.PDF' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 17:27:36.339 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 17:27:36.348 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_fallo_ocr_continua_con_si0
+2026-03-15 17:27:36.350 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Mixto': 2 archivo(s) a procesar
+2026-03-15 17:27:36.353 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: bueno.jpg
+2026-03-15 17:27:36.356 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.357 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'bueno.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 17:27:36.360 | ERROR    | src.agents.ocr_agent:_process_single_file:123 - Error al procesar 'malo.pdf': PDF corrupto
+2026-03-15 17:27:36.362 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_fallido: error
+2026-03-15 17:27:36.364 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 2 archivo(s) procesados
+2026-03-15 17:27:36.372 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_fallo_ocr_registra_audit_0
+2026-03-15 17:27:36.375 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Fallo': 1 archivo(s) a procesar
+2026-03-15 17:27:36.378 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: corrupto.pdf
+2026-03-15 17:27:36.380 | ERROR    | src.agents.ocr_agent:_process_single_file:123 - Error al procesar 'corrupto.pdf': Error simulado de docTR
+2026-03-15 17:27:36.381 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 17:27:36.390 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_exito_ocr_registra_audit_0
+2026-03-15 17:27:36.392 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Exito': 1 archivo(s) a procesar
+2026-03-15 17:27:36.394 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 17:27:36.396 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 17:27:36.397 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 17:27:36.403 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 0 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_ignora_archivos_en_raiz0
+2026-03-15 17:27:36.404 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 17:27:36.411 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_usa_config_input_dir_por_0
+2026-03-15 17:27:36.412 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'docente': 1 archivo(s) a procesar
+2026-03-15 17:27:36.414 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: doc.pdf
+2026-03-15 17:27:36.415 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.417 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'doc.pdf' — 1 pág, 4 palabras, confianza 96.75%, 1 ms
+2026-03-15 17:27:36.418 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 17:27:36.425 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_skip_hashes_omite_archivo0
+2026-03-15 17:27:36.428 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Docente_A': 2 archivo(s) a procesar
+2026-03-15 17:27:36.430 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: cedula.jpg
+2026-03-15 17:27:36.432 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.434 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'cedula.jpg' — 1 pág, 4 palabras, confianza 96.75%, 2 ms
+2026-03-15 17:27:36.437 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'titulo.pdf': ya procesado (hash 34a2a3542025…)
+2026-03-15 17:27:36.438 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 17:27:36.445 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /tmp/pytest-of-genghis/pytest-6/test_skip_hashes_vacio_procesa0
+2026-03-15 17:27:36.447 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Docente_A': 1 archivo(s) a procesar
+2026-03-15 17:27:36.448 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: titulo.pdf
+2026-03-15 17:27:36.452 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 17:27:36.454 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'titulo.pdf' — 1 pág, 4 palabras, confianza 96.75%, 4 ms
+2026-03-15 17:27:36.454 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 21:46:46.587 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 21:46:51.526 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 21:46:51.529 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 21:46:51.531 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 21:46:51.536 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_1.jpg': ya procesado (hash 5632b07ab16f…)
+2026-03-15 21:46:51.540 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_2.jpg': ya procesado (hash c1ddc0b1969b…)
+2026-03-15 21:46:51.541 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 21:49:43.591 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 21:49:48.705 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 21:49:48.707 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 21:49:48.710 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 21:49:48.714 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_1.jpg': ya procesado (hash 5632b07ab16f…)
+2026-03-15 21:49:48.718 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_2.jpg': ya procesado (hash c1ddc0b1969b…)
+2026-03-15 21:49:48.719 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 21:52:41.454 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 21:52:46.325 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 21:52:46.328 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 1 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 21:52:46.330 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 21:52:46.334 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_1.jpg': ya procesado (hash 5632b07ab16f…)
+2026-03-15 21:52:46.338 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_2.jpg': ya procesado (hash c1ddc0b1969b…)
+2026-03-15 21:52:46.339 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 0 archivo(s) procesados
+2026-03-15 22:01:46.220 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 22:01:50.756 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 22:01:50.759 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 2 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 22:01:50.761 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 22:01:50.766 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_1.jpg': ya procesado (hash 5632b07ab16f…)
+2026-03-15 22:01:50.770 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_2.jpg': ya procesado (hash c1ddc0b1969b…)
+2026-03-15 22:01:50.772 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Expediente_SinNombre_UID11106': 1 archivo(s) a procesar
+2026-03-15 22:01:50.782 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: RutinaGym.pdf
+2026-03-15 22:02:24.621 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 22:02:30.124 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 22:02:30.128 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 2 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 22:02:30.130 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 22:02:30.135 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_1.jpg': ya procesado (hash 5632b07ab16f…)
+2026-03-15 22:02:30.139 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_2.jpg': ya procesado (hash c1ddc0b1969b…)
+2026-03-15 22:02:30.141 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Expediente_SinNombre_UID11106': 1 archivo(s) a procesar
+2026-03-15 22:02:30.151 | INFO     | src.services.ocr_service:process_file:47 - Procesando archivo: RutinaGym.pdf
+2026-03-15 22:02:45.030 | INFO     | src.core.logger:audit_log:96 - [ocr] ocr_completado: ok
+2026-03-15 22:02:45.032 | INFO     | src.agents.ocr_agent:_process_single_file:163 - OCR completado: 'RutinaGym.pdf' — 2 pág, 278 palabras, confianza 94.65%, 14879 ms
+2026-03-15 22:02:45.033 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 1 archivo(s) procesados
+2026-03-15 22:04:43.369 | INFO     | src.services.ocr_service:__init__:21 - Inicializando modelo docTR (ocr_predictor)…
+2026-03-15 22:04:48.018 | INFO     | src.services.ocr_service:__init__:23 - Modelo docTR inicializado correctamente
+2026-03-15 22:04:48.021 | INFO     | src.agents.ocr_agent:process_directory:49 - Iniciando procesamiento OCR — 2 subcarpetas encontradas en /home/genghis/Documents/Uneg/agente-inteligente-expedientes/data/input
+2026-03-15 22:04:48.023 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Expediente_SinNombre_UID11072': 2 archivo(s) a procesar
+2026-03-15 22:04:48.028 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_1.jpg': ya procesado (hash 5632b07ab16f…)
+2026-03-15 22:04:48.032 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'Notas_Cruz_2.jpg': ya procesado (hash c1ddc0b1969b…)
+2026-03-15 22:04:48.035 | INFO     | src.agents.ocr_agent:process_directory:68 - Subcarpeta 'Expediente_SinNombre_UID11106': 1 archivo(s) a procesar
+2026-03-15 22:04:48.040 | INFO     | src.agents.ocr_agent:process_directory:78 - Omitido 'RutinaGym.pdf': ya procesado (hash 6b5e12d807df…)
+2026-03-15 22:04:48.041 | INFO     | src.agents.ocr_agent:process_directory:87 - Procesamiento OCR finalizado — 0 archivo(s) procesados

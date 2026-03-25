@@ -1,0 +1,396 @@
+2026-03-15 15:09:20.335 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Connection error.
+2026-03-15 15:09:20.342 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Request timed out.
+2026-03-15 15:09:20.348 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:09:20.353 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: algo salió mal
+2026-03-15 15:09:20.377 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:09:20.385 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:09:20.388 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:09:20.389 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:09:20.397 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:09:20.398 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:09:20.399 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:09:20.400 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:09:20.410 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:09:20.411 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:09:20.425 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:09:20.426 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:09:20.429 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:09:20.430 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 15:09:20.432 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:09:20.434 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 15:09:20.435 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:09:20.453 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.455 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.61 ms)
+2026-03-15 15:09:20.462 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.463 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.53 ms)
+2026-03-15 15:09:20.469 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 15:09:20.475 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'vacio.pdf'
+2026-03-15 15:09:20.481 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.482 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': LLM explotó
+2026-03-15 15:09:20.491 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.493 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.64 ms)
+2026-03-15 15:09:20.500 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'desconocido'
+2026-03-15 15:09:20.506 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.507 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.49 ms)
+2026-03-15 15:09:20.572 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.574 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.65 ms)
+2026-03-15 15:09:20.582 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.583 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.52 ms)
+2026-03-15 15:09:20.603 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.604 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.6 ms)
+2026-03-15 15:09:20.611 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.613 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.56 ms)
+2026-03-15 15:09:20.620 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 15:09:20.627 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.628 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': boom
+2026-03-15 15:09:20.635 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:20.636 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.49 ms)
+2026-03-15 15:09:42.464 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Connection error.
+2026-03-15 15:09:42.469 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Request timed out.
+2026-03-15 15:09:42.479 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:09:42.485 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: algo salió mal
+2026-03-15 15:09:42.514 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:09:42.525 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:09:42.526 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:09:42.527 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:09:42.533 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:09:42.534 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:09:42.535 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:09:42.536 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:09:42.550 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:09:42.551 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:09:42.559 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:09:42.560 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:09:42.561 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:09:42.562 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 15:09:42.563 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:09:42.563 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 15:09:42.564 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:09:42.583 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.585 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.63 ms)
+2026-03-15 15:09:42.592 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.594 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.74 ms)
+2026-03-15 15:09:42.601 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 15:09:42.609 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'vacio.pdf'
+2026-03-15 15:09:42.626 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.627 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': LLM explotó
+2026-03-15 15:09:42.634 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.636 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.51 ms)
+2026-03-15 15:09:42.646 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'desconocido'
+2026-03-15 15:09:42.660 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.664 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.85 ms)
+2026-03-15 15:09:42.670 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.673 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.64 ms)
+2026-03-15 15:09:42.680 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.681 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.52 ms)
+2026-03-15 15:09:42.688 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.689 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.47 ms)
+2026-03-15 15:09:42.696 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.698 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.52 ms)
+2026-03-15 15:09:42.704 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 15:09:42.715 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.716 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': boom
+2026-03-15 15:09:42.724 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:09:42.728 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.53 ms)
+2026-03-15 15:18:44.664 | INFO     | src.services.llm_service:__init__:29 - LlmService inicializado — modelo: qwen/qwen3-next-80b-a3b-instruct:free
+2026-03-15 15:18:44.665 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Notas_Cruz_1.jpg'
+2026-03-15 15:18:48.463 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:18:48.464 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:19:01.166 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:19:01.167 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 15:19:23.903 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:19:23.908 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 15:20:03.909 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:20:03.910 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: rechazado
+2026-03-15 15:20:03.911 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'Notas_Cruz_1.jpg': Error al parsear respuesta del LLM (confianza: 0.00%, 79244.02 ms)
+2026-03-15 15:20:03.912 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Notas_Cruz_2.jpg'
+2026-03-15 15:20:06.500 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:20:06.501 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:20:20.945 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:20:20.947 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 15:20:43.675 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:20:43.677 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 15:21:23.678 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:21:23.680 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: rechazado
+2026-03-15 15:21:23.681 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'Notas_Cruz_2.jpg': Error al parsear respuesta del LLM (confianza: 0.00%, 79766.87 ms)
+2026-03-15 15:31:34.739 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Connection error.
+2026-03-15 15:31:34.745 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Request timed out.
+2026-03-15 15:31:34.750 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:31:34.754 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: algo salió mal
+2026-03-15 15:31:34.777 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:31:34.784 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:31:34.785 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:31:34.786 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:31:34.791 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:31:34.792 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:31:34.793 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:31:34.793 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:31:34.801 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:31:34.802 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:31:34.809 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:31:34.810 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:31:34.811 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:31:34.811 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 15:31:34.812 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:31:34.813 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 15:31:34.813 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:31:34.829 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:34.831 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.61 ms)
+2026-03-15 15:31:34.840 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:34.841 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.48 ms)
+2026-03-15 15:31:34.847 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 15:31:34.852 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'vacio.pdf'
+2026-03-15 15:31:34.858 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:34.859 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': LLM explotó
+2026-03-15 15:31:34.864 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:34.866 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.46 ms)
+2026-03-15 15:31:34.871 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'desconocido'
+2026-03-15 15:31:34.876 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:34.878 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.51 ms)
+2026-03-15 15:31:34.883 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:34.885 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.5 ms)
+2026-03-15 15:31:34.890 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:34.892 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.52 ms)
+2026-03-15 15:31:34.898 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:34.899 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.51 ms)
+2026-03-15 15:31:34.905 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:34.906 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.43 ms)
+2026-03-15 15:31:34.915 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 15:31:35.125 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:35.127 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': boom
+2026-03-15 15:31:35.135 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:31:35.137 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.58 ms)
+2026-03-15 15:33:44.855 | INFO     | src.services.llm_service:__init__:29 - LlmService inicializado — modelo: qwen/qwen3-next-80b-a3b-instruct:free
+2026-03-15 15:33:44.856 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Notas_Cruz_1.jpg'
+2026-03-15 15:33:48.015 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:33:48.016 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:34:00.711 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:34:00.712 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 15:34:23.241 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:34:23.242 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 15:35:03.243 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:35:03.244 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: rechazado
+2026-03-15 15:35:03.245 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'Notas_Cruz_1.jpg': Error al parsear respuesta del LLM (confianza: 0.00%, 78387.31 ms)
+2026-03-15 15:35:03.246 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Notas_Cruz_2.jpg'
+2026-03-15 15:35:06.452 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:35:06.453 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:35:19.047 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:35:19.048 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 15:35:41.781 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: Error code: 429 - {'error': {'message': 'Rate limit exceeded: limit_rpm/qwen/qwen3-next-80b-a3b-instruct-2509/94248808-ba97-4e3c-be60-1cb0928db51d. High demand for qwen/qwen3-next-80b-a3b-instruct:free on OpenRouter - limited to 8 requests per minute. Please retry shortly.', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '8', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1773599760000'}, 'provider_name': None}}, 'user_id': 'user_38CaCq7ES80IDmsjsKRydNyHJ9g'}
+2026-03-15 15:35:41.782 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 15:37:58.838 | INFO     | src.services.llm_service:__init__:29 - LlmService inicializado — modelo: openrouter/hunter-alpha
+2026-03-15 15:37:58.840 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Notas_Cruz_1.jpg'
+2026-03-15 15:38:47.669 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: ok
+2026-03-15 15:38:47.670 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'Notas_Cruz_1.jpg' como 'certificado_notas_bachillerato' (confianza: 90.00%, 48827.19 ms)
+2026-03-15 15:38:47.671 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Notas_Cruz_2.jpg'
+2026-03-15 15:39:49.805 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: ok
+2026-03-15 15:39:49.807 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'Notas_Cruz_2.jpg' como 'certificado_notas_bachillerato' (confianza: 90.00%, 62133.27 ms)
+2026-03-15 15:45:30.366 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Connection error.
+2026-03-15 15:45:30.372 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Request timed out.
+2026-03-15 15:45:30.377 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:45:30.383 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: algo salió mal
+2026-03-15 15:45:30.409 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:45:30.417 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:45:30.418 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:45:30.418 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:45:30.424 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:45:30.425 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:45:30.426 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:45:30.427 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:45:30.435 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:45:30.436 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:45:30.443 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:45:30.445 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:45:30.446 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:45:30.447 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 15:45:30.448 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:45:30.449 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 15:45:30.449 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:45:30.467 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.469 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.69 ms)
+2026-03-15 15:45:30.475 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.476 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.51 ms)
+2026-03-15 15:45:30.483 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 15:45:30.492 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'vacio.pdf'
+2026-03-15 15:45:30.499 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.500 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': LLM explotó
+2026-03-15 15:45:30.506 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.508 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.44 ms)
+2026-03-15 15:45:30.514 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'desconocido'
+2026-03-15 15:45:30.519 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.521 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.53 ms)
+2026-03-15 15:45:30.528 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.530 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.57 ms)
+2026-03-15 15:45:30.536 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.538 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.55 ms)
+2026-03-15 15:45:30.544 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.546 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.55 ms)
+2026-03-15 15:45:30.552 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.554 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.51 ms)
+2026-03-15 15:45:30.560 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 15:45:30.570 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.572 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': boom
+2026-03-15 15:45:30.578 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:45:30.580 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.64 ms)
+2026-03-15 15:46:52.066 | INFO     | src.services.llm_service:__init__:29 - LlmService inicializado — modelo: openrouter/hunter-alpha
+2026-03-15 15:46:52.067 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Notas_Cruz_1.jpg'
+2026-03-15 15:47:35.651 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: ok
+2026-03-15 15:47:35.652 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'Notas_Cruz_1.jpg' como 'certificado_notas_bachillerato' (confianza: 95.00%, 43582.71 ms)
+2026-03-15 15:47:35.653 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Notas_Cruz_2.jpg'
+2026-03-15 15:48:33.672 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: ok
+2026-03-15 15:48:33.674 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'Notas_Cruz_2.jpg' como 'certificado_notas_bachillerato' (confianza: 95.00%, 58017.88 ms)
+2026-03-15 15:56:27.454 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Connection error.
+2026-03-15 15:56:27.459 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Request timed out.
+2026-03-15 15:56:27.465 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:56:27.469 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: algo salió mal
+2026-03-15 15:56:27.493 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:56:27.500 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:56:27.502 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 15:56:27.503 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:56:27.508 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:56:27.509 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:56:27.510 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 15:56:27.511 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:56:27.519 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:56:27.519 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:56:27.526 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:56:27.527 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 15:56:27.528 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:56:27.528 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 15:56:27.529 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 15:56:27.530 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 15:56:27.530 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 15:56:27.546 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.548 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.44 ms)
+2026-03-15 15:56:27.554 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.555 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.49 ms)
+2026-03-15 15:56:27.563 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 15:56:27.569 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'vacio.pdf'
+2026-03-15 15:56:27.574 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.575 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': LLM explotó
+2026-03-15 15:56:27.581 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.583 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.44 ms)
+2026-03-15 15:56:27.589 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'desconocido'
+2026-03-15 15:56:27.596 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.598 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 1.01 ms)
+2026-03-15 15:56:27.606 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.607 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.47 ms)
+2026-03-15 15:56:27.613 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.614 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.43 ms)
+2026-03-15 15:56:27.620 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.622 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.46 ms)
+2026-03-15 15:56:27.627 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.629 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.46 ms)
+2026-03-15 15:56:27.634 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 15:56:27.842 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.844 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': boom
+2026-03-15 15:56:27.852 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 15:56:27.854 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.62 ms)
+2026-03-15 15:59:48.633 | INFO     | src.services.llm_service:__init__:29 - LlmService inicializado — modelo: openrouter/hunter-alpha
+2026-03-15 15:59:48.635 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Notas_Cruz_1.jpg'
+2026-03-15 16:00:36.421 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: ok
+2026-03-15 16:00:36.423 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'Notas_Cruz_1.jpg' como 'certificado_notas_bachillerato' (confianza: 95.00%, 47784.75 ms)
+2026-03-15 16:00:36.425 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Notas_Cruz_2.jpg'
+2026-03-15 16:01:24.628 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: ok
+2026-03-15 16:01:24.629 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'Notas_Cruz_2.jpg' como 'certificado_notas_bachillerato' (confianza: 95.00%, 48202.09 ms)
+2026-03-15 16:01:24.632 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'Certificado-Automatizacion-y-Agentes-IA-con-N8N-EducacionIT.jpeg'
+2026-03-15 16:01:45.924 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: ok
+2026-03-15 16:01:45.926 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'Certificado-Automatizacion-y-Agentes-IA-con-N8N-EducacionIT.jpeg' como 'diploma_curso' (confianza: 90.00%, 21290.96 ms)
+2026-03-15 16:18:20.551 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Connection error.
+2026-03-15 16:18:20.556 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Request timed out.
+2026-03-15 16:18:20.561 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 16:18:20.566 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: algo salió mal
+2026-03-15 16:18:20.589 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 16:18:20.597 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 16:18:20.598 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 16:18:20.599 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 16:18:20.604 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 16:18:20.605 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 16:18:20.606 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 16:18:20.606 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 16:18:20.614 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 16:18:20.615 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 16:18:20.621 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 16:18:20.622 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 16:18:20.623 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 16:18:20.624 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 16:18:20.625 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 16:18:20.625 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 16:18:20.626 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 16:18:20.642 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.644 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.52 ms)
+2026-03-15 16:18:20.650 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.652 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.5 ms)
+2026-03-15 16:18:20.660 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 16:18:20.666 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'vacio.pdf'
+2026-03-15 16:18:20.671 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.672 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': LLM explotó
+2026-03-15 16:18:20.678 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.680 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.45 ms)
+2026-03-15 16:18:20.686 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'desconocido'
+2026-03-15 16:18:20.691 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.692 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.52 ms)
+2026-03-15 16:18:20.699 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.700 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.56 ms)
+2026-03-15 16:18:20.707 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.709 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.44 ms)
+2026-03-15 16:18:20.715 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.717 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.53 ms)
+2026-03-15 16:18:20.723 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.725 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.49 ms)
+2026-03-15 16:18:20.733 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 16:18:20.940 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.942 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': boom
+2026-03-15 16:18:20.952 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 16:18:20.954 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.6 ms)
+2026-03-15 17:27:35.892 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Connection error.
+2026-03-15 17:27:35.898 | ERROR    | src.services.llm_service:_call_llm:111 - Error de conexión/timeout con OpenRouter: Request timed out.
+2026-03-15 17:27:35.904 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 17:27:35.908 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: algo salió mal
+2026-03-15 17:27:35.934 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 17:27:35.942 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 17:27:35.944 | WARNING  | src.services.llm_service:classify_and_extract:69 - Respuesta no es JSON válido, reintentando…
+2026-03-15 17:27:35.945 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 17:27:35.950 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 17:27:35.951 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 17:27:35.952 | ERROR    | src.services.llm_service:_call_llm:117 - Error inesperado al llamar al LLM: sin conexión
+2026-03-15 17:27:35.953 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 17:27:35.961 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 17:27:35.962 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 17:27:35.969 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 17:27:35.970 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 10s antes de reintentar (intento 1/3)
+2026-03-15 17:27:35.972 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 17:27:35.972 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 20s antes de reintentar (intento 2/3)
+2026-03-15 17:27:35.974 | WARNING  | src.services.llm_service:_call_llm:114 - Rate limit alcanzado en OpenRouter: rate limited
+2026-03-15 17:27:35.976 | WARNING  | src.services.llm_service:classify_and_extract:52 - Rate limit — esperando 40s antes de reintentar (intento 3/3)
+2026-03-15 17:27:35.977 | ERROR    | src.services.llm_service:classify_and_extract:71 - No se pudo obtener JSON válido del LLM tras 3 intentos
+2026-03-15 17:27:35.993 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:35.995 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.42 ms)
+2026-03-15 17:27:36.001 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:36.005 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.55 ms)
+2026-03-15 17:27:36.012 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 17:27:36.019 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'vacio.pdf'
+2026-03-15 17:27:36.025 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:36.026 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': LLM explotó
+2026-03-15 17:27:36.033 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:36.034 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.63 ms)
+2026-03-15 17:27:36.040 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'desconocido'
+2026-03-15 17:27:36.047 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:36.048 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.46 ms)
+2026-03-15 17:27:36.054 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:36.056 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.51 ms)
+2026-03-15 17:27:36.062 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:36.064 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.57 ms)
+2026-03-15 17:27:36.070 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:36.071 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.43 ms)
+2026-03-15 17:27:36.078 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:36.080 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'titulo.pdf': El documento es una factura comercial (confianza: 85.00%, 0.48 ms)
+2026-03-15 17:27:36.089 | WARNING  | src.agents.classifier_agent:classify:39 - Sin texto OCR para clasificar: 'fallido.pdf'
+2026-03-15 17:27:36.095 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:36.096 | ERROR    | src.agents.classifier_agent:classify:75 - Error al clasificar 'titulo.pdf': boom
+2026-03-15 17:27:36.103 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'titulo.pdf'
+2026-03-15 17:27:36.104 | INFO     | src.agents.classifier_agent:classify:137 - Clasificado 'titulo.pdf' como 'titulo_universitario' (confianza: 92.00%, 0.45 ms)
+2026-03-15 22:02:45.192 | INFO     | src.services.llm_service:__init__:29 - LlmService inicializado — modelo: openrouter/hunter-alpha
+2026-03-15 22:02:45.194 | INFO     | src.agents.classifier_agent:classify:68 - Clasificando documento: 'RutinaGym.pdf'
+2026-03-15 22:03:08.575 | INFO     | src.core.logger:audit_log:96 - [classifier] clasificado: rechazado
+2026-03-15 22:03:08.577 | INFO     | src.agents.classifier_agent:classify:153 - Rechazado 'RutinaGym.pdf': Documento no académico ni institucional; es una rutina de ejercicios físicos. (confianza: 95.00%, 23377.99 ms)
