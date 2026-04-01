@@ -62,7 +62,6 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 │   └── api.log                      # Log de la API (futuro)
 ├── .env                             # Variables de entorno (no versionado)
 ├── .env.example                     # Plantilla de variables de entorno
-├── CLAUDE.md                        # Directrices para Claude Code
 └── requirements.txt                 # Dependencias Python
 ```
 
