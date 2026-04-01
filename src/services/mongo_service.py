@@ -234,6 +234,39 @@ class MongoService:
             logger.error("Error al generar número de expediente: {}", exc)
             raise
 
+    def update_cedula_provisional(self, cedula_provisional: str, cedula_real: str) -> None:
+        """Reemplaza la cédula provisional de un docente por su cédula real.
+
+        Actualiza el registro del docente y todos sus documentos asociados.
+
+        Args:
+            cedula_provisional: Identificador provisional (ej: nombre de carpeta).
+            cedula_real: Cédula real del docente (solo dígitos).
+        """
+        try:
+            ahora = datetime.now()
+            self.docentes.update_one(
+                {"docente.cedula": cedula_provisional},
+                {"$set": {"docente.cedula": cedula_real, "updated_at": ahora}},
+            )
+            self.documentos.update_many(
+                {"docente_cedula": cedula_provisional},
+                {"$set": {"docente_cedula": cedula_real, "updated_at": ahora}},
+            )
+            logger.info(
+                "Cédula provisional '{}' actualizada a cédula real '{}'",
+                cedula_provisional,
+                cedula_real,
+            )
+        except PyMongoError as exc:
+            logger.error(
+                "Error actualizando cédula provisional '{}' a '{}': {}",
+                cedula_provisional,
+                cedula_real,
+                exc,
+            )
+            raise
+
     def update_archivo_ruta(self, documento_id: str, ruta: str) -> None:
         """Actualiza la ruta del archivo en un documento ya insertado.
 

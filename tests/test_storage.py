@@ -76,6 +76,19 @@ CLASSIFIED_RESULT_SIN_CEDULA = {
     },
 }
 
+CLASSIFIED_RESULT_RIF = {
+    **CLASSIFIED_RESULT_VALIDO,
+    "archivo_nombre": "rif.pdf",
+    "clasificacion": {
+        **CLASSIFIED_RESULT_VALIDO["clasificacion"],
+        "tipo": "rif",
+        "campos_extraidos": {
+            "nombre_titular": "Juan Pérez",
+            "numero_rif": "V-198007201",  # cédula=19800720, verificador=1
+        },
+    },
+}
+
 # Docente devuelto por MongoDB (simula find_one)
 MONGO_DOCENTE = {
     "_id": "507f1f77bcf86cd799439011",
@@ -532,11 +545,185 @@ class TestStorageAgentProcess:
         assert resultado["exito"] is False
         assert resultado["accion"] == "skip"
 
-    def test_sin_cedula_retorna_error(self, fake_storage):
+    def test_sin_cedula_sin_carpeta_retorna_error(self, fake_storage):
+        result_sin_todo = {
+            **CLASSIFIED_RESULT_SIN_CEDULA,
+            "carpeta_origen": "",
+        }
         agent = fake_storage()
-        resultado = agent.process(CLASSIFIED_RESULT_SIN_CEDULA)
+        agent.mongo_service.docentes = MagicMock()
+        agent.mongo_service.docentes.find.return_value = []
+        resultado = agent.process(result_sin_todo)
         assert resultado["exito"] is False
         assert resultado["accion"] == "error"
+
+    def test_sin_cedula_fallback_carpeta_vincula_docente_existente(self, fake_storage):
+        result_extranjero = {
+            **CLASSIFIED_RESULT_SIN_CEDULA,
+            "carpeta_origen": "Genghis_Capella",
+        }
+        agent = fake_storage()
+        agent.mongo_service.docentes = MagicMock()
+        agent.mongo_service.docentes.find.return_value = [
+            {"docente": {"cedula": "19800720"}}
+        ]
+        agent.mongo_service.find_documento_by_hash = MagicMock(return_value=None)
+        agent.mongo_service.find_docente_by_cedula = MagicMock(return_value=MONGO_DOCENTE)
+        resultado = agent.process(result_extranjero)
+        assert resultado["exito"] is True
+        agent.mongo_service.find_docente_by_cedula.assert_called_once_with("19800720")
+
+    def test_sin_cedula_fallback_carpeta_ambigua_usa_provisional(self, fake_storage):
+        result_extranjero = {
+            **CLASSIFIED_RESULT_SIN_CEDULA,
+            "carpeta_origen": "Juan_Perez",
+        }
+        agent = fake_storage()
+        agent.mongo_service.docentes = MagicMock()
+        agent.mongo_service.docentes.find.return_value = [
+            {"docente": {"cedula": "11111111"}},
+            {"docente": {"cedula": "22222222"}},
+        ]
+        agent.mongo_service.find_documento_by_hash = MagicMock(return_value=None)
+        agent.mongo_service.find_docente_by_cedula = MagicMock(return_value=None)
+        agent.mongo_service.generate_expediente_numero = MagicMock(return_value="EXP-2026-000001")
+        agent.mongo_service.insert_docente = MagicMock(return_value="nuevo_id")
+        resultado = agent.process(result_extranjero)
+        assert resultado["exito"] is True
+        agent.mongo_service.find_docente_by_cedula.assert_called_once_with("Juan_Perez")
+
+    def test_sin_cedula_crea_docente_provisional_con_carpeta(self, fake_storage):
+        result_extranjero = {
+            **CLASSIFIED_RESULT_SIN_CEDULA,
+            "carpeta_origen": "Genghis_Capella",
+        }
+        agent = fake_storage()
+        agent.mongo_service.docentes = MagicMock()
+        agent.mongo_service.docentes.find.return_value = []  # Sin match en búsqueda por nombre
+        agent.mongo_service.find_documento_by_hash = MagicMock(return_value=None)
+        agent.mongo_service.find_docente_by_cedula = MagicMock(return_value=None)
+        agent.mongo_service.generate_expediente_numero = MagicMock(return_value="EXP-2026-000001")
+        agent.mongo_service.insert_docente = MagicMock(return_value="nuevo_id")
+        resultado = agent.process(result_extranjero)
+        assert resultado["exito"] is True
+        agent.mongo_service.find_docente_by_cedula.assert_called_once_with("Genghis_Capella")
+
+    def test_provisional_vinculado_a_cedula_real(self, fake_storage):
+        """Docente provisional creado por carpeta se fusiona al recibir cédula real."""
+        result_rif_con_carpeta = {
+            **CLASSIFIED_RESULT_RIF,
+            "carpeta_origen": "Genghis_Capella",
+        }
+        provisional_doc = {
+            "_id": "prov_id_001",
+            "docente": {"cedula": "Genghis_Capella", "nombres": "Genghis", "apellidos": "Capella"},
+        }
+
+        def mock_find_docente(cedula):
+            if cedula == "19800720":
+                return None  # Cédula real aún no existe
+            if cedula == "Genghis_Capella":
+                return provisional_doc  # Docente provisional existe
+            return None
+
+        agent = fake_storage()
+        agent.mongo_service.find_documento_by_hash = MagicMock(return_value=None)
+        agent.mongo_service.find_docente_by_cedula = MagicMock(side_effect=mock_find_docente)
+        agent.mongo_service.update_cedula_provisional = MagicMock()
+        agent.mongo_service.insert_documento = MagicMock(return_value="doc001")
+        agent.mongo_service.update_completitud = MagicMock()
+        agent.mongo_service.update_archivo_ruta = MagicMock()
+
+        resultado = agent.process(result_rif_con_carpeta)
+
+        assert resultado["exito"] is True
+        assert resultado["docente_id"] == "prov_id_001"
+        agent.mongo_service.update_cedula_provisional.assert_called_once_with(
+            "Genghis_Capella", "19800720"
+        )
+        agent.mongo_service.insert_docente = MagicMock()
+        agent.mongo_service.insert_docente.assert_not_called()
+
+    def test_provisional_error_al_vincular_crea_docente_nuevo(self, fake_storage):
+        """Si falla la actualización del provisional, se crea un docente nuevo."""
+        from pymongo.errors import PyMongoError
+
+        result_rif_con_carpeta = {
+            **CLASSIFIED_RESULT_RIF,
+            "carpeta_origen": "Genghis_Capella",
+        }
+        provisional_doc = {
+            "_id": "prov_id_001",
+            "docente": {"cedula": "Genghis_Capella"},
+        }
+
+        def mock_find_docente(cedula):
+            if cedula == "19800720":
+                return None
+            if cedula == "Genghis_Capella":
+                return provisional_doc
+            return None
+
+        agent = fake_storage()
+        agent.mongo_service.find_documento_by_hash = MagicMock(return_value=None)
+        agent.mongo_service.find_docente_by_cedula = MagicMock(side_effect=mock_find_docente)
+        agent.mongo_service.update_cedula_provisional = MagicMock(
+            side_effect=PyMongoError("fallo update")
+        )
+        agent.mongo_service.generate_expediente_numero = MagicMock(return_value="EXP-2026-000002")
+        agent.mongo_service.insert_docente = MagicMock(return_value="nuevo_id")
+        agent.mongo_service.insert_documento = MagicMock(return_value="doc001")
+        agent.mongo_service.update_completitud = MagicMock()
+        agent.mongo_service.update_archivo_ruta = MagicMock()
+
+        resultado = agent.process(result_rif_con_carpeta)
+
+        assert resultado["exito"] is True
+        agent.mongo_service.insert_docente.assert_called_once()
+
+    def test_rif_extrae_cedula_del_numero_rif(self, fake_storage):
+        agent = fake_storage()
+        agent.mongo_service.find_documento_by_hash = MagicMock(return_value=None)
+        agent.mongo_service.find_docente_by_cedula = MagicMock(return_value=MONGO_DOCENTE)
+        resultado = agent.process(CLASSIFIED_RESULT_RIF)
+        assert resultado["exito"] is True
+        agent.mongo_service.find_docente_by_cedula.assert_called_once_with("19800720")
+
+    def test_rif_extrae_cedula_corta(self, fake_storage):
+        result_cedula_corta = {
+            **CLASSIFIED_RESULT_RIF,
+            "clasificacion": {
+                **CLASSIFIED_RESULT_RIF["clasificacion"],
+                "campos_extraidos": {
+                    "nombre_titular": "Pedro González",
+                    "numero_rif": "V-12345671",  # cédula=1234567 (7 dígitos, persona mayor)
+                },
+            },
+        }
+        agent = fake_storage()
+        agent.mongo_service.find_documento_by_hash = MagicMock(return_value=None)
+        agent.mongo_service.find_docente_by_cedula = MagicMock(return_value=MONGO_DOCENTE)
+        resultado = agent.process(result_cedula_corta)
+        assert resultado["exito"] is True
+        agent.mongo_service.find_docente_by_cedula.assert_called_once_with("1234567")
+
+    def test_rif_sin_numero_rif_usa_carpeta_provisional(self, fake_storage):
+        result_sin_rif = {
+            **CLASSIFIED_RESULT_RIF,
+            "carpeta_origen": "Juan_Perez",
+            "clasificacion": {
+                **CLASSIFIED_RESULT_RIF["clasificacion"],
+                "campos_extraidos": {"nombre_titular": "Juan Pérez"},
+            },
+        }
+        agent = fake_storage()
+        agent.mongo_service.docentes = MagicMock()
+        agent.mongo_service.docentes.find.return_value = []
+        agent.mongo_service.find_documento_by_hash = MagicMock(return_value=None)
+        agent.mongo_service.find_docente_by_cedula = MagicMock(return_value=MONGO_DOCENTE)
+        resultado = agent.process(result_sin_rif)
+        assert resultado["exito"] is True
+        agent.mongo_service.find_docente_by_cedula.assert_called_once_with("Juan_Perez")
 
     def test_documento_duplicado_por_hash_retorna_skip(self, fake_storage):
         agent = fake_storage()
@@ -694,14 +881,17 @@ class TestStorageAuditLog:
         assert args[1] == "documento_no_valido"
         assert args[2] == "skip"
 
-    def test_audit_sin_cedula(self, fake_storage, monkeypatch):
+    def test_audit_sin_cedula_sin_carpeta(self, fake_storage, monkeypatch):
         audit_calls = []
         monkeypatch.setattr(
             "src.agents.storage_agent.audit_log",
             lambda *a, **kw: audit_calls.append((a, kw)),
         )
+        result_sin_todo = {**CLASSIFIED_RESULT_SIN_CEDULA, "carpeta_origen": ""}
         agent = fake_storage()
-        agent.process(CLASSIFIED_RESULT_SIN_CEDULA)
+        agent.mongo_service.docentes = MagicMock()
+        agent.mongo_service.docentes.find.return_value = []
+        agent.process(result_sin_todo)
 
         assert len(audit_calls) == 1
         args, _ = audit_calls[0]

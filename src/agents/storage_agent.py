@@ -73,17 +73,52 @@ class StorageAgent:
         campos_extraidos = clasificacion.get("campos_extraidos", {})
         cedula_raw = campos_extraidos.get("cedula_titular")
         if not cedula_raw:
-            logger.warning("Sin cédula extraída en {}, omitiendo almacenamiento", archivo_nombre)
-            audit_log(
-                "storage",
-                "sin_cedula",
-                "error",
-                archivo=archivo_nombre,
-                detalle=json.dumps({"campos_disponibles": list(campos_extraidos.keys())}),
-            )
-            return {"exito": False, "accion": "error", "docente_id": None, "documento_id": None}
+            # Fallback: extraer cédula del RIF venezolano (formato V-XXXXXXXX-D)
+            numero_rif = campos_extraidos.get("numero_rif", "")
+            if numero_rif and numero_rif.upper().lstrip().startswith("V"):
+                digitos = re.sub(r"[^\d]", "", numero_rif)
+                if len(digitos) > 1:
+                    cedula_raw = digitos[:-1]  # El último dígito es el verificador
+                    logger.info(
+                        "Cédula extraída del RIF {} → {}",
+                        numero_rif,
+                        cedula_raw,
+                    )
+        carpeta_origen = classified_result.get("carpeta_origen", "")
+        cedula_provisional = False
 
-        cedula = self._normalize_cedula(cedula_raw)
+        if not cedula_raw:
+            # Fallback 3: buscar docente existente por nombre de carpeta en MongoDB
+            cedula_raw = self._buscar_cedula_por_carpeta(carpeta_origen)
+            if cedula_raw:
+                logger.info(
+                    "Cédula obtenida por carpeta '{}' → {}",
+                    carpeta_origen,
+                    cedula_raw,
+                )
+
+        if not cedula_raw:
+            # Fallback 4: usar carpeta como identificador provisional
+            if carpeta_origen:
+                cedula_raw = carpeta_origen
+                cedula_provisional = True
+                logger.info(
+                    "Sin cédula identificada en {}, usando carpeta '{}' como identificador provisional",
+                    archivo_nombre,
+                    carpeta_origen,
+                )
+            else:
+                logger.warning("Sin cédula ni carpeta en {}, omitiendo almacenamiento", archivo_nombre)
+                audit_log(
+                    "storage",
+                    "sin_cedula",
+                    "error",
+                    archivo=archivo_nombre,
+                    detalle=json.dumps({"campos_disponibles": list(campos_extraidos.keys())}),
+                )
+                return {"exito": False, "accion": "error", "docente_id": None, "documento_id": None}
+
+        cedula = cedula_raw if cedula_provisional else self._normalize_cedula(cedula_raw)
         tipo = clasificacion.get("tipo", "otro")
 
         # 3. Verificar duplicado por hash
@@ -129,6 +164,26 @@ class StorageAgent:
                 detalle=json.dumps({"paso": "find_docente_by_cedula", "error": str(exc)}),
             )
             return {"exito": False, "accion": "error", "docente_id": None, "documento_id": None}
+
+        # Si no se encontró y la cédula es real, verificar si existe un docente provisional
+        if docente_doc is None and not cedula_provisional and carpeta_origen:
+            try:
+                provisional_doc = self.mongo_service.find_docente_by_cedula(carpeta_origen)
+                if provisional_doc:
+                    self.mongo_service.update_cedula_provisional(carpeta_origen, cedula)
+                    docente_id = str(provisional_doc["_id"])
+                    docente_doc = provisional_doc
+                    logger.info(
+                        "Docente provisional '{}' vinculado a cédula real {}",
+                        carpeta_origen,
+                        cedula,
+                    )
+            except Exception as exc:
+                logger.warning(
+                    "Error al vincular docente provisional '{}': {}",
+                    carpeta_origen,
+                    exc,
+                )
 
         if docente_doc is None:
             try:
@@ -253,6 +308,56 @@ class StorageAgent:
             Cédula normalizada con solo dígitos.
         """
         return re.sub(r"[^\d]", "", cedula_raw)
+
+    def _buscar_cedula_por_carpeta(self, carpeta_origen: str) -> str | None:
+        """Busca la cédula de un docente existente usando el nombre de la carpeta.
+
+        Convierte el nombre de carpeta (ej: "Genghis_Capella") en términos de
+        búsqueda y consulta MongoDB. Solo retorna cédula si hay exactamente un
+        docente que coincida, para evitar asignaciones erróneas.
+
+        Args:
+            carpeta_origen: Nombre de la subcarpeta en data/input/.
+
+        Returns:
+            Cédula del docente si se encuentra un único match, None si no hay
+            coincidencia o hay ambigüedad.
+        """
+        if not carpeta_origen:
+            return None
+
+        palabras = [p for p in re.split(r"[_\s]+", carpeta_origen) if len(p) > 2]
+        if not palabras:
+            return None
+
+        try:
+            condiciones = [
+                {
+                    "$or": [
+                        {"docente.nombres": {"$regex": palabra, "$options": "i"}},
+                        {"docente.apellidos": {"$regex": palabra, "$options": "i"}},
+                    ]
+                }
+                for palabra in palabras
+            ]
+            resultados = list(
+                self.mongo_service.docentes.find(
+                    {"$and": condiciones},
+                    {"docente.cedula": 1},
+                )
+            )
+            if len(resultados) == 1:
+                return resultados[0]["docente"]["cedula"]
+            if len(resultados) > 1:
+                logger.warning(
+                    "Búsqueda por carpeta '{}' devolvió {} docentes, se omite para evitar ambigüedad",
+                    carpeta_origen,
+                    len(resultados),
+                )
+        except Exception as exc:
+            logger.warning("Error buscando docente por carpeta '{}': {}", carpeta_origen, exc)
+
+        return None
 
     def _build_docente_data(
         self,
