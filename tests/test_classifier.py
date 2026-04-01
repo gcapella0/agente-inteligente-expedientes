@@ -147,6 +147,7 @@ def fake_llm_service():
         with patch.object(LlmService, "__init__", lambda self: None):
             service = LlmService()
             service.model = "test-model/fake"
+            service.models = ["test-model/fake"]
             service.client = MagicMock()
 
         if should_fail:
@@ -247,7 +248,7 @@ class TestCallLlm:
 
     def test_llamada_exitosa(self, fake_llm_service):
         service = fake_llm_service()
-        contenido, tokens, rate_limited = service._call_llm("texto de prueba")
+        contenido, tokens, rate_limited = service._call_llm("texto de prueba", "test-model/fake")
         assert contenido is not None
         assert tokens == 150
         assert rate_limited is False
@@ -255,7 +256,7 @@ class TestCallLlm:
 
     def test_parametros_de_llamada(self, fake_llm_service):
         service = fake_llm_service()
-        service._call_llm("mi texto ocr")
+        service._call_llm("mi texto ocr", "test-model/fake")
         call_kwargs = service.client.chat.completions.create.call_args[1]
         assert call_kwargs["model"] == "test-model/fake"
         assert call_kwargs["max_tokens"] == 1000
@@ -270,7 +271,7 @@ class TestCallLlm:
             should_fail=True,
             fail_exception=APIConnectionError(request=MagicMock()),
         )
-        contenido, tokens, rate_limited = service._call_llm("texto")
+        contenido, tokens, rate_limited = service._call_llm("texto", "test-model/fake")
         assert contenido is None
         assert tokens == 0
         assert rate_limited is False
@@ -281,7 +282,7 @@ class TestCallLlm:
             should_fail=True,
             fail_exception=APITimeoutError(request=MagicMock()),
         )
-        contenido, tokens, rate_limited = service._call_llm("texto")
+        contenido, tokens, rate_limited = service._call_llm("texto", "test-model/fake")
         assert contenido is None
         assert tokens == 0
         assert rate_limited is False
@@ -299,7 +300,7 @@ class TestCallLlm:
                 body=None,
             ),
         )
-        contenido, tokens, rate_limited = service._call_llm("texto")
+        contenido, tokens, rate_limited = service._call_llm("texto", "test-model/fake")
         assert contenido is None
         assert tokens == 0
         assert rate_limited is True
@@ -309,14 +310,14 @@ class TestCallLlm:
             should_fail=True,
             fail_exception=RuntimeError("algo salió mal"),
         )
-        contenido, tokens, rate_limited = service._call_llm("texto")
+        contenido, tokens, rate_limited = service._call_llm("texto", "test-model/fake")
         assert contenido is None
         assert tokens == 0
         assert rate_limited is False
 
     def test_sin_usage_retorna_cero_tokens(self, fake_llm_service):
         service = fake_llm_service(no_usage=True)
-        contenido, tokens, rate_limited = service._call_llm("texto")
+        contenido, tokens, rate_limited = service._call_llm("texto", "test-model/fake")
         assert contenido is not None
         assert tokens == 0
         assert rate_limited is False
@@ -326,6 +327,7 @@ class TestCallLlm:
         with patch.object(LlmService, "__init__", lambda self: None):
             service = LlmService()
             service.model = "test-model/fake"
+            service.models = ["test-model/fake"]
             service.client = MagicMock()
 
         choice = MagicMock()
@@ -335,7 +337,7 @@ class TestCallLlm:
         response.usage = MagicMock(total_tokens=10)
         service.client.chat.completions.create.return_value = response
 
-        contenido, tokens, rate_limited = service._call_llm("texto")
+        contenido, tokens, rate_limited = service._call_llm("texto", "test-model/fake")
         assert contenido == ""
         assert tokens == 10
         assert rate_limited is False
@@ -369,6 +371,7 @@ class TestClassifyAndExtract:
         with patch.object(LlmService, "__init__", lambda self: None):
             service = LlmService()
             service.model = "test-model/fake"
+            service.models = ["test-model/fake"]
             service.client = MagicMock()
 
         json_valido = json.dumps(LLM_RESPONSE_VALIDO)
@@ -384,7 +387,7 @@ class TestClassifyAndExtract:
         assert service.client.chat.completions.create.call_count == 2
 
     def test_fallo_total_tras_todos_los_intentos(self, fake_llm_service):
-        """Si todos los intentos fallan, retorna dict de error."""
+        """Si todos los intentos del único modelo fallan, retorna dict de error."""
         service = fake_llm_service(raw_content="no json aquí tampoco")
         resp_mal = _build_fake_completion("basura")
         service.client.chat.completions.create.side_effect = [
@@ -407,11 +410,12 @@ class TestClassifyAndExtract:
         assert resultado["valido"] is False
         assert resultado["tokens_usados"] == 0
 
-    def test_rate_limit_con_backoff_y_recuperacion(self, fake_llm_service):
-        """Rate limit espera con backoff y reintenta exitosamente."""
+    def test_rate_limit_rota_a_modelo_fallback(self, fake_llm_service):
+        """Rate limit en el primer modelo rota al segundo sin esperar."""
         with patch.object(LlmService, "__init__", lambda self: None):
             service = LlmService()
-            service.model = "test-model/fake"
+            service.model = "model-1/free"
+            service.models = ["model-1/free", "model-2/free"]
             service.client = MagicMock()
 
         from openai import RateLimitError
@@ -424,15 +428,14 @@ class TestClassifyAndExtract:
         resp_ok = _build_fake_completion(json_valido)
         service.client.chat.completions.create.side_effect = [rate_err, resp_ok]
 
-        with patch("src.services.llm_service.time.sleep") as mock_sleep:
-            resultado = service.classify_and_extract("texto")
+        resultado = service.classify_and_extract("texto")
 
         assert resultado["valido"] is True
-        mock_sleep.assert_called_once()
-        assert mock_sleep.call_args[0][0] >= 10.0  # base delay
+        assert resultado["modelo_llm"] == "model-2/free"
+        assert service.client.chat.completions.create.call_count == 2
 
-    def test_rate_limit_agota_reintentos(self, fake_llm_service):
-        """Rate limit que persiste agota todos los reintentos."""
+    def test_rate_limit_todos_los_modelos_falla(self, fake_llm_service):
+        """Si todos los modelos están con rate limit, retorna error."""
         from openai import RateLimitError
         rate_err = RateLimitError(
             message="rate limited",
@@ -444,11 +447,37 @@ class TestClassifyAndExtract:
             fail_exception=rate_err,
         )
 
-        with patch("src.services.llm_service.time.sleep"):
-            resultado = service.classify_and_extract("texto")
+        resultado = service.classify_and_extract("texto")
 
         assert resultado["valido"] is False
         assert resultado["tokens_usados"] == 0
+
+    def test_rate_limit_solo_una_llamada_por_modelo(self, fake_llm_service):
+        """Rate limit provoca exactamente 1 llamada al modelo agotado y 1 al fallback."""
+        with patch.object(LlmService, "__init__", lambda self: None):
+            service = LlmService()
+            service.model = "model-1/free"
+            service.models = ["model-1/free", "model-2/free"]
+            service.client = MagicMock()
+
+        from openai import RateLimitError
+        rate_err = RateLimitError(
+            message="rate limited",
+            response=MagicMock(status_code=429, headers={}),
+            body=None,
+        )
+        json_valido = json.dumps(LLM_RESPONSE_VALIDO)
+        resp_ok = _build_fake_completion(json_valido)
+        service.client.chat.completions.create.side_effect = [rate_err, resp_ok]
+
+        resultado = service.classify_and_extract("texto")
+
+        assert resultado["valido"] is True
+        # 1 llamada fallida al model-1, 1 exitosa al model-2
+        assert service.client.chat.completions.create.call_count == 2
+        calls = service.client.chat.completions.create.call_args_list
+        assert calls[0][1]["model"] == "model-1/free"
+        assert calls[1][1]["model"] == "model-2/free"
 
     def test_respuesta_con_fences_markdown(self, fake_llm_service):
         """JSON envuelto en markdown fences se parsea correctamente."""
