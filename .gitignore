@@ -19,6 +19,9 @@ build/
 .DS_Store
 Thumbs.db
 
+# Logs runtime
+logs/
+
 # Datos locales
 data/
 src/data/input/
