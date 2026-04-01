@@ -22,18 +22,11 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 MONGO_DB = os.getenv("MONGO_DB", "expedientes_uneg")
 STORAGE_DIR = Path(os.getenv("STORAGE_DIR", DATA_DIR / "storage"))
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "minimax/minimax-m2.5:free")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "")
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-
-_FALLBACK_MODELS_DEFAULT = (
-    "minimax/minimax-m2.5:free,"
-    "google/gemma-3-27b-it:free,"
-    "meta-llama/llama-4-scout:free,"
-    "qwen/qwen3-8b:free"
-)
 OPENROUTER_FALLBACK_MODELS: list[str] = [
     m.strip()
-    for m in os.getenv("OPENROUTER_FALLBACK_MODELS", _FALLBACK_MODELS_DEFAULT).split(",")
+    for m in os.getenv("OPENROUTER_FALLBACK_MODELS", "").split(",")
     if m.strip()
 ]
 AUDIT_RETENTION = os.getenv("AUDIT_RETENTION", "90 days")
