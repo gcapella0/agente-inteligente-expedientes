@@ -133,7 +133,7 @@ Pydantic v2 models for MongoDB: `DocenteModel` (teacher profile with nested cont
 
 ## Testing patterns
 
-- **151 tests total**: 47 watcher + 57 OCR + 47 classifier, all must pass before merging
+- **152 tests total**: 47 watcher + 57 OCR + 48 classifier, all must pass before merging
 - `FakeIMAPClient` mocks `imaplib.IMAP4_SSL` with configurable search results and STORE tracking
 - `build_email(subject, body, attachments, from_addr)` creates valid EmailMessage bytes
 - `watcher_factory` fixture: patches INPUT_DIR, UID_STATE_FILE, SUBJECT_KEYWORDS, BODY_KEYWORDS. Call as `factory(messages={uid: email_bytes}, processed=[uids], fingerprints=[hashes])`
