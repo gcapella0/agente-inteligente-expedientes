@@ -19,6 +19,9 @@ build/
 .DS_Store
 Thumbs.db
 
+# Logs runtime
+logs/
+
 # Datos locales
 data/
 src/data/input/
@@ -36,6 +39,3 @@ src/data/vectorstore/
 # Claude / Testing cache
 .claude/
 .pytest_cache/
-
-# Claude Code - solo local
-CLAUDE.md
