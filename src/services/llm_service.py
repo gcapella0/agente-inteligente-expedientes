@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import re
-import time
 
 from openai import OpenAI, APIConnectionError, APITimeoutError, RateLimitError
 
@@ -18,7 +17,13 @@ _MARKDOWN_FENCE_RE = re.compile(r"```(?:json)?\s*\n?(.*?)\n?\s*```", re.DOTALL)
 
 
 class LlmService:
-    """Servicio que envía texto OCR a un LLM vía OpenRouter para clasificación."""
+    """Servicio que envía texto OCR a un LLM vía OpenRouter para clasificación.
+
+    Intenta los modelos en orden: primario → fallbacks. En caso de rate limit
+    en un modelo, rota al siguiente inmediatamente sin esperar (la cuota diaria
+    no se resetea hasta el día siguiente). Los errores transitorios (conexión,
+    JSON inválido) se reintentan en el mismo modelo hasta ``_MAX_RETRIES`` veces.
+    """
 
     def __init__(self) -> None:
         self.client = OpenAI(
@@ -26,16 +31,27 @@ class LlmService:
             api_key=config.OPENROUTER_API_KEY,
         )
         self.model = config.OPENROUTER_MODEL
-        logger.info("LlmService inicializado — modelo: {}", self.model)
+        # Lista de modelos a intentar: primario + fallbacks, sin duplicados
+        seen: set[str] = set()
+        self.models: list[str] = []
+        for m in [config.OPENROUTER_MODEL] + config.OPENROUTER_FALLBACK_MODELS:
+            if m not in seen:
+                seen.add(m)
+                self.models.append(m)
+        logger.info(
+            "LlmService inicializado — {} modelo(s) disponible(s): {}",
+            len(self.models),
+            ", ".join(self.models),
+        )
 
     _MAX_RETRIES = 3
-    _BASE_DELAY = 10.0  # segundos base para backoff en rate limit
 
     def classify_and_extract(self, texto_ocr: str) -> dict:
         """Clasifica un documento y extrae campos estructurados mediante LLM.
 
-        Reintenta hasta ``_MAX_RETRIES`` veces con backoff exponencial
-        ante errores de rate limit o respuestas no parseables.
+        Itera sobre los modelos disponibles. Dentro de cada modelo reintenta
+        hasta ``_MAX_RETRIES`` veces en caso de error transitorio. Si el modelo
+        devuelve rate limit, pasa al siguiente inmediatamente.
 
         Args:
             texto_ocr: Texto completo extraído por OCR.
@@ -44,33 +60,34 @@ class LlmService:
             Diccionario con la clasificación, tipo, campos extraídos y
             metadatos de la respuesta (modelo, tokens usados).
         """
-        for intento in range(self._MAX_RETRIES):
-            respuesta_raw, tokens_usados, rate_limited = self._call_llm(texto_ocr)
-
-            if rate_limited:
-                delay = self._BASE_DELAY * (2 ** intento)
-                logger.warning(
-                    "Rate limit — esperando {:.0f}s antes de reintentar (intento {}/{})",
-                    delay, intento + 1, self._MAX_RETRIES,
+        for model in self.models:
+            for intento in range(self._MAX_RETRIES):
+                respuesta_raw, tokens_usados, rate_limited = self._call_llm(
+                    texto_ocr, model
                 )
-                time.sleep(delay)
-                continue
 
-            if respuesta_raw is None:
-                continue
+                if rate_limited:
+                    logger.warning(
+                        "Rate limit en '{}' — rotando al siguiente modelo", model
+                    )
+                    break  # pasar al siguiente modelo
 
-            parsed = self._parse_json(respuesta_raw)
-            if parsed is not None:
-                parsed["modelo_llm"] = self.model
-                parsed["tokens_usados"] = tokens_usados
-                return parsed
+                if respuesta_raw is None:
+                    continue  # error transitorio, reintentar mismo modelo
 
-            if intento < self._MAX_RETRIES - 1:
-                logger.warning("Respuesta no es JSON válido, reintentando…")
+                parsed = self._parse_json(respuesta_raw)
+                if parsed is not None:
+                    parsed["modelo_llm"] = model
+                    parsed["tokens_usados"] = tokens_usados
+                    return parsed
+
+                if intento < self._MAX_RETRIES - 1:
+                    logger.warning(
+                        "Respuesta no es JSON válido en '{}', reintentando…", model
+                    )
 
         logger.error(
-            "No se pudo obtener JSON válido del LLM tras {} intentos",
-            self._MAX_RETRIES,
+            "No se pudo obtener JSON válido tras agotar todos los modelos disponibles"
         )
         return {
             "valido": False,
@@ -82,8 +99,12 @@ class LlmService:
             "tokens_usados": 0,
         }
 
-    def _call_llm(self, texto_ocr: str) -> tuple[str | None, int, bool]:
+    def _call_llm(self, texto_ocr: str, model: str) -> tuple[str | None, int, bool]:
         """Realiza la llamada al LLM y retorna el contenido y tokens usados.
+
+        Args:
+            texto_ocr: Texto a clasificar.
+            model: Identificador del modelo a usar en esta llamada.
 
         Returns:
             Tupla (contenido_respuesta, tokens_usados, rate_limited).
@@ -92,7 +113,7 @@ class LlmService:
         """
         try:
             response = self.client.chat.completions.create(
-                model=self.model,
+                model=model,
                 messages=[
                     {"role": "system", "content": CLASSIFY_AND_EXTRACT_PROMPT},
                     {
