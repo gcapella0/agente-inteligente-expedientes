@@ -40,3 +40,6 @@ src/data/vectorstore/
 .claude/
 .pytest_cache/
 CLAUDE.md
+
+# Logs (generados en runtime)
+logs/
