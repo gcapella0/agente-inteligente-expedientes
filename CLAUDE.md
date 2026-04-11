@@ -40,7 +40,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Run the main entry point (__main__ currently calls test_pipeline(): Watcher → OCR → Classifier)
+# Run the main entry point (__main__ calls test_pipeline(): Watcher → OCR → Classifier → Storage)
 python -m src.main
 
 # Run all tests (Python 3.12+ required)
@@ -55,6 +55,12 @@ pytest tests/test_ocr.py -v
 # Run only classifier tests
 pytest tests/test_classifier.py -v
 
+# Run only storage tests
+pytest tests/test_storage.py -v
+
+# Run only LLM provider tests
+pytest tests/test_llm_providers.py -v
+
 # Run a single test by name
 pytest tests/test_ocr.py -k "test_name_here" -v
 
@@ -64,7 +70,7 @@ pip install -r requirements.txt
 
 ## Architecture
 
-Multi-agent system for automating teacher dossier ("expediente docente") management at UNEG. WatcherAgent, OcrAgent and ClassifierAgent are implemented. StorageAgent is planned.
+Multi-agent system for automating teacher dossier ("expediente docente") management at UNEG. WatcherAgent, OcrAgent, ClassifierAgent and StorageAgent are implemented.
 
 ### Pipeline
 
@@ -73,9 +79,10 @@ WatcherAgent (Gmail IMAP)
   → saves attachments to data/input/{teacher_name}/
     → OcrAgent scans those folders
       → extracts text via docTR
-        → ClassifierAgent classifies via LLM (OpenRouter, modelo: openrouter/hunter-alpha)
+        → ClassifierAgent classifies via LLM (OpenRouter or Ollama, selectable via LLM_PROVIDER)
           → outputs structured JSON with classification
             → Deduplication: SHA-256 hash state file skips already-classified files
+              → StorageAgent persists in MongoDB and moves files to data/storage/{cedula}/
 ```
 
 ### WatcherAgent (`src/agents/watcher_agent.py`)
@@ -104,20 +111,36 @@ Polling loop: connect IMAP → search emails → process each → save to `data/
 - `OcrAgent` receives `OcrService` via injection. `process_directory(skip_hashes=set())` scans `config.INPUT_DIR` subdirectories, processes `.pdf/.jpg/.jpeg/.png` files, ignores `.txt`. When `skip_hashes` is provided, computes SHA-256 **before** OCR and skips matching files (used by `test_pipeline()` to avoid re-processing). Failures are logged via `audit_log()` but don't stop the pipeline.
 - Each file result includes `hash_sha256`, `tamano_bytes`, `formato`, `carpeta_origen`, and `ocr_resultado`.
 
-### ClassifierAgent (`src/agents/classifier_agent.py`) + LlmService (`src/services/llm_service.py`)
+### ClassifierAgent (`src/agents/classifier_agent.py`) + LlmService + LLM providers
 
-- `LlmService` uses the `openai` SDK pointed at OpenRouter (`config.OPENROUTER_BASE_URL`). Default model: `openrouter/hunter-alpha` (config.py); `.env.example` may reference older models — the code default takes precedence. `classify_and_extract(texto_ocr)` sends OCR text with `temperature=0.1`, `max_tokens=1000`, parses JSON response (strips markdown fences via regex), retries up to 3 times with exponential backoff (`delay = 10 * 2^attempt` → 10s, 20s, 40s) on rate limit (429). Returns dict with `valido`, `tipo`, `campos_extraidos`, `confianza_clasificacion`, `modelo_llm`, `tokens_usados`.
-- `ClassifierAgent` receives `LlmService` via injection. `classify(ocr_result)` takes an OcrAgent result dict, **extracts `json_ligero` (falling back to `texto_completo`)**, calls LLM, and returns enriched dict with `clasificacion` key added.
-- System prompt lives in `src/prompts/classify_document.py` (`CLASSIFY_AND_EXTRACT_PROMPT`). Lists 21 document types (synced with `TipoDocumento` in `src/models/documento.py`) and field extraction rules per type.
-- Audit logs: `clasificado`/`ok` for valid, `clasificado`/`rechazado` for invalid, `clasificacion_fallida`/`error` for LLM errors. Detail includes modelo_llm, confianza, campos count, tokens, tiempo_ms.
+**Provider architecture** (`src/services/llm/`): plugin pattern with abstract base class.
+- `BaseLlmProvider` (ABC): abstract `classify_and_extract(texto_ocr) -> dict` and `health_check() -> dict`. All providers add `latencia_ms` and `provider` fields to the returned dict.
+- `OpenRouterProvider`: uses `openai` SDK pointed at OpenRouter. Model rotation on rate limit (primary + fallback models from config). Returns `tokens_usados` from API usage.
+- `OllamaProvider`: uses `requests.post` to `POST /api/chat` (chat endpoint, not `/api/generate`). Text truncated to `_PROMPT_MAX_CHARS = 1500` before sending. Options: `num_predict` (default 400), `num_ctx: 2048`, `num_thread: os.cpu_count()`. Returns `tokens_usados=None` (Ollama doesn't report tokens). Recommended models for CPU: `qwen2.5:0.5b` (~10-20s) or `phi3:mini` (~30-60s). **Do not use `mistral` on CPU-only** — exceeds 120s timeout.
+- `create_llm_provider()` factory in `llm_factory.py`: reads `LLM_PROVIDER` env var, lazy-imports the provider to avoid circular imports.
+
+**LlmService** (`src/services/llm_service.py`): dual-mode orchestrator.
+- With provider injected: `LlmService(create_llm_provider())` — delegates all calls to the provider. `src/main.py` uses this mode so `LLM_PROVIDER` in `.env` is respected.
+- Without provider (legacy): `LlmService()` — uses OpenRouter directly with model rotation and retries. Retries up to 3 times on non-JSON response; rotates to next fallback model on rate limit.
+- **Backward compat**: `classify_and_extract` uses `getattr(self, "_delegate", None)` — tests that mock `__init__` (bypassing it with `lambda self: None`) never set `_delegate`, so they fall through to the legacy path automatically.
+- `_parse_json` static method retained for direct use by tests in `test_classifier.py`.
+
+**ClassifierAgent**: receives `LlmService` via injection. `classify(ocr_result)` extracts `json_ligero` (falling back to `texto_completo`), calls LLM, returns enriched dict with `clasificacion` key added. System prompt: `src/prompts/classify_document.py` (`CLASSIFY_AND_EXTRACT_PROMPT`, ~4400 chars, 21 document types). Audit logs: `clasificado`/`ok`, `clasificado`/`rechazado`, `clasificacion_fallida`/`error`.
+
+### StorageAgent (`src/agents/storage_agent.py`) + MongoService + FileService
+
+- `StorageAgent` receives `MongoService` and `FileService` via injection. `process(classified_result)` runs the full storage pipeline: validates document, extracts and normalizes cédula, checks for hash duplicates, creates or retrieves docente record, inserts documento, updates completitud, and moves the file. Returns dict with `exito`, `accion` ("insert"|"skip"|"error"), `docente_id`, `documento_id`.
+- `MongoService` wraps `pymongo`. Collections: `docentes` and `documentos`. Creates indexes on first init (`setup_indexes()`). Key methods: `find_docente_by_cedula`, `find_documento_by_hash`, `insert_docente`, `insert_documento`, `update_completitud`, `generate_expediente_numero` (format: `EXP-{año}-{seq:06d}`), `update_archivo_ruta`. Uses `DocenteModel`/`DocumentoModel` (Pydantic v2) for validation before insert.
+- `FileService` manages file movement. `move_to_storage(source_path, cedula, tipo, fecha_emision)` moves files to `config.STORAGE_DIR/{cedula}/{tipo}_{fecha}{ext}`, adding numeric suffix if the target exists. `compute_hash(path)` returns SHA-256 hex. `cleanup_input_directory(dir)` deletes all files and removes directory if empty.
+- `_DOCUMENTOS_REQUERIDOS` in `mongo_service.py` lists the 10 required document types for completitud calculation.
 
 ### Pipeline orchestration (`src/main.py`)
 
-`test_pipeline()` chains Watcher (1 IMAP cycle) → OCR → Classifier with **file-level deduplication**: `data/processed_pipeline.json` stores SHA-256 hashes of already-classified files. Each hash is persisted immediately after classification (crash-resilient). This is separate from WatcherAgent's email-level UID/fingerprint deduplication. Individual agent functions (`test_ocr()`, `test_classifier()`) also exist for isolated testing.
+`test_pipeline()` chains Watcher (1 IMAP cycle) → OCR → Classifier → Storage with **file-level deduplication**: `data/processed_pipeline.json` stores SHA-256 hashes of already-classified files. Each hash is persisted immediately after classification (crash-resilient). This is separate from WatcherAgent's email-level UID/fingerprint deduplication. Both `test_pipeline()` and `test_classifier()` instantiate `LlmService(create_llm_provider())` — the `LLM_PROVIDER` env var is respected at runtime. Individual agent test functions also exist for isolated testing: `test_watcher()`, `test_ocr()`, `test_classifier()`, `test_storage()`.
 
 ### Configuration (`src/config.py`)
 
-Centralized config from `.env` via `python-dotenv`. Paths resolve from `ROOT_DIR`. Two validators: `validate()` for watcher env vars (MAIL_USER/PASS/HOST), `validate_ocr()` for OCR/storage vars (MONGO_URI, OPENROUTER_API_KEY). `ensure_directories()` creates required data directories (`INPUT_DIR`, `DATA_DIR`). All secrets (API keys, passwords) must live in `.env` only — never hardcode them as defaults in `config.py`. Notable env var: `MAIL_TIMEOUT` (default 30s) controls IMAP connection timeout.
+Centralized config from `.env` via `python-dotenv`. Paths resolve from `ROOT_DIR`. Two validators: `validate()` for watcher env vars (MAIL_USER/PASS/HOST), `validate_ocr()` for OCR/storage vars (MONGO_URI, OPENROUTER_API_KEY). `ensure_directories()` creates `INPUT_DIR`, `DATA_DIR`, `LOG_DIR`, and `STORAGE_DIR`. All secrets (API keys, passwords) must live in `.env` only — never hardcode them as defaults in `config.py`. Notable env vars: `MAIL_TIMEOUT` (default 30s), `MONGO_URI` (default `mongodb://localhost:27017`), `MONGO_DB` (default `expedientes_uneg`), `STORAGE_DIR` (default `data/storage/`), `LLM_PROVIDER` (`"openrouter"` | `"ollama"`), `OLLAMA_MODEL`, `OLLAMA_TIMEOUT_SECONDS` (default 120), `OLLAMA_NUM_PREDICT` (default 400), `OLLAMA_NUM_THREADS` (default `os.cpu_count()`).
 
 ### Logging (`src/core/logger.py`)
 
@@ -133,13 +156,15 @@ Pydantic v2 models for MongoDB: `DocenteModel` (teacher profile with nested cont
 
 ## Testing patterns
 
-- **152 tests total**: 47 watcher + 57 OCR + 48 classifier, all must pass before merging
+- **182 tests total**: 37 watcher + 50 OCR + 47 classifier + 52 storage + 31 llm_providers, all must pass before merging
 - `FakeIMAPClient` mocks `imaplib.IMAP4_SSL` with configurable search results and STORE tracking
 - `build_email(subject, body, attachments, from_addr)` creates valid EmailMessage bytes
 - `watcher_factory` fixture: patches INPUT_DIR, UID_STATE_FILE, SUBJECT_KEYWORDS, BODY_KEYWORDS. Call as `factory(messages={uid: email_bytes}, processed=[uids], fingerprints=[hashes])`
 - `fake_ocr_service` fixture: returns factory that creates `OcrService` with mocked docTR model (no real model download). Call as `factory(words=..., pages=..., language=..., should_fail=...)`
 - `sample_input_dir` fixture: creates `tmp_path` with subdirectory structure mimicking `data/input/`. Call as `factory(carpetas={"Docente_A": [("file.pdf", b"content")]})`
 - `fake_llm_service` fixture: returns factory that creates `LlmService` with mocked OpenAI client. Call as `factory(response_dict=..., raw_content=..., should_fail=..., fail_exception=...)`. `fake_classifier` wraps it into a `ClassifierAgent`.
+- Storage tests use `MagicMock` to mock `MongoService` and `FileService` — no real MongoDB or filesystem required. `CLASSIFIED_RESULT_VALIDO` / `CLASSIFIED_RESULT_NO_VALIDO` constants provide standard test fixtures.
+- LLM provider tests (`test_llm_providers.py`): `_ollama_response(content)` builds a mock `/api/chat` response (`{"message": {"content": content}}`). `monkeypatch` on `src.services.llm.ollama_provider.config.*` and `src.services.llm.openrouter_provider.config.*` to patch provider-specific config. OpenAI client is patched via `patch("src.services.llm.openrouter_provider.OpenAI")`.
 - Tests use `monkeypatch` extensively because module-level constants are set at import time
 
 ## Git branching strategy

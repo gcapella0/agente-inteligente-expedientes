@@ -32,6 +32,15 @@ OPENROUTER_FALLBACK_MODELS: list[str] = [
 AUDIT_RETENTION = os.getenv("AUDIT_RETENTION", "90 days")
 AUDIT_ROTATION = os.getenv("AUDIT_ROTATION", "50 MB")
 
+# --- Proveedor LLM ---
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openrouter")  # "openrouter" | "ollama"
+
+# Ollama (solo si LLM_PROVIDER=ollama)
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "mistral")
+OLLAMA_TIMEOUT_SECONDS = int(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
+OLLAMA_NUM_PREDICT = int(os.getenv("OLLAMA_NUM_PREDICT", "1000"))
+
 
 def validate() -> None:
     """Valida que las variables de entorno críticas del watcher estén disponibles."""
