@@ -4,8 +4,8 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 
 - Monitorear correos institucionales y detectar nuevos expedientes.
 - Procesar documentos adjuntos mediante **OCR con docTR** (python-doctr).
-- Clasificar documentos automaticamente via **LLM** (OpenRouter).
-- Indexar y almacenar la informacion relevante en **MongoDB** y **ChromaDB** *(pendiente)*.
+- Clasificar documentos automaticamente via **LLM** (OpenRouter) con rotacion de modelos ante rate limit.
+- Almacenar y organizar la informacion en **MongoDB** *(en desarrollo)*.
 
 ---
 
@@ -16,8 +16,8 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
    - **WatcherAgent** → supervisa el correo institucional.
    - **OcrAgent** → procesa adjuntos con OCR via docTR.
    - **ClassifierAgent** → clasifica documentos y extrae campos via LLM.
-   - **StorageAgent** → guarda metadatos y vectores en MongoDB/Chroma *(pendiente)*.
-3. Facilitar la busqueda semantica y recuperacion de expedientes en UNEGIA.
+   - **StorageAgent** → persiste metadatos en MongoDB y organiza archivos *(en desarrollo)*.
+3. Facilitar la consulta y recuperacion de expedientes desde UNEG.
 
 ---
 
@@ -33,7 +33,7 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 │   │   └── classifier_agent.py      # Agente de clasificacion con LLM
 │   ├── services/
 │   │   ├── ocr_service.py           # Servicio OCR con docTR
-│   │   └── llm_service.py           # Servicio LLM via OpenRouter
+│   │   └── llm_service.py           # Servicio LLM via OpenRouter (con rotacion de modelos)
 │   ├── models/
 │   │   ├── docente.py               # Modelo Pydantic del docente
 │   │   └── documento.py             # Modelo Pydantic de documentos
@@ -45,7 +45,7 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 ├── tests/
 │   ├── test_watcher_agent.py        # Tests del WatcherAgent (47)
 │   ├── test_ocr.py                  # Tests del OcrAgent y OcrService (57)
-│   └── test_classifier.py           # Tests del ClassifierAgent y LlmService (47)
+│   └── test_classifier.py           # Tests del ClassifierAgent y LlmService (48)
 ├── data/
 │   ├── input/                       # Expedientes descargados por docente
 │   ├── ocr_output/                  # Resultados OCR en JSON
@@ -174,7 +174,7 @@ Recibe `OcrService` por inyeccion de dependencias. `process_directory(skip_hashe
 | `hash_sha256` | Hash SHA-256 del contenido |
 | `ocr_resultado` | Resultado del OCR (o `null` si falla) |
 
-Los resultados se exportan como JSON a `data/ocr_output/{carpeta}/{archivo}.json`. Los errores se registran via `audit_log()` pero no detienen el pipeline.
+Los errores se registran via `audit_log()` pero no detienen el pipeline.
 
 ---
 
@@ -184,11 +184,11 @@ Sistema de clasificacion automatica de documentos basado en **LLM** via OpenRout
 
 ### LlmService (`src/services/llm_service.py`)
 
-Cliente que usa el SDK de **OpenAI** apuntado a OpenRouter (`https://openrouter.ai/api/v1`). Modelo por defecto: `openrouter/hunter-alpha`.
+Cliente que usa el SDK de **OpenAI** apuntado a OpenRouter (`https://openrouter.ai/api/v1`). Modelo principal configurable via `OPENROUTER_MODEL`.
+
+**Rotacion de modelos:** cuando el modelo principal retorna rate limit (429), el servicio intenta automaticamente los modelos listados en `OPENROUTER_FALLBACK_MODELS` (separados por coma). Si todos fallan, aplica backoff exponencial: `delay = 10 * 2^intento` → 10s, 20s, 40s (maximo 3 intentos).
 
 **Parametros de inferencia:** `temperature=0.1`, `max_tokens=1000`
-
-**Manejo de errores:** reintentos con backoff exponencial en rate limit (429): `delay = 10 * 2^intento` → 10s, 20s, 40s (maximo 3 intentos).
 
 **Resultado de `classify_and_extract(texto_ocr)`:**
 
@@ -199,7 +199,7 @@ Cliente que usa el SDK de **OpenAI** apuntado a OpenRouter (`https://openrouter.
 | `razon_rechazo` | `str` | Razon si no es valido |
 | `campos_extraidos` | `dict` | Campos especificos extraidos segun el tipo |
 | `confianza_clasificacion` | `float` | Confianza del modelo (0-1) |
-| `modelo_llm` | `str` | Modelo utilizado |
+| `modelo_llm` | `str` | Modelo utilizado en la clasificacion |
 | `tokens_usados` | `int` | Tokens consumidos en la clasificacion |
 
 ### ClassifierAgent (`src/agents/classifier_agent.py`)
@@ -281,8 +281,8 @@ Sistema de logging estructurado con **Loguru** (`src/core/logger.py`).
 | `stdout` | Salida a consola |
 | `watcher.log` | Log del WatcherAgent |
 | `ocr.log` | Log del OcrAgent |
-| `audit.jsonl` | Log de auditoria en JSON estructurado (filtrado por `audit=True`) |
 | `classifier.log` | Log del ClassifierAgent |
+| `audit.jsonl` | Log de auditoria en JSON estructurado (filtrado por `audit=True`) |
 | `storage.log` | Log del StorageAgent (futuro) |
 | `api.log` | Log de la API (futuro) |
 
@@ -324,8 +324,9 @@ Sistema de logging estructurado con **Loguru** (`src/core/logger.py`).
 |---|---|---|
 | `MONGO_URI` | URI de conexion a MongoDB | `mongodb://localhost:27017` |
 | `MONGO_DB` | Nombre de la base de datos | `expedientes_uneg` |
-| `OPENROUTER_API_KEY` | API key de OpenRouter | *(requerido para OCR)* |
-| `OPENROUTER_MODEL` | Modelo LLM a utilizar | `openrouter/hunter-alpha` |
+| `OPENROUTER_API_KEY` | API key de OpenRouter | *(requerido)* |
+| `OPENROUTER_MODEL` | Modelo LLM principal | *(requerido)* |
+| `OPENROUTER_FALLBACK_MODELS` | Modelos alternativos ante rate limit (coma separados) | *(opcional)* |
 | `OPENROUTER_BASE_URL` | URL base de OpenRouter | `https://openrouter.ai/api/v1` |
 | `AUDIT_RETENTION` | Retencion de logs de auditoria | `90 days` |
 | `AUDIT_ROTATION` | Rotacion de logs de auditoria | `50 MB` |
@@ -349,12 +350,13 @@ Compatible con formatos anteriores (lista de UIDs o diccionario sin fingerprints
 
 - Python 3.12+
 - Cuenta Gmail con contrasena de aplicacion habilitada
+- MongoDB (para StorageAgent, en desarrollo)
 
 ### Instalacion
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/gcapella/agente-inteligente-expedientes.git
+git clone https://github.com/gcapella0/agente-inteligente-expedientes.git
 cd agente-inteligente-expedientes
 
 # Crear entorno virtual
@@ -376,13 +378,13 @@ cp .env.example .env
 python -m src.main
 
 # Ejecutar WatcherAgent en modo continuo (polling loop)
-# Editar __main__ para llamar a main() en lugar de test_pipeline()
+# Modificar __main__ en src/main.py para llamar a main()
 ```
 
 ### Tests
 
 ```bash
-# Ejecutar todos los tests (151 tests)
+# Ejecutar todos los tests (152 tests)
 pytest tests/ -v
 
 # Solo tests del WatcherAgent
@@ -398,7 +400,7 @@ pytest tests/test_classifier.py -v
 pytest tests/test_ocr.py -k "test_name_here" -v
 ```
 
-La suite de tests incluye **151 pruebas** que cubren:
+La suite de tests incluye **152 pruebas** que cubren:
 
 **WatcherAgent (47 tests):**
 - Procesamiento basico de emails y creacion de expedientes
@@ -425,12 +427,13 @@ La suite de tests incluye **151 pruebas** que cubren:
 - Registro de auditoria en exitos y fallos
 - Casos limite (directorios vacios, archivos inexistentes, fallos de docTR)
 
-**ClassifierAgent + LlmService (47 tests):**
+**ClassifierAgent + LlmService (48 tests):**
 - Clasificacion de documentos por tipo (21 tipos)
 - Extraccion de campos especificos por tipo de documento
 - Rechazo de documentos irrelevantes con razon
 - Parseo de JSON desde respuestas con markdown fences
-- Reintentos con backoff exponencial en rate limit (429)
+- Rotacion de modelos LLM ante rate limit (OPENROUTER_FALLBACK_MODELS)
+- Reintentos con backoff exponencial cuando todos los modelos fallan
 - Manejo de errores de conexion y timeout
 - Fallback de `json_ligero` a `texto_completo`
 - Auditoria de clasificaciones exitosas, rechazos y fallos
@@ -460,13 +463,13 @@ La suite de tests incluye **151 pruebas** que cubren:
 
 ## Limitaciones conocidas
 
-- Los correos **solo HTML** (sin parte `text/plain`) no matchean keywords en el cuerpo. El texto HTML se ignora en la comparacion actual.
+- Los correos **solo HTML** (sin parte `text/plain`) no matchean keywords en el cuerpo.
 - El sistema depende de la disponibilidad del servidor IMAP de Gmail.
 - Gmail IMAP no soporta busqueda accent-insensitive en servidor ni `CHARSET UTF-8`. El sistema compensa con busqueda por fecha + filtrado local.
-- Gmail IMAP puede no soportar `X-GM-RAW` en todas las cuentas (se usa fallback automatico a busqueda estandar).
+- Gmail IMAP puede no soportar `X-GM-RAW` en todas las cuentas (se usa fallback automatico).
 - La extraccion del nombre del docente requiere que el asunto siga un patron especifico con keyword seguida de separador (`:`, `-`, `–`, `—`).
 - El modelo OCR de docTR pesa ~500MB y se descarga en la primera ejecucion.
-- La clasificacion depende de la disponibilidad de OpenRouter y el modelo LLM configurado.
+- La clasificacion depende de la disponibilidad de OpenRouter y los modelos configurados.
 
 ---
 
@@ -474,9 +477,9 @@ La suite de tests incluye **151 pruebas** que cubren:
 
 - [x] **WatcherAgent**: Monitoreo IMAP, filtrado por keywords, deduplicacion, extraccion de nombre
 - [x] **OcrAgent**: Procesamiento OCR de documentos PDF/imagenes con docTR
-- [x] **ClassifierAgent**: Clasificacion automatica de documentos via LLM con extraccion de campos
+- [x] **ClassifierAgent**: Clasificacion automatica de documentos via LLM con extraccion de campos y rotacion de modelos
 - [x] **Pipeline completo**: Watcher → OCR → Classifier con deduplicacion por SHA-256
-- [ ] **StorageAgent**: Almacenamiento de metadatos en MongoDB e indexacion vectorial en ChromaDB
+- [ ] **StorageAgent**: Almacenamiento de metadatos en MongoDB y organizacion de archivos
 - [ ] **API REST**: Endpoints FastAPI para consulta y busqueda de expedientes
-- [ ] **Busqueda semantica**: Recuperacion de expedientes por similitud usando ChromaDB
+- [ ] **Busqueda semantica**: Recuperacion de expedientes por similitud
 - [ ] Soporte para extraccion de texto de emails HTML-only

@@ -67,6 +67,7 @@ def test_classifier() -> None:
     from src.services.ocr_service import OcrService
     from src.agents.ocr_agent import OcrAgent
     from src.services.llm_service import LlmService
+    from src.services.llm import create_llm_provider
     from src.agents.classifier_agent import ClassifierAgent
     from src import config
 
@@ -85,7 +86,7 @@ def test_classifier() -> None:
 
     # 2. Clasificación
     logger.info("=== Paso 2: Clasificación ===")
-    llm_service = LlmService()
+    llm_service = LlmService(create_llm_provider())
     classifier = ClassifierAgent(llm_service)
 
     resultados_clasificados = []
@@ -170,6 +171,7 @@ def test_pipeline() -> None:
     from src.services.ocr_service import OcrService
     from src.agents.ocr_agent import OcrAgent
     from src.services.llm_service import LlmService
+    from src.services.llm import create_llm_provider
     from src.agents.classifier_agent import ClassifierAgent
     from src import config
 
@@ -204,7 +206,7 @@ def test_pipeline() -> None:
 
     # 3. Clasificación
     logger.info("=== Paso 3: Clasificación ===")
-    llm_service = LlmService()
+    llm_service = LlmService(create_llm_provider())
     classifier = ClassifierAgent(llm_service)
 
     output_dir = config.DATA_DIR / "classifier_output"
