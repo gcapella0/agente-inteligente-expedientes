@@ -37,6 +37,7 @@ sin explicaciones y sin bloques de código markdown.
 - constancia_trabajo
 - constancia_estudio
 - carta_recomendacion
+- curriculo_vitae
 - otro
 
 ## Estructura de respuesta
@@ -87,6 +88,8 @@ institucion_emisora, cargo, fecha_emision, numero_resolucion.
 institucion_emisora, periodo_evaluado, calificacion, fecha_emision.
 - **Carta de recomendación**: nombre_titular, cedula_titular, \
 institucion_emisora, cargo_recomendante, fecha_emision.
+- **Currículo vitae**: nombre_titular, cedula_titular, \
+correo_electronico, telefono, titulo_academico, institucion_emisora.
 
 Incluye solo los campos que puedas identificar con razonable confianza. \
 Omite campos que no aparezcan en el texto.
