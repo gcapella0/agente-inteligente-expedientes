@@ -41,6 +41,11 @@ class ArchivoInfo(BaseModel):
     formato: str
     tamano_bytes: int | None = None
     hash_sha256: str | None = None
+    tamano_original_bytes: int | None = None
+    tamano_almacenado_bytes: int | None = None
+    ratio_compresion: float | None = None
+    comprimido: bool = False
+    metodo_compresion: str | None = None
 
 
 class OcrInfo(BaseModel):
