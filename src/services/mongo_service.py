@@ -172,11 +172,12 @@ class MongoService:
             cedula: Número de cédula del docente (sin prefijo).
         """
         try:
-            tipos_presentes_cursor = self.documentos.distinct(
-                "tipo",
+            docs = list(self.documentos.find(
                 {"docente_cedula": cedula, "validacion.estado": {"$ne": "rechazado"}},
-            )
-            tipos_presentes = set(tipos_presentes_cursor)
+                {"_id": 1, "tipo": 1},
+            ))
+            tipos_presentes = {d["tipo"] for d in docs}
+            documentos_ids = [str(d["_id"]) for d in docs]
 
             documentos_requeridos = []
             faltantes = []
@@ -197,6 +198,7 @@ class MongoService:
                         "completitud.porcentaje": porcentaje,
                         "completitud.documentos_requeridos": documentos_requeridos,
                         "completitud.documentos_faltantes": faltantes,
+                        "completitud.documentos_ids": documentos_ids,
                         "completitud.ultima_verificacion": datetime.now(),
                         "updated_at": datetime.now(),
                     }
@@ -264,6 +266,50 @@ class MongoService:
                 cedula_provisional,
                 cedula_real,
                 exc,
+            )
+            raise
+
+    def enriquecer_docente_desde_cv(self, cedula: str, campos: dict) -> None:
+        """Actualiza el perfil del docente con datos extraídos de su currículo vitae.
+
+        Solo sobreescribe campos que estén vacíos (None) en el registro actual.
+        La formación académica se añade como nueva entrada si hay título.
+
+        Args:
+            cedula: Cédula normalizada del docente.
+            campos: Campos extraídos por el LLM del CV (correo_electronico,
+                telefono, titulo_academico, institucion_emisora, etc.).
+        """
+        try:
+            set_data: dict = {}
+            if campos.get("correo_electronico"):
+                set_data["docente.contacto.email_personal"] = campos["correo_electronico"]
+            if campos.get("telefono"):
+                set_data["docente.contacto.telefono_principal"] = campos["telefono"]
+
+            if set_data:
+                set_data["updated_at"] = datetime.now()
+                # $set solo en campos que actualmente sean None
+                condiciones_nulos = {k: None for k in set_data if k != "updated_at"}
+                self.docentes.update_one(
+                    {"docente.cedula": cedula, **condiciones_nulos},
+                    {"$set": set_data},
+                )
+
+            if campos.get("titulo_academico"):
+                formacion = {
+                    "titulo_obtenido": campos.get("titulo_academico"),
+                    "institucion": campos.get("institucion_emisora"),
+                }
+                self.docentes.update_one(
+                    {"docente.cedula": cedula},
+                    {"$addToSet": {"formacion_academica": formacion}},
+                )
+
+            logger.info("Perfil del docente {} enriquecido con datos del CV", cedula)
+        except PyMongoError as exc:
+            logger.warning(
+                "Error enriqueciendo perfil del docente {} desde CV: {}", cedula, exc,
             )
             raise
 

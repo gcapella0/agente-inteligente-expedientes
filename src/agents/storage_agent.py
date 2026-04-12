@@ -247,6 +247,15 @@ class StorageAgent:
         except Exception as exc:
             logger.warning("Error actualizando completitud para {}: {}", cedula, exc)
 
+        # 6b. Enriquecer perfil del docente con datos extraídos del CV
+        if tipo == "curriculo_vitae":
+            try:
+                self.mongo_service.enriquecer_docente_desde_cv(cedula, campos_extraidos)
+            except Exception as exc:
+                logger.warning(
+                    "Error enriqueciendo perfil del docente {} desde CV: {}", cedula, exc,
+                )
+
         # 7. Mover archivo a storage
         source_path = classified_result.get("archivo_path")
         archivo_destino = None

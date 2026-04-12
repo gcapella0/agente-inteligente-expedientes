@@ -368,6 +368,52 @@ def test_pipeline() -> None:
     )
 
 
+def enriquecer_expedientes_desde_cv() -> None:
+    """Enriquece los expedientes en MongoDB con datos de los CVs ya almacenados.
+
+    Consulta todos los documentos de tipo curriculo_vitae en la colección
+    documentos y llama a enriquecer_docente_desde_cv para cada uno.
+    Solo sobreescribe campos que estén vacíos en el perfil del docente.
+
+    Uso: ejecutar una única vez tras agregar lógica de enriquecimiento nueva.
+    """
+    from src.services.mongo_service import MongoService
+    from src import config
+
+    config.validate_ocr()
+
+    mongo = MongoService()
+    cursor = mongo.documentos.find(
+        {"tipo": "curriculo_vitae"},
+        {"docente_cedula": 1, "ocr.campos_extraidos": 1},
+    )
+
+    total = 0
+    errores = 0
+    for doc in cursor:
+        cedula = doc.get("docente_cedula", "")
+        campos = doc.get("ocr", {}).get("campos_extraidos", {})
+        if not cedula or not campos:
+            logger.warning(
+                "CV sin cédula o sin campos extraídos (_id={}), omitido",
+                doc.get("_id"),
+            )
+            continue
+        try:
+            mongo.enriquecer_docente_desde_cv(cedula, campos)
+            logger.info("Expediente enriquecido: cédula={}", cedula)
+            total += 1
+        except Exception as exc:
+            logger.error("Error enriqueciendo cédula={}: {}", cedula, exc)
+            errores += 1
+
+    logger.info(
+        "Enriquecimiento completado: {} expedientes actualizados, {} errores",
+        total,
+        errores,
+    )
+
+
 if __name__ == "__main__":
-    test_classifier()
+    test_pipeline()
 

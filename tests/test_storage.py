@@ -89,6 +89,23 @@ CLASSIFIED_RESULT_RIF = {
     },
 }
 
+CLASSIFIED_RESULT_CURRICULO_VITAE = {
+    **CLASSIFIED_RESULT_VALIDO,
+    "archivo_nombre": "cv.pdf",
+    "clasificacion": {
+        **CLASSIFIED_RESULT_VALIDO["clasificacion"],
+        "tipo": "curriculo_vitae",
+        "campos_extraidos": {
+            "nombre_titular": "María Elena García",
+            "cedula_titular": "V-12345678",
+            "correo_electronico": "mgarcia@uneg.edu.ve",
+            "telefono": "0424-1234567",
+            "titulo_academico": "Magíster en Educación",
+            "institucion_emisora": "Universidad Central de Venezuela",
+        },
+    },
+}
+
 # Docente devuelto por MongoDB (simula find_one)
 MONGO_DOCENTE = {
     "_id": "507f1f77bcf86cd799439011",
@@ -141,8 +158,8 @@ def fake_mongo_service():
             service.docentes.insert_one.return_value = insert_result
             service.documentos.insert_one.return_value = insert_result
 
-            # distinct para update_completitud
-            service.documentos.distinct.return_value = ["titulo_universitario"]
+            # find para update_completitud
+            service.documentos.find.return_value = [{"_id": "id001", "tipo": "titulo_universitario"}]
             # update_one
             service.docentes.update_one.return_value = MagicMock()
             service.documentos.update_one.return_value = MagicMock()
@@ -470,34 +487,43 @@ class TestMongoServiceInsert:
 class TestMongoServiceCompletitud:
     def test_update_completitud_calcula_porcentaje(self, fake_mongo_service):
         service = fake_mongo_service()
-        service.documentos.distinct.return_value = ["titulo_universitario", "cedula_identidad"]
+        service.documentos.find.return_value = [
+            {"_id": "id1", "tipo": "titulo_universitario"},
+            {"_id": "id2", "tipo": "cedula_identidad"},
+        ]
         service.update_completitud("12345678")
         service.docentes.update_one.assert_called_once()
         call_args = service.docentes.update_one.call_args
         set_data = call_args[0][1]["$set"]
         # 2 de 10 = 20%
         assert set_data["completitud.porcentaje"] == 20
+        assert set_data["completitud.documentos_ids"] == ["id1", "id2"]
 
     def test_update_completitud_todos_presentes(self, fake_mongo_service):
         service = fake_mongo_service()
-        service.documentos.distinct.return_value = [
+        tipos = [
             "cedula_identidad", "partida_nacimiento", "rif", "titulo_bachiller",
             "certificado_notas_bachillerato", "titulo_universitario",
             "certificado_notas_pregrado", "fondo_negro_titulo", "acta_grado",
             "resolucion_nombramiento",
         ]
+        service.documentos.find.return_value = [
+            {"_id": f"id{i}", "tipo": t} for i, t in enumerate(tipos)
+        ]
         service.update_completitud("12345678")
         set_data = service.docentes.update_one.call_args[0][1]["$set"]
         assert set_data["completitud.porcentaje"] == 100
         assert set_data["completitud.documentos_faltantes"] == []
+        assert len(set_data["completitud.documentos_ids"]) == 10
 
     def test_update_completitud_ninguno_presente(self, fake_mongo_service):
         service = fake_mongo_service()
-        service.documentos.distinct.return_value = []
+        service.documentos.find.return_value = []
         service.update_completitud("12345678")
         set_data = service.docentes.update_one.call_args[0][1]["$set"]
         assert set_data["completitud.porcentaje"] == 0
         assert len(set_data["completitud.documentos_faltantes"]) == 10
+        assert set_data["completitud.documentos_ids"] == []
 
 
 class TestMongoServiceExpedienteNumero:
@@ -951,3 +977,147 @@ class TestStorageAuditLog:
         detalle = json.loads(kwargs["detalle"])
         assert "error" in detalle
         assert "paso" in detalle
+
+
+# ---------------------------------------------------------------------------
+# Tests: MongoService.enriquecer_docente_desde_cv
+# ---------------------------------------------------------------------------
+
+class TestMongoServiceEnriquecerDesdeCV:
+    def test_actualiza_email_y_telefono(self, fake_mongo_service):
+        service = fake_mongo_service()
+        campos = {
+            "correo_electronico": "mgarcia@uneg.edu.ve",
+            "telefono": "0424-1234567",
+        }
+        service.enriquecer_docente_desde_cv("12345678", campos)
+
+        # Debe haber llamado update_one con $set para email y teléfono
+        assert service.docentes.update_one.called
+        call_args = service.docentes.update_one.call_args_list[0]
+        update_op = call_args[0][1]
+        assert "$set" in update_op
+        assert update_op["$set"]["docente.contacto.email_personal"] == "mgarcia@uneg.edu.ve"
+        assert update_op["$set"]["docente.contacto.telefono_principal"] == "0424-1234567"
+
+    def test_agrega_formacion_academica(self, fake_mongo_service):
+        service = fake_mongo_service()
+        campos = {
+            "titulo_academico": "Magíster en Educación",
+            "institucion_emisora": "Universidad Central de Venezuela",
+        }
+        service.enriquecer_docente_desde_cv("12345678", campos)
+
+        # Debe haber llamado update_one con $addToSet para formación
+        assert service.docentes.update_one.called
+        ultima_llamada = service.docentes.update_one.call_args_list[-1]
+        update_op = ultima_llamada[0][1]
+        assert "$addToSet" in update_op
+        formacion = update_op["$addToSet"]["formacion_academica"]
+        assert formacion["titulo_obtenido"] == "Magíster en Educación"
+        assert formacion["institucion"] == "Universidad Central de Venezuela"
+
+    def test_campos_vacios_no_llama_set(self, fake_mongo_service):
+        service = fake_mongo_service()
+        # Sin email ni teléfono → no debe llamar update_one para $set
+        service.enriquecer_docente_desde_cv("12345678", {"titulo_academico": "Lic."})
+
+        # Solo la llamada de $addToSet, nunca una de $set
+        for call in service.docentes.update_one.call_args_list:
+            assert "$set" not in call[0][1]
+
+    def test_sin_titulo_no_llama_addtoset(self, fake_mongo_service):
+        service = fake_mongo_service()
+        service.enriquecer_docente_desde_cv("12345678", {"correo_electronico": "x@y.com"})
+
+        for call in service.docentes.update_one.call_args_list:
+            assert "$addToSet" not in call[0][1]
+
+    def test_campos_vacios_no_hace_ninguna_llamada(self, fake_mongo_service):
+        service = fake_mongo_service()
+        service.enriquecer_docente_desde_cv("12345678", {})
+        service.docentes.update_one.assert_not_called()
+
+    def test_error_mongo_relanza_excepcion(self, fake_mongo_service):
+        from pymongo.errors import PyMongoError
+        service = fake_mongo_service()
+        service.docentes.update_one.side_effect = PyMongoError("timeout")
+        with pytest.raises(PyMongoError):
+            service.enriquecer_docente_desde_cv("12345678", {"correo_electronico": "a@b.com"})
+
+    def test_set_usa_condicion_null_para_no_sobreescribir(self, fake_mongo_service):
+        """El filtro de update_one debe exigir que los campos sean None."""
+        service = fake_mongo_service()
+        campos = {"correo_electronico": "nuevo@mail.com"}
+        service.enriquecer_docente_desde_cv("12345678", campos)
+
+        filtro = service.docentes.update_one.call_args_list[0][0][0]
+        # La condición debe incluir que el campo actual sea None
+        assert filtro.get("docente.contacto.email_personal") is None
+
+
+# ---------------------------------------------------------------------------
+# Tests: StorageAgent — enriquecimiento desde CV
+# ---------------------------------------------------------------------------
+
+class TestStorageAgentEnriquecimientoCV:
+    def _setup_agent_cv(self, fake_storage):
+        """Configura un StorageAgent listo para procesar un curriculo_vitae."""
+        agent = fake_storage()
+        agent.mongo_service.find_documento_by_hash = MagicMock(return_value=None)
+        agent.mongo_service.find_docente_by_cedula = MagicMock(return_value=MONGO_DOCENTE)
+        agent.mongo_service.insert_documento = MagicMock(return_value="doc_cv_001")
+        agent.mongo_service.update_completitud = MagicMock()
+        agent.mongo_service.update_archivo_ruta = MagicMock()
+        agent.mongo_service.enriquecer_docente_desde_cv = MagicMock()
+        return agent
+
+    def test_curriculo_vitae_llama_enriquecer(self, fake_storage):
+        agent = self._setup_agent_cv(fake_storage)
+
+        resultado = agent.process(CLASSIFIED_RESULT_CURRICULO_VITAE)
+
+        assert resultado["exito"] is True
+        agent.mongo_service.enriquecer_docente_desde_cv.assert_called_once_with(
+            "12345678",
+            CLASSIFIED_RESULT_CURRICULO_VITAE["clasificacion"]["campos_extraidos"],
+        )
+
+    def test_otro_tipo_no_llama_enriquecer(self, fake_storage):
+        agent = self._setup_agent_cv(fake_storage)
+
+        agent.process(CLASSIFIED_RESULT_VALIDO)  # tipo: titulo_universitario
+
+        agent.mongo_service.enriquecer_docente_desde_cv.assert_not_called()
+
+    def test_enriquecer_falla_proceso_continua_exitoso(self, fake_storage):
+        """Si enriquecer_docente_desde_cv lanza excepción, el proceso no se interrumpe."""
+        from pymongo.errors import PyMongoError
+        agent = self._setup_agent_cv(fake_storage)
+        agent.mongo_service.enriquecer_docente_desde_cv = MagicMock(
+            side_effect=PyMongoError("error de escritura")
+        )
+
+        resultado = agent.process(CLASSIFIED_RESULT_CURRICULO_VITAE)
+
+        assert resultado["exito"] is True
+        assert resultado["documento_id"] == "doc_cv_001"
+
+    def test_enriquecer_recibe_cedula_normalizada(self, fake_storage):
+        """La cédula enviada a enriquecer debe estar normalizada (solo dígitos)."""
+        agent = self._setup_agent_cv(fake_storage)
+        result_cedula_prefijo = {
+            **CLASSIFIED_RESULT_CURRICULO_VITAE,
+            "clasificacion": {
+                **CLASSIFIED_RESULT_CURRICULO_VITAE["clasificacion"],
+                "campos_extraidos": {
+                    **CLASSIFIED_RESULT_CURRICULO_VITAE["clasificacion"]["campos_extraidos"],
+                    "cedula_titular": "V-12345678",
+                },
+            },
+        }
+
+        agent.process(result_cedula_prefijo)
+
+        cedula_enviada = agent.mongo_service.enriquecer_docente_desde_cv.call_args[0][0]
+        assert cedula_enviada == "12345678"
