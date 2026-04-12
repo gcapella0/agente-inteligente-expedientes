@@ -28,6 +28,7 @@ TipoDocumento = Literal[
     "constancia_trabajo",
     "constancia_estudio",
     "carta_recomendacion",
+    "curriculo_vitae",
     "otro",
 ]
 

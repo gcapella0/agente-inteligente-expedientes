@@ -138,7 +138,7 @@ class ClassifierAgent:
                 "Clasificado '{}' como '{}' (confianza: {:.2%}, {} ms)",
                 archivo,
                 clasificacion["tipo"],
-                clasificacion["confianza_clasificacion"],
+                clasificacion["confianza_clasificacion"] or 0.0,
                 tiempo_ms,
             )
         else:
@@ -154,7 +154,7 @@ class ClassifierAgent:
                 "Rechazado '{}': {} (confianza: {:.2%}, {} ms)",
                 archivo,
                 clasificacion.get("razon_rechazo", "sin razón"),
-                clasificacion["confianza_clasificacion"],
+                clasificacion["confianza_clasificacion"] or 0.0,
                 tiempo_ms,
             )
 

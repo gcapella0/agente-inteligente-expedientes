@@ -83,6 +83,7 @@ class Completitud(BaseModel):
     porcentaje: int = 0
     documentos_requeridos: list[DocumentoRequerido] = Field(default_factory=list)
     documentos_faltantes: list[str] = Field(default_factory=list)
+    documentos_ids: list[str] = Field(default_factory=list)
     ultima_verificacion: datetime | None = None
 
 

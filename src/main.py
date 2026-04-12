@@ -14,6 +14,24 @@ def main() -> None:
     watcher.run()
 
 
+def test_watcher() -> None:
+    """Prueba del WatcherAgent: ejecuta un ciclo IMAP y descarga adjuntos."""
+
+    from src import config
+
+    config.validate()
+    config.ensure_directories()
+
+    logger.info("=== Prueba: WatcherAgent ===")
+    watcher = WatcherAgent()
+    if watcher._connect_imap():
+        nuevos = watcher._check_new_emails()
+        watcher._disconnect_imap()
+        logger.info("Watcher: {} correo(s) procesado(s)", nuevos)
+    else:
+        logger.warning("No se pudo conectar a IMAP")
+
+
 def test_ocr() -> None:
     """Prueba del OcrAgent sobre los archivos en data/input/."""
 
@@ -137,6 +155,63 @@ def test_classifier() -> None:
     )
 
 
+def test_storage() -> None:
+    """Prueba del pipeline OCR → Clasificador → StorageAgent sobre data/input/."""
+
+    from src.services.ocr_service import OcrService
+    from src.agents.ocr_agent import OcrAgent
+    from src.services.llm_service import LlmService
+    from src.agents.classifier_agent import ClassifierAgent
+    from src.services.mongo_service import MongoService
+    from src.services.file_service import FileService
+    from src.agents.storage_agent import StorageAgent
+    from src import config
+
+    config.validate_ocr()
+    config.ensure_directories()
+
+    # 1. OCR
+    logger.info("=== Paso 1: OCR ===")
+    ocr_service = OcrService()
+    ocr_agent = OcrAgent(ocr_service)
+    resultados_ocr = ocr_agent.process_directory()
+
+    if not resultados_ocr:
+        logger.warning("No hay archivos para procesar en data/input/")
+        return
+
+    # 2. Clasificación
+    logger.info("=== Paso 2: Clasificación ===")
+    llm_service = LlmService()
+    classifier = ClassifierAgent(llm_service)
+    resultados_clasificados = [classifier.classify(r) for r in resultados_ocr]
+
+    # 3. Almacenamiento
+    logger.info("=== Paso 3: Almacenamiento ===")
+    mongo_service = MongoService()
+    file_service = FileService()
+    storage_agent = StorageAgent(mongo_service, file_service)
+
+    almacenados = 0
+    omitidos = 0
+    errores = 0
+    for resultado in resultados_clasificados:
+        storage_result = storage_agent.process(resultado)
+        if storage_result.get("exito"):
+            almacenados += 1
+        elif storage_result.get("accion") == "skip":
+            omitidos += 1
+        else:
+            errores += 1
+
+    logger.info(
+        "StorageAgent: {} almacenados, {} omitidos, {} errores",
+        almacenados,
+        omitidos,
+        errores,
+    )
+
+
 def _load_processed_hashes(state_file: "Path") -> set[str]:
     """Carga hashes de archivos ya procesados por el pipeline."""
     if not state_file.exists():
@@ -160,7 +235,7 @@ def _save_processed_hashes(state_file: "Path", hashes: set[str]) -> None:
 
 
 def test_pipeline() -> None:
-    """Pipeline completo: Watcher (1 ciclo) → OCR → Clasificador.
+    """Pipeline completo: Watcher (1 ciclo) → OCR → Clasificador → Almacenamiento.
 
     Archivos ya clasificados (por hash SHA-256) se omiten automáticamente
     para evitar gastar tokens del LLM innecesariamente.
@@ -260,13 +335,85 @@ def test_pipeline() -> None:
         )
 
     logger.info(
-        "Pipeline completo: {}/{} válidos. Resultados en: {}",
+        "Clasificación: {}/{} válidos. Resultados en: {}",
         validos,
         len(resultados_clasificados),
         output_dir,
     )
 
+    # 4. Almacenamiento
+    logger.info("=== Paso 4: Almacenamiento ===")
+    from src.services.mongo_service import MongoService
+    from src.services.file_service import FileService
+    from src.agents.storage_agent import StorageAgent
+
+    mongo_service = MongoService()
+    file_service = FileService()
+    storage_agent = StorageAgent(mongo_service, file_service)
+
+    almacenados = 0
+    errores_storage = 0
+    for resultado in resultados_clasificados:
+        storage_result = storage_agent.process(resultado)
+        if storage_result.get("exito"):
+            almacenados += 1
+        elif storage_result.get("accion") != "skip":
+            errores_storage += 1
+
+    logger.info(
+        "Pipeline completo: {} almacenados, {} omitidos, {} errores",
+        almacenados,
+        len(resultados_clasificados) - almacenados - errores_storage,
+        errores_storage,
+    )
+
+
+def enriquecer_expedientes_desde_cv() -> None:
+    """Enriquece los expedientes en MongoDB con datos de los CVs ya almacenados.
+
+    Consulta todos los documentos de tipo curriculo_vitae en la colección
+    documentos y llama a enriquecer_docente_desde_cv para cada uno.
+    Solo sobreescribe campos que estén vacíos en el perfil del docente.
+
+    Uso: ejecutar una única vez tras agregar lógica de enriquecimiento nueva.
+    """
+    from src.services.mongo_service import MongoService
+    from src import config
+
+    config.validate_ocr()
+
+    mongo = MongoService()
+    cursor = mongo.documentos.find(
+        {"tipo": "curriculo_vitae"},
+        {"docente_cedula": 1, "ocr.campos_extraidos": 1},
+    )
+
+    total = 0
+    errores = 0
+    for doc in cursor:
+        cedula = doc.get("docente_cedula", "")
+        campos = doc.get("ocr", {}).get("campos_extraidos", {})
+        if not cedula or not campos:
+            logger.warning(
+                "CV sin cédula o sin campos extraídos (_id={}), omitido",
+                doc.get("_id"),
+            )
+            continue
+        try:
+            mongo.enriquecer_docente_desde_cv(cedula, campos)
+            logger.info("Expediente enriquecido: cédula={}", cedula)
+            total += 1
+        except Exception as exc:
+            logger.error("Error enriqueciendo cédula={}: {}", cedula, exc)
+            errores += 1
+
+    logger.info(
+        "Enriquecimiento completado: {} expedientes actualizados, {} errores",
+        total,
+        errores,
+    )
+
 
 if __name__ == "__main__":
-    test_classifier()
+    test_pipeline()
 
