@@ -1121,3 +1121,337 @@ class TestStorageAgentEnriquecimientoCV:
 
         cedula_enviada = agent.mongo_service.enriquecer_docente_desde_cv.call_args[0][0]
         assert cedula_enviada == "12345678"
+
+
+# ---------------------------------------------------------------------------
+# Tests: StorageAgent — compresión PDF (_compress_pdf)
+# ---------------------------------------------------------------------------
+
+class TestStorageAgentCompressPdf:
+    def _make_agent(self, fake_storage) -> StorageAgent:
+        agent = fake_storage()
+        return agent
+
+    def test_llama_ghostscript_con_parametros_correctos(self, fake_storage, tmp_path, monkeypatch):
+        """Verifica que _compress_pdf invoca gs con los flags de calidad ebook."""
+        import subprocess as sp
+
+        agent = self._make_agent(fake_storage)
+        input_pdf = tmp_path / "doc.pdf"
+        input_pdf.write_bytes(b"%PDF-1.4 datos de prueba")
+
+        output_capture = {}
+
+        def fake_run(cmd, **kwargs):
+            output_capture["cmd"] = cmd
+            # Crear el archivo de salida para simular éxito
+            for arg in cmd:
+                if arg.startswith("-sOutputFile="):
+                    Path(arg.split("=", 1)[1]).write_bytes(b"%PDF comprimido")
+            result = MagicMock()
+            result.returncode = 0
+            return result
+
+        monkeypatch.setattr("src.agents.storage_agent.subprocess.run", fake_run)
+        monkeypatch.setattr("src.agents.storage_agent.config.STORAGE_DIR", tmp_path / "storage")
+
+        resultado = agent._compress_pdf(input_pdf, "12345678")
+
+        assert resultado is not None
+        assert resultado.exists()
+        cmd = output_capture["cmd"]
+        assert cmd[0] == "gs"
+        assert "-dPDFSETTINGS=/ebook" in cmd
+        assert "-sDEVICE=pdfwrite" in cmd
+        assert str(input_pdf) == cmd[-1]
+
+    def test_ghostscript_no_disponible_retorna_none(self, fake_storage, tmp_path, monkeypatch):
+        """Si 'gs' no está en PATH, _compress_pdf retorna None sin lanzar excepción."""
+        agent = self._make_agent(fake_storage)
+        input_pdf = tmp_path / "doc.pdf"
+        input_pdf.write_bytes(b"%PDF datos")
+
+        monkeypatch.setattr(
+            "src.agents.storage_agent.subprocess.run",
+            lambda *a, **kw: (_ for _ in ()).throw(FileNotFoundError("gs not found")),
+        )
+        monkeypatch.setattr("src.agents.storage_agent.config.STORAGE_DIR", tmp_path / "storage")
+
+        resultado = agent._compress_pdf(input_pdf, "12345678")
+
+        assert resultado is None
+
+    def test_ghostscript_returncode_error_retorna_none(self, fake_storage, tmp_path, monkeypatch):
+        """Si Ghostscript retorna código de error distinto de 0, _compress_pdf retorna None."""
+        import subprocess as sp
+
+        agent = self._make_agent(fake_storage)
+        input_pdf = tmp_path / "doc.pdf"
+        input_pdf.write_bytes(b"%PDF datos")
+
+        def fake_run_fail(cmd, **kwargs):
+            result = MagicMock()
+            result.returncode = 1
+            result.stderr = b"Error de Ghostscript"
+            return result
+
+        monkeypatch.setattr("src.agents.storage_agent.subprocess.run", fake_run_fail)
+        monkeypatch.setattr("src.agents.storage_agent.config.STORAGE_DIR", tmp_path / "storage")
+
+        resultado = agent._compress_pdf(input_pdf, "12345678")
+
+        assert resultado is None
+
+    def test_ghostscript_timeout_retorna_none(self, fake_storage, tmp_path, monkeypatch):
+        """Si Ghostscript supera el tiempo límite, _compress_pdf retorna None."""
+        import subprocess as sp
+
+        agent = self._make_agent(fake_storage)
+        input_pdf = tmp_path / "doc.pdf"
+        input_pdf.write_bytes(b"%PDF datos")
+
+        monkeypatch.setattr(
+            "src.agents.storage_agent.subprocess.run",
+            lambda *a, **kw: (_ for _ in ()).throw(sp.TimeoutExpired("gs", 120)),
+        )
+        monkeypatch.setattr("src.agents.storage_agent.config.STORAGE_DIR", tmp_path / "storage")
+
+        resultado = agent._compress_pdf(input_pdf, "12345678")
+
+        assert resultado is None
+
+
+# ---------------------------------------------------------------------------
+# Tests: StorageAgent — compresión imagen (_compress_image)
+# ---------------------------------------------------------------------------
+
+class TestStorageAgentCompressImage:
+    def _make_agent(self, fake_storage) -> StorageAgent:
+        return fake_storage()
+
+    def test_comprime_imagen_jpg_con_pillow(self, fake_storage, tmp_path, monkeypatch):
+        """Verifica que _compress_image guarda el archivo con quality=85."""
+        from unittest.mock import MagicMock, patch
+
+        agent = self._make_agent(fake_storage)
+        input_jpg = tmp_path / "foto.jpg"
+        input_jpg.write_bytes(b"JFIF datos de prueba")
+
+        saved_params = {}
+
+        mock_image = MagicMock()
+        mock_image.mode = "RGB"
+        mock_image.__enter__ = lambda s: s
+        mock_image.__exit__ = MagicMock(return_value=False)
+
+        def fake_save(path, **kwargs):
+            saved_params.update(kwargs)
+            Path(path).write_bytes(b"JPEG comprimido")
+
+        mock_image.save = fake_save
+
+        monkeypatch.setattr("src.agents.storage_agent.config.STORAGE_DIR", tmp_path / "storage")
+
+        with patch("src.agents.storage_agent.Image.open", return_value=mock_image):
+            resultado = agent._compress_image(input_jpg, "12345678")
+
+        assert resultado is not None
+        assert resultado.exists()
+        assert saved_params.get("format") == "JPEG"
+        assert saved_params.get("quality") == 85
+        assert saved_params.get("optimize") is True
+
+    def test_convierte_png_a_jpeg(self, fake_storage, tmp_path, monkeypatch):
+        """Una imagen PNG en modo RGBA se convierte a RGB antes de guardar como JPEG."""
+        from unittest.mock import MagicMock, patch
+
+        agent = self._make_agent(fake_storage)
+        input_png = tmp_path / "foto.png"
+        input_png.write_bytes(b"PNG datos")
+
+        mock_rgb = MagicMock()
+        mock_rgb.mode = "RGB"
+        mock_rgb.save = lambda path, **kw: Path(path).write_bytes(b"JPEG")
+
+        mock_image = MagicMock()
+        mock_image.mode = "RGBA"
+        mock_image.convert = MagicMock(return_value=mock_rgb)
+        mock_image.__enter__ = lambda s: s
+        mock_image.__exit__ = MagicMock(return_value=False)
+
+        monkeypatch.setattr("src.agents.storage_agent.config.STORAGE_DIR", tmp_path / "storage")
+
+        with patch("src.agents.storage_agent.Image.open", return_value=mock_image):
+            resultado = agent._compress_image(input_png, "12345678")
+
+        mock_image.convert.assert_called_once_with("RGB")
+        assert resultado is not None
+
+    def test_error_pillow_retorna_none(self, fake_storage, tmp_path, monkeypatch):
+        """Si Pillow lanza excepción, _compress_image retorna None sin propagarla."""
+        from unittest.mock import patch
+
+        agent = self._make_agent(fake_storage)
+        input_jpg = tmp_path / "roto.jpg"
+        input_jpg.write_bytes(b"datos corruptos")
+
+        monkeypatch.setattr("src.agents.storage_agent.config.STORAGE_DIR", tmp_path / "storage")
+
+        with patch(
+            "src.agents.storage_agent.Image.open",
+            side_effect=Exception("imagen corrupta"),
+        ):
+            resultado = agent._compress_image(input_jpg, "12345678")
+
+        assert resultado is None
+
+
+# ---------------------------------------------------------------------------
+# Tests: StorageAgent — integración de compresión en process()
+# ---------------------------------------------------------------------------
+
+class TestStorageAgentCompressionEnProcess:
+    def _setup_agent(self, fake_storage) -> StorageAgent:
+        agent = fake_storage()
+        agent.mongo_service.find_documento_by_hash = MagicMock(return_value=None)
+        agent.mongo_service.find_docente_by_cedula = MagicMock(return_value=MONGO_DOCENTE)
+        agent.mongo_service.insert_documento = MagicMock(return_value="doc_001")
+        agent.mongo_service.update_completitud = MagicMock()
+        agent.mongo_service.update_archivo_ruta = MagicMock()
+        return agent
+
+    def test_process_pdf_llama_compress_pdf(self, fake_storage, tmp_path, monkeypatch):
+        """process() invoca _compress_pdf cuando el formato es pdf."""
+        agent = self._setup_agent(fake_storage)
+        compressed_path = tmp_path / "comprimido.pdf"
+        compressed_path.write_bytes(b"%PDF comprimido")
+
+        agent._compress_pdf = MagicMock(return_value=compressed_path)
+        agent._compress_image = MagicMock()
+
+        resultado_pdf = {
+            **CLASSIFIED_RESULT_VALIDO,
+            "archivo_path": tmp_path / "original.pdf",
+            "formato": "pdf",
+            "tamano_bytes": 10000,
+        }
+        (tmp_path / "original.pdf").write_bytes(b"%PDF original" * 100)
+
+        agent.process(resultado_pdf)
+
+        agent._compress_pdf.assert_called_once()
+        agent._compress_image.assert_not_called()
+
+    def test_process_jpg_llama_compress_image(self, fake_storage, tmp_path, monkeypatch):
+        """process() invoca _compress_image cuando el formato es jpg."""
+        agent = self._setup_agent(fake_storage)
+        compressed_path = tmp_path / "comprimido.jpg"
+        compressed_path.write_bytes(b"JPEG comprimido")
+
+        agent._compress_pdf = MagicMock()
+        agent._compress_image = MagicMock(return_value=compressed_path)
+
+        resultado_jpg = {
+            **CLASSIFIED_RESULT_VALIDO,
+            "archivo_path": tmp_path / "foto.jpg",
+            "formato": "jpg",
+            "tamano_bytes": 50000,
+        }
+        (tmp_path / "foto.jpg").write_bytes(b"JFIF" * 500)
+
+        agent.process(resultado_jpg)
+
+        agent._compress_image.assert_called_once()
+        agent._compress_pdf.assert_not_called()
+
+    def test_process_fallback_usa_original_si_compresion_falla(self, fake_storage, tmp_path):
+        """Si _compress_pdf retorna None, process() mueve el archivo original."""
+        agent = self._setup_agent(fake_storage)
+        agent._compress_pdf = MagicMock(return_value=None)
+
+        original = tmp_path / "doc.pdf"
+        original.write_bytes(b"%PDF datos")
+
+        resultado_pdf = {
+            **CLASSIFIED_RESULT_VALIDO,
+            "archivo_path": original,
+            "formato": "pdf",
+            "tamano_bytes": 5000,
+        }
+
+        paths_movidos = []
+        original_move = agent.file_service.__class__.move_to_storage
+
+        def capture_move(src, *args, **kwargs):
+            paths_movidos.append(src)
+            return tmp_path / "storage" / "destino.pdf"
+
+        agent.file_service.__class__.move_to_storage = staticmethod(capture_move)
+
+        agent.process(resultado_pdf)
+
+        agent.file_service.__class__.move_to_storage = staticmethod(original_move)
+        assert paths_movidos[0] == original
+
+    def test_process_fallback_usa_original_si_comprimido_es_mayor(self, fake_storage, tmp_path):
+        """Si el archivo comprimido pesa más, process() descarta la compresión y usa original."""
+        agent = self._setup_agent(fake_storage)
+
+        original = tmp_path / "doc.pdf"
+        original.write_bytes(b"%PDF original")
+
+        # Archivo "comprimido" que pesa MÁS que el original
+        comprimido = tmp_path / "comprimido.pdf"
+        comprimido.write_bytes(b"%PDF comprimido pesado" * 1000)
+
+        agent._compress_pdf = MagicMock(return_value=comprimido)
+
+        resultado_pdf = {
+            **CLASSIFIED_RESULT_VALIDO,
+            "archivo_path": original,
+            "formato": "pdf",
+            "tamano_bytes": 100,  # Original pequeño
+        }
+
+        paths_movidos = []
+        original_move = agent.file_service.__class__.move_to_storage
+
+        def capture_move(src, *args, **kwargs):
+            paths_movidos.append(src)
+            return tmp_path / "storage" / "destino.pdf"
+
+        agent.file_service.__class__.move_to_storage = staticmethod(capture_move)
+
+        agent.process(resultado_pdf)
+
+        agent.file_service.__class__.move_to_storage = staticmethod(original_move)
+        assert paths_movidos[0] == original
+
+    def test_process_documento_data_incluye_info_compresion(self, fake_storage, tmp_path):
+        """Los campos de compresión se guardan en MongoDB al insertar el documento."""
+        agent = self._setup_agent(fake_storage)
+
+        compressed = tmp_path / "comprimido.pdf"
+        compressed.write_bytes(b"%PDF c" * 10)
+
+        agent._compress_pdf = MagicMock(return_value=compressed)
+
+        original = tmp_path / "original.pdf"
+        original.write_bytes(b"%PDF original" * 100)  # Mayor que comprimido
+
+        resultado_pdf = {
+            **CLASSIFIED_RESULT_VALIDO,
+            "archivo_path": original,
+            "formato": "pdf",
+            "tamano_bytes": original.stat().st_size,
+        }
+
+        agent.process(resultado_pdf)
+
+        datos_insertados = agent.mongo_service.insert_documento.call_args[0][0]
+        archivo = datos_insertados["archivo"]
+        assert archivo["comprimido"] is True
+        assert archivo["metodo_compresion"] == "ghostscript"
+        assert archivo["ratio_compresion"] is not None
+        assert archivo["tamano_original_bytes"] == resultado_pdf["tamano_bytes"]
+        assert archivo["tamano_almacenado_bytes"] < resultado_pdf["tamano_bytes"]
