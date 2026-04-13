@@ -4,8 +4,9 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 
 - Monitorear correos institucionales y detectar nuevos expedientes.
 - Procesar documentos adjuntos mediante **OCR con docTR** (python-doctr).
-- Clasificar documentos automaticamente via **LLM** (OpenRouter) con rotacion de modelos ante rate limit.
-- Almacenar y organizar la informacion en **MongoDB** *(en desarrollo)*.
+- Clasificar documentos automaticamente via **LLM** (OpenRouter o Ollama).
+- Comprimir automaticamente PDFs e imagenes antes del almacenamiento.
+- Almacenar y organizar la informacion en **MongoDB**.
 
 ---
 
@@ -16,7 +17,7 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
    - **WatcherAgent** → supervisa el correo institucional.
    - **OcrAgent** → procesa adjuntos con OCR via docTR.
    - **ClassifierAgent** → clasifica documentos y extrae campos via LLM.
-   - **StorageAgent** → persiste metadatos en MongoDB y organiza archivos *(en desarrollo)*.
+   - **StorageAgent** → comprime archivos, persiste metadatos en MongoDB y organiza el almacenamiento.
 3. Facilitar la consulta y recuperacion de expedientes desde UNEG.
 
 ---
@@ -25,15 +26,23 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 
 ```
 ├── src/
-│   ├── main.py                      # Punto de entrada y pipeline (Watcher → OCR → Classifier)
+│   ├── main.py                      # Punto de entrada: main() (loop continuo) / test_*()
 │   ├── config.py                    # Configuracion y variables de entorno
 │   ├── agents/
 │   │   ├── watcher_agent.py         # Agente de monitoreo IMAP
 │   │   ├── ocr_agent.py             # Agente de procesamiento OCR
-│   │   └── classifier_agent.py      # Agente de clasificacion con LLM
+│   │   ├── classifier_agent.py      # Agente de clasificacion con LLM
+│   │   └── storage_agent.py         # Agente de almacenamiento y compresion
 │   ├── services/
 │   │   ├── ocr_service.py           # Servicio OCR con docTR
-│   │   └── llm_service.py           # Servicio LLM via OpenRouter (con rotacion de modelos)
+│   │   ├── llm_service.py           # Orquestador LLM (OpenRouter / Ollama)
+│   │   ├── mongo_service.py         # Servicio de persistencia en MongoDB
+│   │   ├── file_service.py          # Servicio de gestion de archivos
+│   │   └── llm/
+│   │       ├── base_provider.py     # Clase base abstracta para proveedores LLM
+│   │       ├── openrouter_provider.py # Proveedor OpenRouter (OpenAI SDK)
+│   │       ├── ollama_provider.py   # Proveedor Ollama (requests)
+│   │       └── llm_factory.py       # Factory: crea el proveedor segun LLM_PROVIDER
 │   ├── models/
 │   │   ├── docente.py               # Modelo Pydantic del docente
 │   │   └── documento.py             # Modelo Pydantic de documentos
@@ -45,20 +54,20 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 ├── tests/
 │   ├── test_watcher_agent.py        # Tests del WatcherAgent (47)
 │   ├── test_ocr.py                  # Tests del OcrAgent y OcrService (57)
-│   └── test_classifier.py           # Tests del ClassifierAgent y LlmService (48)
+│   ├── test_classifier.py           # Tests del ClassifierAgent y LlmService (48)
+│   ├── test_storage.py              # Tests del StorageAgent (60)
+│   └── test_llm_providers.py        # Tests de OpenRouterProvider y OllamaProvider (30)
 ├── data/
 │   ├── input/                       # Expedientes descargados por docente
-│   ├── ocr_output/                  # Resultados OCR en JSON
-│   ├── classifier_output/           # Resultados de clasificacion en JSON
-│   ├── storage/                     # Almacenamiento futuro
+│   ├── storage/                     # Archivos almacenados por cedula
 │   ├── processed_uids.json          # Estado de correos procesados (UIDs + fingerprints)
 │   └── processed_pipeline.json      # Hashes de archivos ya clasificados
 ├── logs/
 │   ├── watcher.log                  # Log del WatcherAgent
 │   ├── ocr.log                      # Log del OcrAgent
 │   ├── classifier.log               # Log del ClassifierAgent
+│   ├── storage.log                  # Log del StorageAgent
 │   ├── audit.jsonl                  # Log de auditoria estructurado (JSON)
-│   ├── storage.log                  # Log del StorageAgent (futuro)
 │   └── api.log                      # Log de la API (futuro)
 ├── .env                             # Variables de entorno (no versionado)
 ├── .env.example                     # Plantilla de variables de entorno
@@ -120,8 +129,8 @@ Si el fingerprint ya existe en el estado, el correo se omite y se registra como 
 Las keywords se configuran como listas separadas por comas en el archivo `.env`:
 
 ```env
-SUBJECT_KEYWORD=Certificado, Diploma, Hoja de vida, Curriculum, CV, Titulo, Documentacion, Voucher de pago, Constancia
-BODY_KEYWORD=Certificado, Diploma, Hoja de vida, Curriculum, CV, Titulo, Documentacion, Voucher de pago, Constancia
+SUBJECT_KEYWORD=Certificado, Diploma, Hoja de vida, Curriculum, CV, Titulo, Documentacion, Constancia
+BODY_KEYWORD=Certificado, Diploma, Hoja de vida, Curriculum, CV, Titulo, Documentacion, Constancia
 ```
 
 La busqueda es **case-insensitive** y **accent-insensitive** (ej: "Currículum" coincide con "Curriculum"). Basta con que **una** keyword coincida en el asunto **o** en el cuerpo para que el correo sea aceptado.
@@ -160,7 +169,7 @@ Servicio que encapsula docTR. Inicializa `ocr_predictor(pretrained=True)` **una 
 
 ### OcrAgent (`src/agents/ocr_agent.py`)
 
-Recibe `OcrService` por inyeccion de dependencias. `process_directory(skip_hashes=set())` escanea los subdirectorios de `data/input/`, procesa archivos de imagen/PDF e ignora archivos `.txt`. Cuando se proporcionan `skip_hashes`, calcula el SHA-256 **antes** del OCR y omite archivos ya procesados (usado por el pipeline para evitar re-clasificar).
+Recibe `OcrService` por inyeccion de dependencias. `process_directory(skip_hashes=set())` escanea los subdirectorios de `data/input/`, procesa archivos de imagen/PDF e ignora archivos `.txt`. Cuando se proporcionan `skip_hashes`, calcula el SHA-256 **antes** del OCR y omite archivos ya procesados.
 
 **Resultado por archivo:**
 
@@ -174,19 +183,25 @@ Recibe `OcrService` por inyeccion de dependencias. `process_directory(skip_hashe
 | `hash_sha256` | Hash SHA-256 del contenido |
 | `ocr_resultado` | Resultado del OCR (o `null` si falla) |
 
-Los errores se registran via `audit_log()` pero no detienen el pipeline.
-
 ---
 
 ## ClassifierAgent + LlmService
 
-Sistema de clasificacion automatica de documentos basado en **LLM** via OpenRouter para categorizar los documentos procesados por OCR.
+Sistema de clasificacion automatica de documentos basado en **LLM** para categorizar los documentos procesados por OCR. Soporta dos proveedores: **OpenRouter** (produccion) y **Ollama** (local/CPU).
+
+### Arquitectura de proveedores (`src/services/llm/`)
+
+Patron plugin con clase base abstracta `BaseLlmProvider`:
+
+- **`OpenRouterProvider`**: usa el SDK de OpenAI apuntado a OpenRouter. Soporta rotacion de modelos ante rate limit (primary + fallback models). Retorna `tokens_usados` desde el API.
+- **`OllamaProvider`**: usa `requests.post` al endpoint `/api/chat` de Ollama. Texto truncado a 1500 caracteres antes de enviar. Opciones: `num_predict=400`, `num_ctx=2048`. Modelos recomendados para CPU: `phi3:mini`.
+- **`create_llm_provider()`** (factory en `llm_factory.py`): lee `LLM_PROVIDER` del entorno y crea el proveedor correspondiente.
 
 ### LlmService (`src/services/llm_service.py`)
 
-Cliente que usa el SDK de **OpenAI** apuntado a OpenRouter (`https://openrouter.ai/api/v1`). Modelo principal configurable via `OPENROUTER_MODEL`.
-
-**Rotacion de modelos:** cuando el modelo principal retorna rate limit (429), el servicio intenta automaticamente los modelos listados en `OPENROUTER_FALLBACK_MODELS` (separados por coma). Si todos fallan, aplica backoff exponencial: `delay = 10 * 2^intento` → 10s, 20s, 40s (maximo 3 intentos).
+Orquestador dual:
+- **Con proveedor inyectado** (`LlmService(create_llm_provider())`): delega al proveedor segun `LLM_PROVIDER`. Modo usado en produccion y pipeline.
+- **Sin proveedor** (legacy): usa OpenRouter directamente con rotacion de modelos y backoff exponencial: `delay = 10 * 2^intento` → 10s, 20s, 40s (maximo 3 intentos).
 
 **Parametros de inferencia:** `temperature=0.1`, `max_tokens=1000`
 
@@ -195,20 +210,18 @@ Cliente que usa el SDK de **OpenAI** apuntado a OpenRouter (`https://openrouter.
 | Campo | Tipo | Descripcion |
 |---|---|---|
 | `valido` | `bool` | Si el documento es un tipo reconocido |
-| `tipo` | `str` | Tipo de documento (de 21 tipos definidos) |
+| `tipo` | `str` | Tipo de documento (22 tipos definidos) |
 | `razon_rechazo` | `str` | Razon si no es valido |
 | `campos_extraidos` | `dict` | Campos especificos extraidos segun el tipo |
 | `confianza_clasificacion` | `float` | Confianza del modelo (0-1) |
 | `modelo_llm` | `str` | Modelo utilizado en la clasificacion |
-| `tokens_usados` | `int` | Tokens consumidos en la clasificacion |
+| `tokens_usados` | `int` | Tokens consumidos (None en Ollama) |
 
 ### ClassifierAgent (`src/agents/classifier_agent.py`)
 
 Recibe `LlmService` por inyeccion de dependencias. `classify(ocr_result)` toma el resultado del OcrAgent, extrae `json_ligero` (con fallback a `texto_completo`) y envia al LLM para clasificacion.
 
-**21 tipos de documento soportados:** cedula, titulo de bachiller, titulo universitario, diploma de curso, certificado de notas, constancia de trabajo, hoja de vida, voucher de pago, entre otros (definidos en `TipoDocumento`).
-
-**Prompt del sistema** en `src/prompts/classify_document.py`: define reglas de extraccion de campos por tipo de documento y formato de respuesta JSON.
+**22 tipos de documento soportados:** cedula, RIF, partida de nacimiento, titulo de bachiller, titulo universitario, titulo de postgrado, certificados de notas, acta de grado, fondo negro, nostrificacion, resolucion de nombramiento, evaluacion docente, diplomas (curso/taller/congreso), constancias (trabajo/estudio), carta de recomendacion, curriculo vitae, y otros.
 
 **Auditoria:**
 - `clasificado`/`ok`: documento valido clasificado exitosamente
@@ -217,25 +230,98 @@ Recibe `LlmService` por inyeccion de dependencias. `classify(ocr_result)` toma e
 
 ---
 
+## StorageAgent
+
+Agente de almacenamiento que recibe el resultado clasificado, comprime el archivo, persiste los metadatos en MongoDB y organiza los archivos en disco.
+
+### Flujo de `process(classified_result)`
+
+```
+1. Validar que el documento sea valido y tenga cedula
+2. Normalizar cedula (solo digitos)
+3. Verificar duplicado por hash SHA-256 en MongoDB
+4. Crear o recuperar el registro del docente
+5. Comprimir el archivo (PDF con Ghostscript, imagen con Pillow)
+6. Insertar documento en MongoDB con metadatos de compresion
+7. Actualizar completitud del expediente
+8. Mover archivo comprimido a data/storage/{cedula}/{tipo}_{fecha}{ext}
+9. Limpiar directorio de entrada si quedo vacio
+```
+
+**Retorna:** `{"exito": bool, "accion": "insert"|"skip"|"error", "docente_id": str, "documento_id": str}`
+
+### Compresion de archivos
+
+La compresion se aplica automaticamente antes del almacenamiento:
+
+| Formato | Herramienta | Parametros |
+|---|---|---|
+| PDF | Ghostscript (`gs`) | `-dPDFSETTINGS=/ebook -r150x150`, calidad equilibrada |
+| JPG / JPEG / PNG | Pillow | `quality=85, optimize=True`, conversion a RGB |
+
+- Si la compresion falla (Ghostscript no instalado, error de Pillow), se usa el archivo original como fallback silencioso.
+- Si el archivo comprimido resulta **mayor o igual** al original, se descarta y se usa el original.
+- Los archivos temporales se guardan en `data/storage/{cedula}/temp/` y se eliminan tras el movimiento.
+- Los metadatos de compresion se almacenan en el documento MongoDB: `comprimido`, `metodo_compresion`, `ratio_compresion`, `tamano_original_bytes`, `tamano_almacenado_bytes`.
+
+### MongoService (`src/services/mongo_service.py`)
+
+Servicio de persistencia con `pymongo`. Colecciones: `docentes` y `documentos`.
+
+**Metodos principales:**
+
+| Metodo | Descripcion |
+|---|---|
+| `find_docente_by_cedula(cedula)` | Busca docente por cedula |
+| `find_documento_by_hash(hash)` | Busca documento por SHA-256 (deduplicacion) |
+| `insert_docente(data)` | Valida con Pydantic e inserta docente |
+| `insert_documento(data)` | Valida con Pydantic e inserta documento |
+| `update_completitud(cedula)` | Recalcula porcentaje de completitud del expediente |
+| `generate_expediente_numero()` | Genera numero secuencial: `EXP-{año}-{seq:06d}` |
+| `update_archivo_ruta(id, ruta)` | Actualiza la ruta del archivo almacenado |
+| `enriquecer_docente_desde_cv(cedula, campos)` | Completa el perfil del docente con datos del CV |
+| `update_cedula_provisional(prov, real)` | Reemplaza cedula provisional por cedula real |
+
+**Completitud:** calcula el porcentaje de los 10 documentos requeridos presentes en el expediente (excluyendo los rechazados). Almacena tambien la lista de IDs de documentos en `completitud.documentos_ids`.
+
+### FileService (`src/services/file_service.py`)
+
+| Metodo | Descripcion |
+|---|---|
+| `move_to_storage(src, cedula, tipo, fecha)` | Mueve archivo a `data/storage/{cedula}/{tipo}_{fecha}{ext}` (con sufijo numerico si ya existe) |
+| `compute_hash(path)` | Calcula SHA-256 hex del archivo |
+| `cleanup_input_directory(dir)` | Elimina todos los archivos y el directorio si queda vacio |
+
+---
+
 ## Pipeline completo (`src/main.py`)
 
-El pipeline encadena los 3 agentes en secuencia:
+`main()` ejecuta el `WatcherAgent` en modo de polling continuo (punto de entrada de produccion).
+
+`test_pipeline()` encadena los 4 agentes con deduplicacion por SHA-256:
 
 ```
 WatcherAgent (1 ciclo IMAP)
   → descarga adjuntos a data/input/{docente}/
-    → OcrAgent (procesa archivos nuevos)
+    → OcrAgent
       → extrae texto via docTR
-        → ClassifierAgent (clasifica cada documento)
-          → guarda JSON en data/classifier_output/{docente}/
+        → ClassifierAgent
+          → clasifica y extrae campos via LLM
+            → StorageAgent
+              → comprime, persiste en MongoDB y mueve a data/storage/{cedula}/
 ```
 
-**Deduplicacion a nivel de archivo:** `data/processed_pipeline.json` almacena hashes SHA-256 de archivos ya clasificados. Cada hash se persiste inmediatamente tras clasificar (resistente a crashes). Esto es independiente de la deduplicacion por UID/fingerprint del WatcherAgent.
+**Deduplicacion a nivel de archivo:** `data/processed_pipeline.json` almacena hashes SHA-256 de archivos ya clasificados. Cada hash se persiste inmediatamente tras clasificar (resistente a crashes).
 
-Funciones disponibles en `main.py`:
-- `test_pipeline()`: pipeline completo (Watcher → OCR → Classifier)
-- `test_ocr()`: solo OCR sobre `data/input/`
-- `test_classifier()`: OCR + Clasificador (sin Watcher)
+**Funciones de prueba disponibles en `main.py`:**
+
+| Funcion | Descripcion |
+|---|---|
+| `test_pipeline()` | Pipeline completo: Watcher → OCR → Classifier → Storage |
+| `test_ocr()` | Solo OCR sobre `data/input/` |
+| `test_classifier()` | OCR + Clasificador (sin Watcher) |
+| `test_storage()` | Storage sobre resultados clasificados existentes |
+| `test_compression()` | Prueba de compresion sobre archivos en `data/input/` sin pipeline completo |
 
 ---
 
@@ -252,7 +338,7 @@ Perfil del docente con modelos anidados:
 - `DireccionDocente`: direccion fisica
 - `FormacionAcademica`: titulos y formacion (titulo, institucion, fecha, area)
 - `VinculacionInstitucional`: afiliacion a UNEG (departamento, cargo, fecha de ingreso)
-- `Completitud`: seguimiento de completitud del expediente
+- `Completitud`: seguimiento de completitud del expediente (porcentaje, documentos presentes, faltantes, IDs)
 
 **Estados:** `activo`, `inactivo`, `en_revision`, `completo`, `incompleto`
 
@@ -260,15 +346,25 @@ Perfil del docente con modelos anidados:
 
 Registro de documento vinculado a un docente:
 
-- `ArchivoInfo`: metadatos del archivo (nombre, formato, tamaño, hash)
-- `OcrInfo`: resultado OCR (texto, confianza, idioma, paginas)
+- `ArchivoInfo`: metadatos del archivo fisico (nombre, formato, tamaño, hash SHA-256, datos de compresion)
+- `OcrInfo`: resultado OCR (texto, confianza, idioma, paginas, campos extraidos)
 - `VerificacionVisual`: verificacion visual del documento
 - `ValidacionDocumento`: estado de validacion
 - `MetadataDocumento`: metadatos adicionales
 
-**21 tipos de documento** definidos en `TipoDocumento` (cedula, titulo, constancia, etc.)
+**22 tipos de documento** definidos en `TipoDocumento`.
 
 **Estados de validacion:** `pendiente`, `aprobado`, `rechazado`, `requiere_revision`
+
+**Campos de compresion en `ArchivoInfo`:**
+
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| `comprimido` | `bool` | Si el archivo fue comprimido |
+| `metodo_compresion` | `str \| None` | `"ghostscript"` o `"pillow"` |
+| `ratio_compresion` | `float \| None` | Razon tamaño_comprimido / tamaño_original |
+| `tamano_original_bytes` | `int \| None` | Tamaño antes de comprimir |
+| `tamano_almacenado_bytes` | `int \| None` | Tamaño del archivo almacenado |
 
 ---
 
@@ -282,8 +378,8 @@ Sistema de logging estructurado con **Loguru** (`src/core/logger.py`).
 | `watcher.log` | Log del WatcherAgent |
 | `ocr.log` | Log del OcrAgent |
 | `classifier.log` | Log del ClassifierAgent |
+| `storage.log` | Log del StorageAgent |
 | `audit.jsonl` | Log de auditoria en JSON estructurado (filtrado por `audit=True`) |
-| `storage.log` | Log del StorageAgent (futuro) |
 | `api.log` | Log de la API (futuro) |
 
 - `get_agent_logger("nombre")`: obtiene logger filtrado por agente
@@ -308,28 +404,36 @@ Sistema de logging estructurado con **Loguru** (`src/core/logger.py`).
 | `SUBJECT_KEYWORD` | Keywords para asunto (separadas por coma) | `Expediente Docente` |
 | `BODY_KEYWORD` | Keywords para cuerpo (separadas por coma) | `Expediente Docente` |
 
-#### Directorios y estado
+#### LLM y clasificacion
 
 | Variable | Descripcion | Valor por defecto |
 |---|---|---|
-| `INPUT_DIR` | Directorio de expedientes | `data/input` |
-| `PROCESSED_UIDS_FILE` | Archivo de estado | `data/processed_uids.json` |
+| `LLM_PROVIDER` | Proveedor LLM (`openrouter` o `ollama`) | `openrouter` |
+| `OPENROUTER_API_KEY` | API key de OpenRouter | *(requerido si openrouter)* |
+| `OPENROUTER_MODEL` | Modelo LLM principal | *(requerido si openrouter)* |
+| `OPENROUTER_FALLBACK_MODELS` | Modelos alternativos ante rate limit (coma separados) | *(opcional)* |
+| `OPENROUTER_BASE_URL` | URL base de OpenRouter | `https://openrouter.ai/api/v1` |
+| `OLLAMA_MODEL` | Modelo Ollama a usar | `phi3:mini` |
+| `OLLAMA_TIMEOUT_SECONDS` | Timeout para peticiones a Ollama | `120` |
+| `OLLAMA_NUM_PREDICT` | Tokens maximos a generar | `400` |
+| `OLLAMA_NUM_THREADS` | Hilos de CPU para inferencia | `os.cpu_count()` |
+
+#### Directorios y almacenamiento
+
+| Variable | Descripcion | Valor por defecto |
+|---|---|---|
+| `INPUT_DIR` | Directorio de expedientes entrantes | `data/input` |
+| `STORAGE_DIR` | Directorio de almacenamiento final | `data/storage` |
+| `PROCESSED_UIDS_FILE` | Archivo de estado del watcher | `data/processed_uids.json` |
 | `LOG_DIR` | Directorio de logs | `logs` |
 | `LOG_LEVEL` | Nivel de logging | `INFO` |
-| `STORAGE_DIR` | Directorio de almacenamiento | `data/storage` |
 
-#### OCR y servicios externos
+#### Base de datos
 
 | Variable | Descripcion | Valor por defecto |
 |---|---|---|
 | `MONGO_URI` | URI de conexion a MongoDB | `mongodb://localhost:27017` |
 | `MONGO_DB` | Nombre de la base de datos | `expedientes_uneg` |
-| `OPENROUTER_API_KEY` | API key de OpenRouter | *(requerido)* |
-| `OPENROUTER_MODEL` | Modelo LLM principal | *(requerido)* |
-| `OPENROUTER_FALLBACK_MODELS` | Modelos alternativos ante rate limit (coma separados) | *(opcional)* |
-| `OPENROUTER_BASE_URL` | URL base de OpenRouter | `https://openrouter.ai/api/v1` |
-| `AUDIT_RETENTION` | Retencion de logs de auditoria | `90 days` |
-| `AUDIT_ROTATION` | Rotacion de logs de auditoria | `50 MB` |
 
 ### Archivo de estado (`processed_uids.json`)
 
@@ -350,7 +454,9 @@ Compatible con formatos anteriores (lista de UIDs o diccionario sin fingerprints
 
 - Python 3.12+
 - Cuenta Gmail con contrasena de aplicacion habilitada
-- MongoDB (para StorageAgent, en desarrollo)
+- MongoDB en ejecucion local o remoto
+- Ghostscript instalado en el sistema (para compresion PDF)
+- Ollama instalado (opcional, para clasificacion local sin API)
 
 ### Instalacion
 
@@ -369,22 +475,26 @@ pip install -r requirements.txt
 # Configurar variables de entorno
 cp .env.example .env
 # Editar .env con las credenciales correspondientes
+
+# Instalar Ghostscript (Ubuntu/Debian)
+sudo apt install ghostscript
 ```
 
 ### Ejecucion
 
 ```bash
-# Ejecutar pipeline completo: Watcher (1 ciclo) → OCR → Classifier
+# Modo produccion: WatcherAgent en polling continuo
 python -m src.main
 
-# Ejecutar WatcherAgent en modo continuo (polling loop)
-# Modificar __main__ en src/main.py para llamar a main()
+# Test de compresion: prueba reduccion de tamaño sobre data/input/
+# (Cambiar __main__ en src/main.py para llamar a test_compression())
+python -m src.main
 ```
 
 ### Tests
 
 ```bash
-# Ejecutar todos los tests (152 tests)
+# Ejecutar todos los tests (242 tests)
 pytest tests/ -v
 
 # Solo tests del WatcherAgent
@@ -396,11 +506,17 @@ pytest tests/test_ocr.py -v
 # Solo tests del ClassifierAgent
 pytest tests/test_classifier.py -v
 
+# Solo tests del StorageAgent
+pytest tests/test_storage.py -v
+
+# Solo tests de proveedores LLM
+pytest tests/test_llm_providers.py -v
+
 # Un test especifico
 pytest tests/test_ocr.py -k "test_name_here" -v
 ```
 
-La suite de tests incluye **152 pruebas** que cubren:
+La suite de tests incluye **242 pruebas** organizadas por agente:
 
 **WatcherAgent (47 tests):**
 - Procesamiento basico de emails y creacion de expedientes
@@ -412,9 +528,7 @@ La suite de tests incluye **152 pruebas** que cubren:
 - Emails sin asunto, con cuerpo vacio o solo HTML
 - Migracion de formatos anteriores del archivo de estado
 - Recuperacion ante archivo de estado corrupto
-- Generacion de variantes de keywords (`_keyword_variants`)
-- Busqueda con fallback por fecha
-- Shutdown graceful con SIGTERM
+- Busqueda con fallback por fecha y shutdown graceful con SIGTERM
 
 **OcrAgent + OcrService (57 tests):**
 - Calculo de confianza promedio y conteo de palabras
@@ -422,21 +536,36 @@ La suite de tests incluye **152 pruebas** que cubren:
 - Validacion de extensiones y manejo de errores
 - Escaneo de directorios y procesamiento por lotes
 - Extraccion de metadatos y calculo de hash SHA-256
-- Generacion de `json_ligero` (JSON simplificado para LLM)
-- Deduplicacion por `skip_hashes` (omite archivos ya clasificados)
-- Registro de auditoria en exitos y fallos
+- Generacion de `json_ligero` para consumo LLM
+- Deduplicacion por `skip_hashes`
 - Casos limite (directorios vacios, archivos inexistentes, fallos de docTR)
 
 **ClassifierAgent + LlmService (48 tests):**
-- Clasificacion de documentos por tipo (21 tipos)
+- Clasificacion de documentos por tipo (22 tipos)
 - Extraccion de campos especificos por tipo de documento
 - Rechazo de documentos irrelevantes con razon
 - Parseo de JSON desde respuestas con markdown fences
-- Rotacion de modelos LLM ante rate limit (OPENROUTER_FALLBACK_MODELS)
-- Reintentos con backoff exponencial cuando todos los modelos fallan
-- Manejo de errores de conexion y timeout
+- Rotacion de modelos LLM ante rate limit
+- Reintentos con backoff exponencial
 - Fallback de `json_ligero` a `texto_completo`
-- Auditoria de clasificaciones exitosas, rechazos y fallos
+
+**StorageAgent (60 tests):**
+- Flujo completo de almacenamiento (insert, skip por duplicado, error)
+- Normalizacion de cedula (V-, E-, solo digitos)
+- Deduplicacion por hash SHA-256 en MongoDB
+- Creacion de expediente nuevo vs recuperacion de existente
+- Compresion PDF (parametros Ghostscript, FileNotFoundError, timeout, error de retorno)
+- Compresion de imagen (JPEG quality=85, conversion PNG→JPEG, error Pillow)
+- Fallback a original cuando la compresion falla o el resultado es mayor
+- Metadatos de compresion almacenados en MongoDB
+- Enriquecimiento del perfil del docente desde curriculo vitae
+- Limpieza de directorios de entrada
+
+**Proveedores LLM (30 tests):**
+- OpenRouterProvider: clasificacion exitosa, rotacion de modelos, rate limit, error de JSON
+- OllamaProvider: clasificacion exitosa, truncado de texto, fallo de conexion, timeout
+- Factory `create_llm_provider()`: seleccion por `LLM_PROVIDER`
+- Health check de ambos proveedores
 
 ---
 
@@ -449,15 +578,18 @@ La suite de tests incluye **152 pruebas** que cubren:
 | `python-dotenv` | 1.0.1 | Carga de variables de entorno |
 | `pydantic` | 2.9.2 | Modelos de datos y validacion |
 | `loguru` | 0.7.2 | Logging estructurado |
-| `python-doctr[torch]` | >=0.9.0 | OCR con deep learning (docTR) |
-| `pillow` | 11.0.0 | Procesamiento de imagenes |
+| `python-doctr[torch]` | >=0.9.0 | OCR con deep learning |
+| `pillow` | 11.0.0 | Compresion y procesamiento de imagenes |
 | `pymongo` | 4.10.1 | Conexion a MongoDB |
 | `motor` | 3.6.0 | Driver async para MongoDB |
-| `openai` | >=1.50.0 | Cliente para APIs LLM (OpenRouter) |
-| `requests` | 2.32.3 | Peticiones HTTP |
+| `openai` | >=1.50.0 | Cliente para OpenRouter |
+| `requests` | 2.32.3 | Cliente HTTP (Ollama) |
 | `aiohttp` | 3.10.5 | Peticiones HTTP asincronas |
 | `email-validator` | 2.2.0 | Validacion de emails (Pydantic) |
 | `pytest` | 8.3.3 | Framework de testing |
+
+**Dependencias del sistema:**
+- `ghostscript`: compresion de PDFs (paquete `ghostscript` en apt/yum)
 
 ---
 
@@ -466,10 +598,10 @@ La suite de tests incluye **152 pruebas** que cubren:
 - Los correos **solo HTML** (sin parte `text/plain`) no matchean keywords en el cuerpo.
 - El sistema depende de la disponibilidad del servidor IMAP de Gmail.
 - Gmail IMAP no soporta busqueda accent-insensitive en servidor ni `CHARSET UTF-8`. El sistema compensa con busqueda por fecha + filtrado local.
-- Gmail IMAP puede no soportar `X-GM-RAW` en todas las cuentas (se usa fallback automatico).
 - La extraccion del nombre del docente requiere que el asunto siga un patron especifico con keyword seguida de separador (`:`, `-`, `–`, `—`).
 - El modelo OCR de docTR pesa ~500MB y se descarga en la primera ejecucion.
-- La clasificacion depende de la disponibilidad de OpenRouter y los modelos configurados.
+- La compresion PDF requiere Ghostscript instalado en el sistema; sin el, se usa el archivo original sin comprimir.
+- Ollama en CPU puede tardar 30-60s por clasificacion con `phi3:mini`. Para produccion se recomienda `LLM_PROVIDER=openrouter`.
 
 ---
 
@@ -477,9 +609,9 @@ La suite de tests incluye **152 pruebas** que cubren:
 
 - [x] **WatcherAgent**: Monitoreo IMAP, filtrado por keywords, deduplicacion, extraccion de nombre
 - [x] **OcrAgent**: Procesamiento OCR de documentos PDF/imagenes con docTR
-- [x] **ClassifierAgent**: Clasificacion automatica de documentos via LLM con extraccion de campos y rotacion de modelos
-- [x] **Pipeline completo**: Watcher → OCR → Classifier con deduplicacion por SHA-256
-- [ ] **StorageAgent**: Almacenamiento de metadatos en MongoDB y organizacion de archivos
+- [x] **ClassifierAgent**: Clasificacion automatica de documentos via LLM (OpenRouter + Ollama)
+- [x] **Pipeline completo**: Watcher → OCR → Classifier → Storage con deduplicacion por SHA-256
+- [x] **StorageAgent**: Almacenamiento en MongoDB, compresion de archivos, organizacion por cedula
 - [ ] **API REST**: Endpoints FastAPI para consulta y busqueda de expedientes
 - [ ] **Busqueda semantica**: Recuperacion de expedientes por similitud
 - [ ] Soporte para extraccion de texto de emails HTML-only
