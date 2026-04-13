@@ -613,5 +613,3 @@ La suite de tests incluye **242 pruebas** organizadas por agente:
 - [x] **Pipeline completo**: Watcher → OCR → Classifier → Storage con deduplicacion por SHA-256
 - [x] **StorageAgent**: Almacenamiento en MongoDB, compresion de archivos, organizacion por cedula
 - [ ] **API REST**: Endpoints FastAPI para consulta y busqueda de expedientes
-- [ ] **Busqueda semantica**: Recuperacion de expedientes por similitud
-- [ ] Soporte para extraccion de texto de emails HTML-only
