@@ -414,6 +414,124 @@ def enriquecer_expedientes_desde_cv() -> None:
     )
 
 
+def test_compression() -> None:
+    """Prueba de compresión sobre los archivos en data/input/.
+
+    Comprime cada PDF e imagen encontrada, muestra tamaño original,
+    tamaño comprimido y ratio de reducción. No mueve ni elimina ningún
+    archivo original; los temporales se limpian al finalizar.
+    """
+    from pathlib import Path
+    from src.agents.storage_agent import StorageAgent
+    from src.services.file_service import FileService
+    from src.services.mongo_service import MongoService
+    from src import config
+
+    config.ensure_directories()
+
+    EXTENSIONES = {".pdf", ".jpg", ".jpeg", ".png"}
+    archivos: list[Path] = []
+    for carpeta in config.INPUT_DIR.iterdir():
+        if carpeta.is_dir():
+            archivos.extend(
+                f for f in carpeta.iterdir() if f.suffix.lower() in EXTENSIONES
+            )
+    if not archivos:
+        for f in config.INPUT_DIR.iterdir():
+            if f.is_file() and f.suffix.lower() in EXTENSIONES:
+                archivos.append(f)
+
+    if not archivos:
+        logger.warning(
+            "No se encontraron archivos PDF/imagen en {}", config.INPUT_DIR
+        )
+        return
+
+    logger.info("=== Prueba de compresión: {} archivo(s) ===", len(archivos))
+
+    # Instanciar StorageAgent solo para acceder a los métodos de compresión
+    agent = StorageAgent.__new__(StorageAgent)
+
+    total_original = 0
+    total_comprimido = 0
+    comprimidos = 0
+    sin_reduccion = 0
+    errores = 0
+
+    for archivo in sorted(archivos):
+        tamano_orig = archivo.stat().st_size
+        total_original += tamano_orig
+        ext = archivo.suffix.lower()
+        cedula_temp = "test_compresion"
+
+        temp_result: Path | None = None
+        if ext == ".pdf":
+            temp_result = agent._compress_pdf(archivo, cedula_temp)
+        elif ext in (".jpg", ".jpeg", ".png"):
+            temp_result = agent._compress_image(archivo, cedula_temp)
+
+        if temp_result is None:
+            logger.warning("  FALLO | {} | compresión no disponible", archivo.name)
+            total_comprimido += tamano_orig
+            errores += 1
+            continue
+
+        tamano_comp = temp_result.stat().st_size
+        if tamano_comp < tamano_orig:
+            ratio = tamano_comp / tamano_orig
+            logger.info(
+                "  OK    | {} | {} → {} bytes ({:.0%})",
+                archivo.name,
+                tamano_orig,
+                tamano_comp,
+                ratio,
+            )
+            total_comprimido += tamano_comp
+            comprimidos += 1
+        else:
+            logger.info(
+                "  IGUAL | {} | {} bytes (no se redujo, se usa original)",
+                archivo.name,
+                tamano_orig,
+            )
+            total_comprimido += tamano_orig
+            sin_reduccion += 1
+
+        # Limpiar archivo temporal
+        try:
+            temp_result.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+    # Limpiar directorio temporal
+    temp_dir = config.STORAGE_DIR / cedula_temp / "temp"
+    try:
+        if temp_dir.exists():
+            temp_dir.rmdir()
+        parent = temp_dir.parent
+        if parent.exists() and not any(parent.iterdir()):
+            parent.rmdir()
+    except OSError:
+        pass
+
+    if total_original > 0:
+        ratio_global = total_comprimido / total_original
+        ahorro = total_original - total_comprimido
+        logger.info(
+            "=== Resumen: {} OK | {} sin reducción | {} fallos ===",
+            comprimidos,
+            sin_reduccion,
+            errores,
+        )
+        logger.info(
+            "Total: {} → {} bytes | ahorro: {} bytes ({:.0%})",
+            total_original,
+            total_comprimido,
+            ahorro,
+            ratio_global,
+        )
+
+
 if __name__ == "__main__":
-    test_pipeline()
+    test_compression()
 

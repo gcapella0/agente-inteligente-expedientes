@@ -4,9 +4,14 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import time
 from datetime import datetime
+from pathlib import Path
 
+from PIL import Image
+
+from src import config
 from src.core.logger import audit_log, get_agent_logger
 from src.services.file_service import FileService
 from src.services.mongo_service import MongoService
@@ -216,9 +221,62 @@ class StorageAgent:
             docente_id = str(docente_doc["_id"])
             logger.info("Docente existente recuperado: cédula={}", cedula)
 
+        # 4.5. Comprimir archivo si aplica (antes de insertar metadatos en Mongo)
+        source_path = classified_result.get("archivo_path")
+        compresion: dict = {
+            "comprimido": False,
+            "metodo_compresion": None,
+            "ratio_compresion": None,
+            "tamano_almacenado_bytes": classified_result.get("tamano_bytes"),
+        }
+        path_a_mover = source_path
+
+        if source_path is not None:
+            formato = classified_result.get("formato", "").lower()
+            tamano_original = classified_result.get("tamano_bytes") or 0
+            comprimido_path: Path | None = None
+            metodo: str | None = None
+
+            if formato == "pdf":
+                comprimido_path = self._compress_pdf(Path(source_path), cedula)
+                metodo = "ghostscript"
+            elif formato in ("jpg", "jpeg", "png"):
+                comprimido_path = self._compress_image(Path(source_path), cedula)
+                metodo = "pillow"
+
+            if comprimido_path is not None and comprimido_path.exists():
+                tamano_comprimido = comprimido_path.stat().st_size
+                if tamano_original > 0 and tamano_comprimido < tamano_original:
+                    ratio = round(tamano_comprimido / tamano_original, 4)
+                    logger.info(
+                        "{} comprimido: {} bytes → {} bytes ({:.0%})",
+                        formato.upper(),
+                        tamano_original,
+                        tamano_comprimido,
+                        ratio,
+                    )
+                    path_a_mover = comprimido_path
+                    compresion = {
+                        "comprimido": True,
+                        "metodo_compresion": metodo,
+                        "ratio_compresion": ratio,
+                        "tamano_almacenado_bytes": tamano_comprimido,
+                    }
+                else:
+                    logger.debug(
+                        "Compresión no redujo el tamaño de {}, usando original",
+                        archivo_nombre,
+                    )
+                    try:
+                        comprimido_path.unlink(missing_ok=True)
+                    except OSError:
+                        pass
+
         # 5. Insertar documento
         try:
-            documento_data = self._build_documento_data(classified_result, docente_id, cedula)
+            documento_data = self._build_documento_data(
+                classified_result, docente_id, cedula, compresion
+            )
             documento_id = self.mongo_service.insert_documento(documento_data)
             audit_log(
                 "storage",
@@ -256,14 +314,13 @@ class StorageAgent:
                     "Error enriqueciendo perfil del docente {} desde CV: {}", cedula, exc,
                 )
 
-        # 7. Mover archivo a storage
-        source_path = classified_result.get("archivo_path")
+        # 7. Mover archivo a storage (usa versión comprimida si aplica)
         archivo_destino = None
-        if source_path is not None:
+        if path_a_mover is not None:
             try:
                 fecha_emision = campos_extraidos.get("fecha_emision")
                 destino = self.file_service.move_to_storage(
-                    source_path, cedula, tipo, fecha_emision
+                    path_a_mover, cedula, tipo, fecha_emision
                 )
                 archivo_destino = str(destino)
                 self.mongo_service.update_archivo_ruta(documento_id, archivo_destino)
@@ -274,8 +331,19 @@ class StorageAgent:
                     cedula=cedula,
                     documento_tipo=tipo,
                     archivo=archivo_nombre,
-                    detalle=json.dumps({"destino": archivo_destino}),
+                    detalle=json.dumps({
+                        "destino": archivo_destino,
+                        "comprimido": compresion["comprimido"],
+                        "metodo_compresion": compresion["metodo_compresion"],
+                    }),
                 )
+                # Limpiar directorio temporal si existe
+                temp_dir = config.STORAGE_DIR / cedula / "temp"
+                if temp_dir.exists() and not any(temp_dir.iterdir()):
+                    try:
+                        temp_dir.rmdir()
+                    except OSError:
+                        pass
             except Exception as exc:
                 logger.error(
                     "Error moviendo archivo {} a storage: {}",
@@ -306,6 +374,72 @@ class StorageAgent:
             "documento_id": documento_id,
             "archivo_destino": archivo_destino,
         }
+
+    def _compress_pdf(self, input_path: Path, cedula: str) -> Path | None:
+        """Comprime un PDF usando Ghostscript con calidad ebook.
+
+        Args:
+            input_path: Ruta del PDF original.
+            cedula: Cédula del docente, usada para el directorio temporal.
+
+        Returns:
+            Ruta del archivo comprimido, o None si la compresión falla.
+        """
+        temp_dir = config.STORAGE_DIR / cedula / "temp"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        output_path = temp_dir / f"{input_path.stem}_comprimido.pdf"
+
+        cmd = [
+            "gs", "-qs", "-dNOPAUSE", "-dBATCH", "-dSAFER",
+            "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4",
+            "-dPDFSETTINGS=/ebook", "-dDetectDuplicateImages",
+            "-r150x150",
+            f"-sOutputFile={output_path}",
+            str(input_path),
+        ]
+        try:
+            resultado = subprocess.run(cmd, capture_output=True, timeout=120)
+            if resultado.returncode != 0:
+                logger.warning(
+                    "Ghostscript falló (código {}): {}",
+                    resultado.returncode,
+                    resultado.stderr.decode(errors="replace"),
+                )
+                return None
+            return output_path
+        except FileNotFoundError:
+            logger.warning("Ghostscript no está instalado (comando 'gs' no encontrado)")
+            return None
+        except subprocess.TimeoutExpired:
+            logger.warning("Ghostscript superó el tiempo límite para: {}", input_path.name)
+            return None
+        except OSError as exc:
+            logger.warning("Error en compresión PDF con Ghostscript: {}", exc)
+            return None
+
+    def _compress_image(self, input_path: Path, cedula: str) -> Path | None:
+        """Comprime una imagen usando Pillow a JPEG quality=85.
+
+        Args:
+            input_path: Ruta de la imagen original (JPG, JPEG o PNG).
+            cedula: Cédula del docente, usada para el directorio temporal.
+
+        Returns:
+            Ruta del archivo comprimido, o None si la compresión falla.
+        """
+        temp_dir = config.STORAGE_DIR / cedula / "temp"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        output_path = temp_dir / f"{input_path.stem}_comprimido.jpg"
+
+        try:
+            with Image.open(input_path) as image:  # type: ignore[attr-defined]
+                if image.mode not in ("RGB", "L"):
+                    image = image.convert("RGB")
+                image.save(output_path, format="JPEG", quality=85, optimize=True)
+            return output_path
+        except Exception as exc:
+            logger.warning("Error en compresión de imagen con Pillow: {}", exc)
+            return None
 
     def _normalize_cedula(self, cedula_raw: str) -> str:
         """Normaliza la cédula eliminando prefijos y dejando solo dígitos.
@@ -436,6 +570,7 @@ class StorageAgent:
         classified_result: dict,
         docente_id: str,
         cedula: str,
+        compresion: dict | None = None,
     ) -> dict:
         """Construye el dict de datos del documento para insertar en MongoDB.
 
@@ -443,6 +578,8 @@ class StorageAgent:
             classified_result: Resultado completo del pipeline (OCR + clasificación).
             docente_id: ID del docente en MongoDB.
             cedula: Cédula normalizada del docente.
+            compresion: Metadatos de compresión con claves comprimido, metodo_compresion,
+                ratio_compresion y tamano_almacenado_bytes.
 
         Returns:
             Dict compatible con DocumentoModel.
@@ -452,6 +589,8 @@ class StorageAgent:
         campos_extraidos = clasificacion.get("campos_extraidos", {})
         tipo = clasificacion.get("tipo", "otro")
         ahora = datetime.now()
+        comp = compresion or {}
+        tamano_original = classified_result.get("tamano_bytes")
 
         return {
             "docente_id": docente_id,
@@ -463,8 +602,13 @@ class StorageAgent:
                 "ruta": str(classified_result.get("archivo_path", "")),
                 "nombre_original": classified_result.get("archivo_nombre", ""),
                 "formato": classified_result.get("formato", ""),
-                "tamano_bytes": classified_result.get("tamano_bytes"),
+                "tamano_bytes": tamano_original,
                 "hash_sha256": classified_result.get("hash_sha256"),
+                "tamano_original_bytes": tamano_original,
+                "tamano_almacenado_bytes": comp.get("tamano_almacenado_bytes", tamano_original),
+                "ratio_compresion": comp.get("ratio_compresion"),
+                "comprimido": comp.get("comprimido", False),
+                "metodo_compresion": comp.get("metodo_compresion"),
             },
             "ocr": {
                 "procesado": True,
