@@ -1,0 +1,24 @@
+meta {
+  name: Listar Docentes
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/docentes
+  body: none
+  auth: none
+}
+
+query {
+  skip: 0
+  limit: 10
+}
+
+assert {
+  res.status: eq 200
+  res.body.items: isDefined
+  res.body.total: isDefined
+  res.body.skip: eq 0
+  res.body.limit: eq 10
+}

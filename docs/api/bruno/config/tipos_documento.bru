@@ -1,0 +1,18 @@
+meta {
+  name: Tipos de Documento
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/config/tipos-documento
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.tipos_documento: isDefined
+  res.body.documentos_requeridos: eq 10
+  res.body.total_tipos_posibles: eq 22
+}

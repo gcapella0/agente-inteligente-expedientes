@@ -1,0 +1,18 @@
+meta {
+  name: Validacion Documento
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8000/documentos/69daef6840441e219b8e6094/validacion
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.validaciones: isDefined
+  res.body.es_valido_para_expediente: isDefined
+  res.body.validaciones.formato: isDefined
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Listar Documentos del Expediente
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8000/expediente/27504759/documentos
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.items: isDefined
+  res.body.docente_cedula: isDefined
+  res.body.documentos_incompletos: isDefined
+}

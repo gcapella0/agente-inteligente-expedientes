@@ -1,0 +1,18 @@
+meta {
+  name: Obtener Expediente
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/expediente/27504759
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.docente: isDefined
+  res.body.documentos: isDefined
+  res.body.total_documentos: isDefined
+}
