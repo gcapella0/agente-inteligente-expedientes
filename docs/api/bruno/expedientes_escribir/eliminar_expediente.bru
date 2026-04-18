@@ -1,0 +1,23 @@
+meta {
+  name: Eliminar Expediente
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{base_url}}/expedientes/{{cedula}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+  cedula: 27504759
+}
+
+assert {
+  res.status: eq 200
+  res.body.cedula: isDefined
+  res.body.documentos_eliminados: isDefined
+  res.body.mensaje: isDefined
+}

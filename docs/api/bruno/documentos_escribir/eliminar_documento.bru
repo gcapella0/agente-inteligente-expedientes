@@ -1,0 +1,24 @@
+meta {
+  name: Eliminar Documento
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{base_url}}/documentos/{{documento_id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+  documento_id: 507f1f77bcf86cd799439011
+}
+
+assert {
+  res.status: eq 200
+  res.body.documento_id: isDefined
+  res.body.docente_cedula: isDefined
+  res.body.tipo: isDefined
+  res.body.mensaje: isDefined
+}
