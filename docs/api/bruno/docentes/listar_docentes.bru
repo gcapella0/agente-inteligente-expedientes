@@ -10,9 +10,14 @@ get {
   auth: none
 }
 
-query {
+params:query {
   skip: 0
   limit: 10
+  ~cursor:
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
 }
 
 assert {
@@ -21,4 +26,5 @@ assert {
   res.body.total: isDefined
   res.body.skip: eq 0
   res.body.limit: eq 10
+  res.body.tiene_mas: isDefined
 }

@@ -1,0 +1,31 @@
+meta {
+  name: Buscar Texto OCR
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/expedientes/buscar-texto
+  body: none
+  auth: none
+}
+
+params:query {
+  q: universidad
+  ~tipo: titulo_universitario
+  ~campos: numero
+  skip: 0
+  limit: 20
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+}
+
+assert {
+  res.status: eq 200
+  res.body.query: isDefined
+  res.body.resultados: isDefined
+  res.body.total: isDefined
+  res.body.tiempo_busqueda_ms: isDefined
+}

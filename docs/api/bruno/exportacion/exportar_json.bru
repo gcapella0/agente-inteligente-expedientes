@@ -1,0 +1,29 @@
+meta {
+  name: Exportar Expediente JSON
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/expedientes/{{cedula}}/exportar
+  body: none
+  auth: none
+}
+
+params:query {
+  formato: json
+  incluir_documentos: true
+  incluir_ocr: false
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+  cedula: 27504759
+}
+
+assert {
+  res.status: eq 200
+  res.headers.content-type: contains application/json
+  res.body.docente: isDefined
+  res.body.numero_expediente: isDefined
+}

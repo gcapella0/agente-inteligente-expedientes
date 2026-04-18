@@ -1,0 +1,27 @@
+meta {
+  name: Estadísticas Documentos
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/estadisticas/documentos
+  body: none
+  auth: none
+}
+
+params:query {
+  tipo: 
+  estado_validacion: 
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+}
+
+assert {
+  res.status: eq 200
+  res.body.documento_faltante_top: isDefined
+  res.body.documentos_por_estado: isDefined
+  res.body.procesamiento_ocr: isDefined
+}

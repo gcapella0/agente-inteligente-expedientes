@@ -5,9 +5,24 @@ meta {
 }
 
 get {
-  url: http://localhost:8000/docentes/buscar
+  url: {{base_url}}/docentes/buscar
   body: none
   auth: none
+}
+
+params:query {
+  ~q: Pérez
+  ~departamento: Informática
+  ~sede: Caracas
+  ~status: activo
+  ordenar: apellidos
+  skip: 0
+  limit: 10
+  ~cursor:
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
 }
 
 assert {
@@ -15,4 +30,5 @@ assert {
   res.body.items: isDefined
   res.body.total: isDefined
   res.body.total_pages: isDefined
+  res.body.tiene_mas: isDefined
 }

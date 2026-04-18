@@ -1,0 +1,27 @@
+meta {
+  name: Estadísticas Completitud
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/estadisticas/completitud
+  body: none
+  auth: none
+}
+
+params:query {
+  rango_porcentaje: 0-25,25-50,50-75,75-100
+  agrupar_por: departamento
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+}
+
+assert {
+  res.status: eq 200
+  res.body.distribucion_completitud: isDefined
+  res.body.por_departamento: isDefined
+  res.body.recomendacion: isDefined
+}
