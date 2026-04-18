@@ -6,15 +6,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 
-from src.api.routers import busqueda, config, documentos, estadisticas, expedientes, exportacion, health, validacion
+from src.api.routers import (
+    busqueda,
+    config,
+    documentos,
+    documentos_escribir,
+    estadisticas,
+    expedientes,
+    expedientes_escribir,
+    exportacion,
+    health,
+    validacion,
+)
 from src.core.logger import get_agent_logger
 
 logger = get_agent_logger("api")
 
 app = FastAPI(
     title="Expedientes API",
-    description="API read-only para expedientes docentes UNEG",
-    version="1.3.0",
+    description="API read-write para gestión de expedientes docentes UNEG",
+    version="2.0.0",
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=500)
@@ -22,7 +33,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://localhost:8080"],
     allow_credentials=True,
-    allow_methods=["GET", "HEAD", "OPTIONS"],
+    allow_methods=["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
 
@@ -34,11 +45,13 @@ app.include_router(estadisticas.router, prefix="/estadisticas", tags=["Estadíst
 app.include_router(validacion.router, prefix="/validacion", tags=["Validación"])
 app.include_router(busqueda.router, prefix="/expedientes", tags=["Búsqueda"])
 app.include_router(exportacion.router, prefix="/expedientes", tags=["Exportación"])
+app.include_router(expedientes_escribir.router, prefix="/expedientes", tags=["Expedientes (Escritura)"])
+app.include_router(documentos_escribir.router, prefix="/documentos", tags=["Documentos (Escritura)"])
 
 
 @app.get("/")
 async def root():
-    return {"app": "Expedientes API", "version": "1.3.0"}
+    return {"app": "Expedientes API", "version": "2.0.0"}
 
 
 @app.get("/info")
@@ -46,29 +59,16 @@ async def info():
     """Información de la API."""
     return {
         "nombre": "Expedientes API",
-        "version": "1.3.0",
-        "descripcion": "API read-only para consulta de expedientes docentes UNEG",
+        "version": "2.0.0",
+        "descripcion": "API read-write para gestión de expedientes docentes UNEG",
         "fecha_deploy": "2026-04-18T00:00:00Z",
-        "endpoints_totales": 18,
+        "endpoints_totales": 26,
         "contacto": "soporte@uneg.edu.ve",
-        "endpoints": {
-            "health": "/health",
-            "docentes": "/docentes",
-            "buscar_docentes": "/docentes/buscar",
-            "expediente": "/expediente/{cedula}",
-            "expediente_documentos": "/expediente/{cedula}/documentos",
-            "expediente_resumen": "/expediente/{cedula}/resumen",
-            "documento": "/documentos/{id}",
-            "documento_validacion": "/documentos/{id}/validacion",
-            "tipos_documento": "/config/tipos-documento",
-            "estados_validacion": "/config/estados-validacion",
-            "estados_docente": "/config/estados-docente",
-            "estadisticas_expedientes": "/estadisticas/expedientes",
-            "estadisticas_documentos": "/estadisticas/documentos",
-            "estadisticas_completitud": "/estadisticas/completitud",
-            "validacion_expediente": "/validacion/expediente/{cedula}",
-            "buscar_texto": "/expedientes/buscar-texto",
-            "exportar_expediente": "/expedientes/{cedula}/exportar",
+        "capacidades": {
+            "lectura": True,
+            "escritura": True,
+            "auditoria": True,
+            "validacion": True,
         },
         "documentacion": "/docs",
     }
