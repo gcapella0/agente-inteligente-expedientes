@@ -1,0 +1,18 @@
+meta {
+  name: Buscar Docentes
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8000/docentes/buscar
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.items: isDefined
+  res.body.total: isDefined
+  res.body.total_pages: isDefined
+}

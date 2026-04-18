@@ -1,0 +1,19 @@
+meta {
+  name: Resumen Expediente (JSON)
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:8000/expediente/27504759/resumen
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.docente_cedula: isDefined
+  res.body.documentos_presentes: isDefined
+  res.body.documentos_faltantes: isDefined
+  res.body.completitud_porcentaje: isDefined
+}
