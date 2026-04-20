@@ -446,6 +446,6 @@ class TestInfo:
         client = TestClient(app, raise_server_exceptions=True)
         resp = client.get("/info")
         assert resp.status_code == 200
-        assert resp.json()["version"] == "2.1.0"
+        assert resp.json()["version"] == "2.2.0"
         assert resp.json()["autenticacion"] == "JWT Bearer"
-        assert resp.json()["endpoints_totales"] == 30
+        assert resp.json()["endpoints_totales"] == 37

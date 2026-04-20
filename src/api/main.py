@@ -7,10 +7,12 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 
 from src.api.routers import (
+    agentes,
     auth,
     auditoria,
     busqueda,
     config,
+    config_llm,
     documentos,
     documentos_escribir,
     estadisticas,
@@ -18,6 +20,7 @@ from src.api.routers import (
     expedientes_escribir,
     exportacion,
     health,
+    logs,
     validacion,
 )
 from src.core.logger import get_agent_logger
@@ -27,7 +30,7 @@ logger = get_agent_logger("api")
 app = FastAPI(
     title="Expedientes API",
     description="API read-write con autenticación JWT para gestión de expedientes docentes UNEG",
-    version="2.1.0",
+    version="2.2.0",
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=500)
@@ -51,6 +54,9 @@ app.include_router(exportacion.router, prefix="/expedientes", tags=["Exportació
 app.include_router(expedientes_escribir.router, prefix="/expedientes", tags=["Expedientes (Escritura)"])
 app.include_router(documentos_escribir.router, prefix="/documentos", tags=["Documentos (Escritura)"])
 app.include_router(auditoria.router, prefix="/admin/auditoria", tags=["Auditoría (Admin)"])
+app.include_router(agentes.router, prefix="/agentes", tags=["Agentes"])
+app.include_router(config_llm.router, prefix="/config", tags=["Configuración LLM"])
+app.include_router(logs.router, prefix="/logs", tags=["Logs"])
 
 
 @app.on_event("startup")
@@ -63,7 +69,7 @@ async def startup_event() -> None:
 
 @app.get("/")
 async def root():
-    return {"app": "Expedientes API", "version": "2.1.0"}
+    return {"app": "Expedientes API", "version": "2.2.0"}
 
 
 @app.get("/info")
@@ -71,10 +77,10 @@ async def info():
     """Información de la API."""
     return {
         "nombre": "Expedientes API",
-        "version": "2.1.0",
+        "version": "2.2.0",
         "descripcion": "API read-write con autenticación JWT para expedientes docentes UNEG",
-        "fecha_deploy": "2026-04-18T00:00:00Z",
-        "endpoints_totales": 30,
+        "fecha_deploy": "2026-04-19T00:00:00Z",
+        "endpoints_totales": 37,
         "autenticacion": "JWT Bearer",
         "contacto": "soporte@uneg.edu.ve",
         "capacidades": {
