@@ -1,0 +1,20 @@
+meta {
+  name: Root
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+}
+
+assert {
+  res.status: eq 200
+  res.body.app: eq Expedientes API
+}

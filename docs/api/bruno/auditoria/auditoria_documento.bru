@@ -1,0 +1,22 @@
+meta {
+  name: Auditoría Documento
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/admin/auditoria/documento/{{documento_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.documento_id: isDefined
+  res.body.eventos: isDefined
+  res.body.total_eventos: isDefined
+}

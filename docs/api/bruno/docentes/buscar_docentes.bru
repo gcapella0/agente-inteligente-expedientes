@@ -1,0 +1,30 @@
+meta {
+  name: Buscar Docentes
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/docentes/buscar
+  body: none
+  auth: none
+}
+
+params:query {
+  ~q: Pérez
+  ~departamento: Informática
+  ~sede: Caracas
+  ~status: activo
+  ordenar: apellidos
+  skip: 0
+  limit: 10
+  ~cursor:
+}
+
+assert {
+  res.status: eq 200
+  res.body.items: isDefined
+  res.body.total: isDefined
+  res.body.total_pages: isDefined
+  res.body.tiene_mas: isDefined
+}

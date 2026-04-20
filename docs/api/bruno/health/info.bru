@@ -1,0 +1,20 @@
+meta {
+  name: Info
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/info
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+}
+
+assert {
+  res.status: eq 200
+  res.body.version: isDefined
+}

@@ -1,0 +1,35 @@
+meta {
+  name: Actualizar Expediente
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{base_url}}/expedientes/{{cedula}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nombres": "Juan Carlos",
+    "apellidos": "Pérez García",
+    "email_personal": "juan@mail.com",
+    "email_institucional": "jperez@uneg.edu.ve",
+    "telefono_principal": "0424-1234567",
+    "departamento": "Informática",
+    "sede": "Ciudad Guayana"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.cedula: isDefined
+  res.body.campos_actualizados: isDefined
+  res.body.mensaje: isDefined
+  res.body.timestamp: isDefined
+}

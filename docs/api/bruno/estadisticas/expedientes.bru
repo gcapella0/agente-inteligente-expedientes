@@ -1,0 +1,22 @@
+meta {
+  name: Estadísticas Expedientes
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/estadisticas/expedientes
+  body: none
+  auth: none
+}
+
+params:query {
+  agrupar_por: status
+}
+
+assert {
+  res.status: eq 200
+  res.body.datos: isDefined
+  res.body.total_docentes: isDefined
+  res.body.agrupacion: isDefined
+}

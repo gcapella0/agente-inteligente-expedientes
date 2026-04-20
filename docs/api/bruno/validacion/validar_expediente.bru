@@ -1,0 +1,24 @@
+meta {
+  name: Validar Expediente
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/validacion/expediente/{{cedula}}
+  body: none
+  auth: none
+}
+
+params:query {
+  detalle: false
+}
+
+assert {
+  res.status: eq 200
+  res.body.docente_cedula: isDefined
+  res.body.validaciones: isDefined
+  res.body.estado_general: isDefined
+  res.body.alertas: isDefined
+  res.body.es_apto_para_presentacion: isDefined
+}
