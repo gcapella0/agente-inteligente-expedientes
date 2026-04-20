@@ -7,6 +7,7 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 - Clasificar documentos automaticamente via **LLM** (OpenRouter o Ollama).
 - Comprimir automaticamente PDFs e imagenes antes del almacenamiento.
 - Almacenar y organizar la informacion en **MongoDB**.
+- Exponer los expedientes a traves de una **API REST** con autenticacion JWT.
 
 ---
 
@@ -19,6 +20,7 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
    - **ClassifierAgent** → clasifica documentos y extrae campos via LLM.
    - **StorageAgent** → comprime archivos, persiste metadatos en MongoDB y organiza el almacenamiento.
 3. Facilitar la consulta y recuperacion de expedientes desde UNEG.
+4. Exponer la informacion a traves de una **API REST FastAPI** con autenticacion JWT, endpoints de lectura/escritura, busqueda de texto completo, exportacion (JSON/XML/CSV) y auditoria admin.
 
 ---
 
@@ -45,18 +47,41 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 │   │       └── llm_factory.py       # Factory: crea el proveedor segun LLM_PROVIDER
 │   ├── models/
 │   │   ├── docente.py               # Modelo Pydantic del docente
-│   │   └── documento.py             # Modelo Pydantic de documentos
+│   │   ├── documento.py             # Modelo Pydantic de documentos
+│   │   └── usuario.py               # Modelo Pydantic de usuario (JWT)
 │   ├── core/
 │   │   └── logger.py                # Logging con Loguru (audit + por agente)
 │   ├── prompts/
 │   │   └── classify_document.py     # Prompt de clasificacion para el LLM
-│   └── api/                         # Endpoints FastAPI (pendiente)
+│   └── api/
+│       ├── main.py                  # App FastAPI, routers, middleware
+│       ├── schemas.py               # Modelos Pydantic para respuestas
+│       ├── security.py              # JWT: create_access_token, verify_token, bcrypt
+│       ├── dependencies.py          # Depends: verify_token, verify_admin
+│       └── routers/
+│           ├── expedientes.py       # GET docentes, expediente, documentos, resumen
+│           ├── expedientes_escribir.py # PUT/DELETE expediente
+│           ├── documentos.py        # GET documento, validacion
+│           ├── documentos_escribir.py  # POST agregar, PATCH validacion, DELETE
+│           ├── busqueda.py          # GET buscar-texto (full-text)
+│           ├── exportacion.py       # GET exportar (JSON/XML/CSV)
+│           ├── estadisticas.py      # GET expedientes/documentos/completitud
+│           ├── validacion.py        # GET validar expediente
+│           ├── config.py            # GET tipos-documento/estados
+│           ├── auth.py              # POST login/crear-usuario/cambiar-password
+│           ├── auditoria.py         # GET auditoria expediente/documento (admin)
+│           └── health.py            # GET /health, /, /info
 ├── tests/
 │   ├── test_watcher_agent.py        # Tests del WatcherAgent (47)
 │   ├── test_ocr.py                  # Tests del OcrAgent y OcrService (57)
 │   ├── test_classifier.py           # Tests del ClassifierAgent y LlmService (48)
-│   ├── test_storage.py              # Tests del StorageAgent (60)
-│   └── test_llm_providers.py        # Tests de OpenRouterProvider y OllamaProvider (30)
+│   ├── test_storage.py              # Tests del StorageAgent (83)
+│   ├── test_llm_providers.py        # Tests de OpenRouterProvider y OllamaProvider (30)
+│   ├── test_api_fase1.py            # Tests API: health, expedientes, documentos (30)
+│   ├── test_api_fase2.py            # Tests API: estadisticas y validacion (31)
+│   ├── test_api_fase3.py            # Tests API: busqueda, exportacion, paginacion (22)
+│   ├── test_api_fase4.py            # Tests API: escritura CRUD (26)
+│   └── test_api_fase5.py            # Tests API: autenticacion JWT y auditoria (32)
 ├── data/
 │   ├── input/                       # Expedientes descargados por docente
 │   ├── storage/                     # Archivos almacenados por cedula
@@ -68,7 +93,7 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 │   ├── classifier.log               # Log del ClassifierAgent
 │   ├── storage.log                  # Log del StorageAgent
 │   ├── audit.jsonl                  # Log de auditoria estructurado (JSON)
-│   └── api.log                      # Log de la API (futuro)
+│   └── api.log                      # Log de la API REST
 ├── .env                             # Variables de entorno (no versionado)
 ├── .env.example                     # Plantilla de variables de entorno
 └── requirements.txt                 # Dependencias Python
@@ -294,6 +319,69 @@ Servicio de persistencia con `pymongo`. Colecciones: `docentes` y `documentos`.
 
 ---
 
+## API REST (`src/api/`)
+
+Interfaz HTTP FastAPI sobre MongoDB. Version 2.0.0. Iniciada con:
+
+```bash
+uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Swagger UI disponible en `http://localhost:8000/docs`.
+
+### Autenticacion JWT (`src/api/security.py`, `src/api/dependencies.py`)
+
+- `POST /auth/login` — devuelve token JWT (8h). Credenciales por defecto: `admin@uneg.edu.ve` / `admin123`.
+- `POST /auth/crear-usuario` (solo admin) — crea usuario con rol `admin|usuario|sistema`.
+- `POST /auth/cambiar-password` — cambia la contraseña del usuario autenticado.
+- Todos los endpoints de escritura (`POST`, `PUT`, `PATCH`, `DELETE`) requieren `Authorization: Bearer <token>`.
+- Contraseñas hasheadas con bcrypt (`passlib`). `JWT_SECRET_KEY` en `.env` (cambiar en produccion).
+
+### Endpoints de lectura
+
+| Ruta | Descripcion |
+|---|---|
+| `GET /expedientes/docentes` | Lista docentes con paginacion por offset o cursor |
+| `GET /expedientes/docentes/buscar` | Filtros: nombre, departamento, sede, status |
+| `GET /expediente/{cedula}` | Docente + documentos completos |
+| `GET /expediente/{cedula}/documentos` | Documentos con filtros tipo/validacion |
+| `GET /expediente/{cedula}/resumen` | Resumen en JSON o texto plano |
+| `GET /documentos/{id}` | Documento completo por ObjectId |
+| `GET /documentos/{id}/validacion` | Estado de validacion del documento |
+| `GET /expedientes/buscar-texto` | Full-text search con `$text` de MongoDB |
+| `GET /expedientes/{cedula}/exportar` | Exporta expediente como JSON, XML o CSV |
+| `GET /estadisticas/expedientes` | Agrupacion de docentes por status/departamento/sede |
+| `GET /estadisticas/documentos` | Tipos con menor presencia, distribucion por estado |
+| `GET /estadisticas/completitud` | Distribucion por rangos de completitud |
+| `GET /validacion/expediente/{cedula}` | Auditoria del expediente (apto/requiere_atencion/critico) |
+| `GET /config/tipos-documento` | Catalogo de los 22 tipos de documento |
+| `GET /config/estados-validacion` | Catalogo de estados de validacion |
+| `GET /config/estados-docente` | Catalogo de estados del docente |
+| `GET /health` | Estado del servicio |
+
+### Endpoints de escritura (requieren JWT)
+
+| Ruta | Descripcion |
+|---|---|
+| `PUT /expedientes/{cedula}` | Actualiza campos del docente (patch parcial) |
+| `DELETE /expedientes/{cedula}` | Elimina docente y todos sus documentos (cascada) |
+| `POST /documentos/{cedula}/agregar-documento` | Inserta documento y recalcula completitud |
+| `PATCH /documentos/{documento_id}/validacion` | Actualiza estado de validacion |
+| `DELETE /documentos/{documento_id}` | Elimina documento y recalcula completitud |
+
+### Auditoria admin (solo rol admin)
+
+| Ruta | Descripcion |
+|---|---|
+| `GET /admin/auditoria/expediente/{cedula}` | Eventos de auditoria de un expediente (filtro por dias, max 100) |
+| `GET /admin/auditoria/documento/{documento_id}` | Historial de cambios de un documento |
+
+### Coleccion Bruno
+
+Manual de pruebas en `docs/api/bruno/` — 35 requests organizados en carpetas. Importar en Bruno y seleccionar el environment `local`. El request `auth/login.bru` guarda automaticamente el token en `{{token}}`.
+
+---
+
 ## Pipeline completo (`src/main.py`)
 
 `main()` ejecuta el `WatcherAgent` en modo de polling continuo (punto de entrada de produccion).
@@ -380,7 +468,7 @@ Sistema de logging estructurado con **Loguru** (`src/core/logger.py`).
 | `classifier.log` | Log del ClassifierAgent |
 | `storage.log` | Log del StorageAgent |
 | `audit.jsonl` | Log de auditoria en JSON estructurado (filtrado por `audit=True`) |
-| `api.log` | Log de la API (futuro) |
+| `api.log` | Log de la API REST |
 
 - `get_agent_logger("nombre")`: obtiene logger filtrado por agente
 - `audit_log(evento, datos)`: registra eventos de auditoria en `audit.jsonl`
@@ -434,6 +522,12 @@ Sistema de logging estructurado con **Loguru** (`src/core/logger.py`).
 |---|---|---|
 | `MONGO_URI` | URI de conexion a MongoDB | `mongodb://localhost:27017` |
 | `MONGO_DB` | Nombre de la base de datos | `expedientes_uneg` |
+
+#### API REST y seguridad
+
+| Variable | Descripcion | Valor por defecto |
+|---|---|---|
+| `JWT_SECRET_KEY` | Clave secreta para firmar tokens JWT | *(valor inseguro incluido — **cambiar en produccion**)* |
 
 ### Archivo de estado (`processed_uids.json`)
 
@@ -494,7 +588,7 @@ python -m src.main
 ### Tests
 
 ```bash
-# Ejecutar todos los tests (242 tests)
+# Ejecutar todos los tests (406 tests)
 pytest tests/ -v
 
 # Solo tests del WatcherAgent
@@ -512,11 +606,14 @@ pytest tests/test_storage.py -v
 # Solo tests de proveedores LLM
 pytest tests/test_llm_providers.py -v
 
+# Solo tests de la API REST (Fases 1-5)
+pytest tests/test_api_fase1.py tests/test_api_fase2.py tests/test_api_fase3.py tests/test_api_fase4.py tests/test_api_fase5.py -v
+
 # Un test especifico
 pytest tests/test_ocr.py -k "test_name_here" -v
 ```
 
-La suite de tests incluye **242 pruebas** organizadas por agente:
+La suite de tests incluye **406 pruebas** organizadas por agente y fase:
 
 **WatcherAgent (47 tests):**
 - Procesamiento basico de emails y creacion de expedientes
@@ -549,7 +646,7 @@ La suite de tests incluye **242 pruebas** organizadas por agente:
 - Reintentos con backoff exponencial
 - Fallback de `json_ligero` a `texto_completo`
 
-**StorageAgent (60 tests):**
+**StorageAgent (83 tests):**
 - Flujo completo de almacenamiento (insert, skip por duplicado, error)
 - Normalizacion de cedula (V-, E-, solo digitos)
 - Deduplicacion por hash SHA-256 en MongoDB
@@ -566,6 +663,41 @@ La suite de tests incluye **242 pruebas** organizadas por agente:
 - OllamaProvider: clasificacion exitosa, truncado de texto, fallo de conexion, timeout
 - Factory `create_llm_provider()`: seleccion por `LLM_PROVIDER`
 - Health check de ambos proveedores
+
+**API REST Fase 1 (30 tests):**
+- Health, info y raiz
+- Listado de docentes con paginacion por offset y cursor
+- Detalle de expediente y documentos por cedula
+- Resumen en JSON y texto plano
+- Detalle y validacion de documento por ObjectId
+- Catalogos: tipos de documento, estados de validacion, estados de docente
+
+**API REST Fase 2 (31 tests):**
+- Estadisticas de expedientes por status/departamento/sede/completitud
+- Estadisticas de documentos: tipos, estados, OCR
+- Completitud por rangos y alertas de departamento critico
+- Validacion de expediente: estado general, alertas, aptitud para presentacion
+- Busqueda de docentes con filtros combinados
+
+**API REST Fase 3 (22 tests):**
+- Busqueda full-text con `$text` de MongoDB
+- Exportacion de expediente como JSON, XML y CSV
+- Cursor-based pagination en listado y busqueda
+- Manejo de formatos de exportacion desconocidos (415)
+
+**API REST Fase 4 (26 tests):**
+- PUT expediente: actualizacion parcial de campos del docente
+- DELETE expediente: eliminacion en cascada con documentos
+- POST agregar-documento: insercion y recalculo de completitud
+- PATCH validacion: actualizacion de estado y verificacion de argumentos MongoDB
+- DELETE documento: eliminacion y recalculo de completitud
+
+**API REST Fase 5 (32 tests):**
+- POST login: autenticacion, token JWT, actualizacion de ultimo_login
+- POST crear-usuario: creacion con rol, validacion de permisos admin
+- POST cambiar-password: verificacion de password actual y actualizacion
+- GET auditoria expediente/documento: historial de eventos con filtros
+- Proteccion de endpoints: token invalido (401), rol insuficiente (403)
 
 ---
 
@@ -586,6 +718,8 @@ La suite de tests incluye **242 pruebas** organizadas por agente:
 | `requests` | 2.32.3 | Cliente HTTP (Ollama) |
 | `aiohttp` | 3.10.5 | Peticiones HTTP asincronas |
 | `email-validator` | 2.2.0 | Validacion de emails (Pydantic) |
+| `passlib[bcrypt]` | >=1.7.4 | Hash de contraseñas con bcrypt |
+| `python-jose[cryptography]` | >=3.3.0 | Generacion y verificacion de tokens JWT |
 | `pytest` | 8.3.3 | Framework de testing |
 
 **Dependencias del sistema:**
@@ -612,6 +746,10 @@ La suite de tests incluye **242 pruebas** organizadas por agente:
 - [x] **ClassifierAgent**: Clasificacion automatica de documentos via LLM (OpenRouter + Ollama)
 - [x] **Pipeline completo**: Watcher → OCR → Classifier → Storage con deduplicacion por SHA-256
 - [x] **StorageAgent**: Almacenamiento en MongoDB, compresion de archivos, organizacion por cedula
-- [ ] **API REST**: Endpoints FastAPI para consulta y busqueda de expedientes
+- [x] **API REST Fase 1**: Health, expedientes, documentos, catalogos (11 endpoints, 30 tests)
+- [x] **API REST Fase 2**: Estadisticas, validacion de expediente, busqueda (31 tests)
+- [x] **API REST Fase 3**: Busqueda full-text, exportacion JSON/XML/CSV, cursor pagination (22 tests)
+- [x] **API REST Fase 4**: Endpoints de escritura CRUD con JWT (26 tests)
+- [x] **API REST Fase 5**: Autenticacion JWT, usuarios, auditoria admin (32 tests)
 - [ ] **Busqueda semantica**: Recuperacion de expedientes por similitud
 - [ ] Soporte para extraccion de texto de emails HTML-only
