@@ -1,0 +1,26 @@
+meta {
+  name: Auditoría Expediente
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/admin/auditoria/expediente/{{cedula}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  dias: 7
+}
+
+assert {
+  res.status: eq 200
+  res.body.cedula: isDefined
+  res.body.eventos: isDefined
+  res.body.total_eventos: isDefined
+}

@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: http://localhost:8000/health
+  url: {{base_url}}/health
   body: none
   auth: none
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
 }
 
 assert {

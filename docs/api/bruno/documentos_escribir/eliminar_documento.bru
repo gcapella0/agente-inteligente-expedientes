@@ -7,12 +7,11 @@ meta {
 delete {
   url: {{base_url}}/documentos/{{documento_id}}
   body: none
-  auth: none
+  auth: bearer
 }
 
-vars:pre-request {
-  base_url: http://localhost:8000
-  documento_id: 507f1f77bcf86cd799439011
+auth:bearer {
+  token: {{token}}
 }
 
 assert {

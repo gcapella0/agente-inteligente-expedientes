@@ -13,8 +13,12 @@ from bson import ObjectId
 from fastapi.testclient import TestClient
 
 from src.api.main import app
+from src.api.security import create_access_token
 
 client = TestClient(app, raise_server_exceptions=True)
+
+# Header de admin para endpoints protegidos
+_ADMIN_HEADERS = {"Authorization": f"Bearer {create_access_token('admin@test.com', 'admin')}"}
 
 # ---------------------------------------------------------------------------
 # Datos de prueba
@@ -72,19 +76,19 @@ class TestActualizarExpediente:
     def test_actualizar_docente_no_encontrado(self):
         mongo = self._mock_no_existe()
         with patch("src.api.routers.expedientes_escribir.MongoService", return_value=mongo):
-            r = client.put(f"/expedientes/{_CEDULA}", json={"nombres": "Nuevo"})
+            r = client.put(f"/expedientes/{_CEDULA}", json={"nombres": "Nuevo"}, headers=_ADMIN_HEADERS)
         assert r.status_code == 404
 
     def test_actualizar_sin_datos(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.expedientes_escribir.MongoService", return_value=mongo):
-            r = client.put(f"/expedientes/{_CEDULA}", json={})
+            r = client.put(f"/expedientes/{_CEDULA}", json={}, headers=_ADMIN_HEADERS)
         assert r.status_code == 400
 
     def test_actualizar_nombres(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.expedientes_escribir.MongoService", return_value=mongo):
-            r = client.put(f"/expedientes/{_CEDULA}", json={"nombres": "Carlos"})
+            r = client.put(f"/expedientes/{_CEDULA}", json={"nombres": "Carlos"}, headers=_ADMIN_HEADERS)
         assert r.status_code == 200
         data = r.json()
         assert data["cedula"] == _CEDULA
@@ -102,6 +106,7 @@ class TestActualizarExpediente:
                     "telefono_principal": "0412-9999999",
                     "departamento": "Matemáticas",
                 },
+                headers=_ADMIN_HEADERS,
             )
         assert r.status_code == 200
         campos = r.json()["campos_actualizados"]
@@ -112,7 +117,7 @@ class TestActualizarExpediente:
     def test_actualizar_set_call_correcto(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.expedientes_escribir.MongoService", return_value=mongo):
-            client.put(f"/expedientes/{_CEDULA}", json={"sede": "Maturín"})
+            client.put(f"/expedientes/{_CEDULA}", json={"sede": "Maturín"}, headers=_ADMIN_HEADERS)
         # Verificar que update_one fue llamado con $set
         call_args = mongo.docentes.update_one.call_args
         assert "$set" in call_args[0][1]
@@ -121,7 +126,7 @@ class TestActualizarExpediente:
     def test_actualizar_incluye_updated_at(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.expedientes_escribir.MongoService", return_value=mongo):
-            client.put(f"/expedientes/{_CEDULA}", json={"nombres": "Test"})
+            client.put(f"/expedientes/{_CEDULA}", json={"nombres": "Test"}, headers=_ADMIN_HEADERS)
         set_dict = mongo.docentes.update_one.call_args[0][1]["$set"]
         assert "updated_at" in set_dict
 
@@ -142,13 +147,13 @@ class TestEliminarExpediente:
     def test_eliminar_docente_no_encontrado(self):
         mongo = self._mock_no_existe()
         with patch("src.api.routers.expedientes_escribir.MongoService", return_value=mongo):
-            r = client.delete(f"/expedientes/999999")
+            r = client.delete(f"/expedientes/999999", headers=_ADMIN_HEADERS)
         assert r.status_code == 404
 
     def test_eliminar_exitoso(self):
         mongo = self._mock_existe(docs_count=3)
         with patch("src.api.routers.expedientes_escribir.MongoService", return_value=mongo):
-            r = client.delete(f"/expedientes/{_CEDULA}")
+            r = client.delete(f"/expedientes/{_CEDULA}", headers=_ADMIN_HEADERS)
         assert r.status_code == 200
         data = r.json()
         assert data["cedula"] == _CEDULA
@@ -158,7 +163,7 @@ class TestEliminarExpediente:
     def test_eliminar_llama_delete_many_docs(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.expedientes_escribir.MongoService", return_value=mongo):
-            client.delete(f"/expedientes/{_CEDULA}")
+            client.delete(f"/expedientes/{_CEDULA}", headers=_ADMIN_HEADERS)
         mongo.documentos.delete_many.assert_called_once_with({"docente_cedula": _CEDULA})
         mongo.docentes.delete_one.assert_called_once_with({"docente.cedula": _CEDULA})
 
@@ -192,13 +197,13 @@ class TestAgregarDocumento:
     def test_docente_no_encontrado(self):
         mongo = self._mock_no_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            r = client.post(f"/documentos/{_CEDULA}/agregar-documento", json=self._payload)
+            r = client.post(f"/documentos/{_CEDULA}/agregar-documento", json=self._payload, headers=_ADMIN_HEADERS)
         assert r.status_code == 404
 
     def test_agregar_exitoso(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            r = client.post(f"/documentos/{_CEDULA}/agregar-documento", json=self._payload)
+            r = client.post(f"/documentos/{_CEDULA}/agregar-documento", json=self._payload, headers=_ADMIN_HEADERS)
         assert r.status_code == 201
         data = r.json()
         assert data["docente_cedula"] == _CEDULA
@@ -209,13 +214,13 @@ class TestAgregarDocumento:
     def test_agregar_llama_update_completitud(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            client.post(f"/documentos/{_CEDULA}/agregar-documento", json=self._payload)
+            client.post(f"/documentos/{_CEDULA}/agregar-documento", json=self._payload, headers=_ADMIN_HEADERS)
         mongo.update_completitud.assert_called_once_with(_CEDULA)
 
     def test_agregar_doc_estructura_correcta(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            client.post(f"/documentos/{_CEDULA}/agregar-documento", json=self._payload)
+            client.post(f"/documentos/{_CEDULA}/agregar-documento", json=self._payload, headers=_ADMIN_HEADERS)
         doc_insertado = mongo.insert_documento.call_args[0][0]
         assert doc_insertado["validacion"]["estado"] == "pendiente"
         assert doc_insertado["ocr"]["procesado"] is False
@@ -259,13 +264,13 @@ class TestActualizarValidacion:
     def test_documento_no_encontrado(self):
         mongo = self._mock_no_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            r = client.patch(f"/documentos/{_DOC_ID}/validacion", json={"estado": "aprobado"})
+            r = client.patch(f"/documentos/{_DOC_ID}/validacion", json={"estado": "aprobado"}, headers=_ADMIN_HEADERS)
         assert r.status_code == 404
 
     def test_actualizar_estado_aprobado(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            r = client.patch(f"/documentos/{_DOC_ID}/validacion", json={"estado": "aprobado"})
+            r = client.patch(f"/documentos/{_DOC_ID}/validacion", json={"estado": "aprobado"}, headers=_ADMIN_HEADERS)
         assert r.status_code == 200
         data = r.json()
         assert data["estado"] == "aprobado"
@@ -277,6 +282,7 @@ class TestActualizarValidacion:
             r = client.patch(
                 f"/documentos/{_DOC_ID}/validacion",
                 json={"estado": "rechazado", "observaciones": "Ilegible"},
+                headers=_ADMIN_HEADERS,
             )
         assert r.status_code == 200
         set_dict = mongo.documentos.update_one.call_args[0][1]["$set"]
@@ -286,13 +292,13 @@ class TestActualizarValidacion:
         for estado in ("pendiente", "aprobado", "rechazado", "requiere_revision"):
             mongo = self._mock_existe()
             with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-                r = client.patch(f"/documentos/{_DOC_ID}/validacion", json={"estado": estado})
+                r = client.patch(f"/documentos/{_DOC_ID}/validacion", json={"estado": estado}, headers=_ADMIN_HEADERS)
             assert r.status_code == 200, f"Estado {estado!r} debería ser válido"
 
     def test_actualizar_llama_update_completitud(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            client.patch(f"/documentos/{_DOC_ID}/validacion", json={"estado": "aprobado"})
+            client.patch(f"/documentos/{_DOC_ID}/validacion", json={"estado": "aprobado"}, headers=_ADMIN_HEADERS)
         mongo.update_completitud.assert_called_once_with(_CEDULA)
 
 
@@ -321,13 +327,13 @@ class TestEliminarDocumento:
     def test_documento_no_encontrado(self):
         mongo = self._mock_no_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            r = client.delete(f"/documentos/{_DOC_ID}")
+            r = client.delete(f"/documentos/{_DOC_ID}", headers=_ADMIN_HEADERS)
         assert r.status_code == 404
 
     def test_eliminar_exitoso(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            r = client.delete(f"/documentos/{_DOC_ID}")
+            r = client.delete(f"/documentos/{_DOC_ID}", headers=_ADMIN_HEADERS)
         assert r.status_code == 200
         data = r.json()
         assert data["documento_id"] == _DOC_ID
@@ -337,11 +343,11 @@ class TestEliminarDocumento:
     def test_eliminar_llama_update_completitud(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            client.delete(f"/documentos/{_DOC_ID}")
+            client.delete(f"/documentos/{_DOC_ID}", headers=_ADMIN_HEADERS)
         mongo.update_completitud.assert_called_once_with(_CEDULA)
 
     def test_eliminar_llama_delete_one(self):
         mongo = self._mock_existe()
         with patch("src.api.routers.documentos_escribir.MongoService", return_value=mongo):
-            client.delete(f"/documentos/{_DOC_ID}")
+            client.delete(f"/documentos/{_DOC_ID}", headers=_ADMIN_HEADERS)
         mongo.documentos.delete_one.assert_called_once_with({"_id": _OID2})

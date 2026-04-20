@@ -4,9 +4,10 @@ from datetime import datetime
 from typing import Optional
 
 from bson import ObjectId
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
+from src.api.dependencies import verify_admin
 from src.core.logger import get_agent_logger
 from src.services.mongo_service import MongoService
 
@@ -39,8 +40,9 @@ class ActualizarValidacionRequest(BaseModel):
 async def agregar_documento(
     cedula: str,
     documento: AgregarDocumentoRequest,
+    admin_payload: dict = Depends(verify_admin),
 ):
-    """Agrega un nuevo documento a un expediente existente."""
+    """Agrega un nuevo documento a un expediente existente. Solo admin."""
     try:
         mongo = MongoService()
 
@@ -104,6 +106,16 @@ async def agregar_documento(
         documento_id = mongo.insert_documento(doc_dict)
         mongo.update_completitud(cedula)
 
+        mongo.db["auditoria"].insert_one({
+            "timestamp": datetime.now(),
+            "tipo_evento": "documento_agregado",
+            "usuario": admin_payload.get("sub"),
+            "docente_cedula": cedula,
+            "documento_id": documento_id,
+            "resultado": "exitoso",
+            "detalles": f"Tipo: {documento.tipo}",
+        })
+
         logger.info(f"Documento agregado: cedula={cedula}, tipo={documento.tipo}, id={documento_id}")
 
         return {
@@ -125,8 +137,9 @@ async def agregar_documento(
 async def actualizar_validacion(
     documento_id: str,
     validacion: ActualizarValidacionRequest,
+    admin_payload: dict = Depends(verify_admin),
 ):
-    """Actualiza el estado de validación de un documento."""
+    """Actualiza el estado de validación de un documento. Solo admin."""
     try:
         try:
             doc_oid = ObjectId(documento_id)
@@ -159,6 +172,16 @@ async def actualizar_validacion(
         if cedula:
             mongo.update_completitud(cedula)
 
+        mongo.db["auditoria"].insert_one({
+            "timestamp": datetime.now(),
+            "tipo_evento": "validacion_actualizada",
+            "usuario": admin_payload.get("sub"),
+            "documento_id": documento_id,
+            "docente_cedula": cedula,
+            "resultado": "exitoso",
+            "detalles": f"Estado: {validacion.estado}",
+        })
+
         logger.info(f"Validación actualizada: documento_id={documento_id}, estado={validacion.estado}")
 
         return {
@@ -176,8 +199,11 @@ async def actualizar_validacion(
 
 
 @router.delete("/{documento_id}")
-async def eliminar_documento(documento_id: str):
-    """Elimina un documento de un expediente."""
+async def eliminar_documento(
+    documento_id: str,
+    admin_payload: dict = Depends(verify_admin),
+):
+    """Elimina un documento de un expediente. Solo admin."""
     try:
         try:
             doc_oid = ObjectId(documento_id)
@@ -200,8 +226,19 @@ async def eliminar_documento(documento_id: str):
         if cedula:
             mongo.update_completitud(cedula)
 
+        mongo.db["auditoria"].insert_one({
+            "timestamp": datetime.now(),
+            "tipo_evento": "documento_eliminado",
+            "usuario": admin_payload.get("sub"),
+            "documento_id": documento_id,
+            "docente_cedula": cedula,
+            "resultado": "exitoso",
+            "detalles": f"Tipo: {tipo}, nombre: {nombre}",
+        })
+
         logger.warning(
-            f"Documento ELIMINADO: id={documento_id}, cedula={cedula}, tipo={tipo}, nombre={nombre}"
+            f"Documento ELIMINADO por {admin_payload.get('sub')}: "
+            f"id={documento_id}, cedula={cedula}, tipo={tipo}"
         )
 
         return {

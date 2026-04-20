@@ -14,11 +14,6 @@ params:query {
   detalle: false
 }
 
-vars:pre-request {
-  base_url: http://localhost:8000
-  cedula: 27504759
-}
-
 assert {
   res.status: eq 200
   res.body.docente_cedula: isDefined

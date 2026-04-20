@@ -7,12 +7,11 @@ meta {
 delete {
   url: {{base_url}}/expedientes/{{cedula}}
   body: none
-  auth: none
+  auth: bearer
 }
 
-vars:pre-request {
-  base_url: http://localhost:8000
-  cedula: 27504759
+auth:bearer {
+  token: {{token}}
 }
 
 assert {

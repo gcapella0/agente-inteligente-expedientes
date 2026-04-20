@@ -7,7 +7,11 @@ meta {
 patch {
   url: {{base_url}}/documentos/{{documento_id}}/validacion
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
 }
 
 body:json {
@@ -15,11 +19,6 @@ body:json {
     "estado": "aprobado",
     "observaciones": "Documento verificado y en regla"
   }
-}
-
-vars:pre-request {
-  base_url: http://localhost:8000
-  documento_id: 507f1f77bcf86cd799439011
 }
 
 assert {

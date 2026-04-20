@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: http://localhost:8000/
+  url: {{base_url}}/
   body: none
   auth: none
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
 }
 
 assert {

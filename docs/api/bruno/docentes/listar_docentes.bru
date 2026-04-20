@@ -16,10 +16,6 @@ params:query {
   ~cursor:
 }
 
-vars:pre-request {
-  base_url: http://localhost:8000
-}
-
 assert {
   res.status: eq 200
   res.body.items: isDefined

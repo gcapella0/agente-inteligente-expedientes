@@ -3,9 +3,10 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from src.api.dependencies import verify_admin
 from src.core.logger import get_agent_logger
 from src.services.mongo_service import MongoService
 
@@ -48,8 +49,9 @@ _CAMPO_A_RUTA: dict[str, str] = {
 async def actualizar_expediente(
     cedula: str,
     datos: ActualizarDocenteRequest,
+    admin_payload: dict = Depends(verify_admin),
 ):
-    """Actualiza campos de un expediente (docente)."""
+    """Actualiza campos de un expediente (docente). Solo admin."""
     try:
         mongo = MongoService()
 
@@ -80,6 +82,16 @@ async def actualizar_expediente(
         campos = [c for c in actualizaciones if c != "updated_at"]
         logger.info(f"Docente actualizado: cedula={cedula}, campos={campos}")
 
+        mongo.db["auditoria"].insert_one({
+            "timestamp": datetime.now(),
+            "tipo_evento": "expediente_actualizado",
+            "usuario": admin_payload.get("sub"),
+            "docente_cedula": cedula,
+            "campos_actualizados": campos,
+            "resultado": "exitoso",
+            "detalles": f"Actualización de {len(campos)} campos",
+        })
+
         return {
             "mensaje": "Expediente actualizado correctamente",
             "cedula": cedula,
@@ -95,8 +107,11 @@ async def actualizar_expediente(
 
 
 @router.delete("/{cedula}")
-async def eliminar_expediente(cedula: str):
-    """Elimina un expediente (docente y sus documentos asociados)."""
+async def eliminar_expediente(
+    cedula: str,
+    admin_payload: dict = Depends(verify_admin),
+):
+    """Elimina un expediente (docente y sus documentos asociados). Solo admin."""
     try:
         mongo = MongoService()
 
@@ -111,8 +126,18 @@ async def eliminar_expediente(cedula: str):
         mongo.docentes.delete_one({"docente.cedula": cedula})
 
         logger.warning(
-            f"Expediente ELIMINADO: cedula={cedula}, docente={nombre}, docs={docs_eliminados}"
+            f"Expediente ELIMINADO por {admin_payload.get('sub')}: "
+            f"cedula={cedula}, docente={nombre}, docs={docs_eliminados}"
         )
+
+        mongo.db["auditoria"].insert_one({
+            "timestamp": datetime.now(),
+            "tipo_evento": "expediente_eliminado",
+            "usuario": admin_payload.get("sub"),
+            "docente_cedula": cedula,
+            "resultado": "exitoso",
+            "detalles": f"Expediente de {nombre} eliminado con {docs_eliminados} documentos",
+        })
 
         return {
             "mensaje": "Expediente eliminado correctamente",
