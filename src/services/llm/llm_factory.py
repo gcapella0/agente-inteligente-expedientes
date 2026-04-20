@@ -1,4 +1,4 @@
-"""Factory para instanciar el proveedor LLM configurado en .env."""
+"""Factory para instanciar el proveedor LLM configurado."""
 
 from __future__ import annotations
 
@@ -7,18 +7,32 @@ from src.services.llm.abstract_llm_provider import BaseLlmProvider
 
 
 def create_llm_provider() -> BaseLlmProvider:
-    """Crea e instancia el proveedor LLM según ``LLM_PROVIDER`` en .env.
+    """Crea e instancia el proveedor LLM.
 
-    Proveedores soportados:
-    - ``"openrouter"`` (por defecto): usa la API de OpenRouter.
-    - ``"ollama"``: usa un servidor Ollama local.
+    Prioridad de configuración:
+    1. MongoDB (colección ``sistema_config``, doc ``llm_config``).
+    2. Variables de entorno en ``.env`` (via ``src/config.py``).
 
-    Returns:
-        Instancia concreta de ``BaseLlmProvider``.
+    Proveedores soportados: ``"openrouter"`` y ``"ollama"``.
 
     Raises:
-        ValueError: Si ``LLM_PROVIDER`` tiene un valor no reconocido.
+        ValueError: Si el proveedor configurado no es reconocido.
     """
+    # Prioridad 1: Mongo — sobreescribe config.* si existe el documento
+    try:
+        from src.services.mongo_service import MongoService
+        mongo = MongoService()
+        doc = mongo.db["sistema_config"].find_one({"_id": "llm_config"})
+        if doc:
+            config.LLM_PROVIDER = doc["provider"]
+            if doc["provider"] == "ollama":
+                config.OLLAMA_MODEL = doc.get("model") or config.OLLAMA_MODEL
+                config.OLLAMA_BASE_URL = doc.get("host") or config.OLLAMA_BASE_URL
+            else:
+                config.OPENROUTER_MODEL = doc.get("model") or config.OPENROUTER_MODEL
+    except Exception:
+        pass  # Mongo no disponible → fallback silencioso a .env
+
     provider = config.LLM_PROVIDER.lower().strip()
 
     if provider == "openrouter":
