@@ -54,6 +54,19 @@ logger.add(
 )
 
 # ---------------------------------------------------------------------------
+# Sink operacional: logs/operational.log (todos los eventos, JSON por línea)
+# ---------------------------------------------------------------------------
+logger.add(
+    config.LOG_DIR / "operational.log",
+    level=LOG_LEVEL,
+    serialize=True,
+    rotation=LOG_ROTATION,
+    retention=LOG_RETENTION,
+    encoding="utf-8",
+    enqueue=True,
+)
+
+# ---------------------------------------------------------------------------
 # Sinks individuales por agente
 # ---------------------------------------------------------------------------
 _AGENT_LOGS = ("ocr", "classifier", "storage", "api")
