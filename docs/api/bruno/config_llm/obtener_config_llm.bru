@@ -1,0 +1,27 @@
+meta {
+  name: Obtener Config LLM
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/config/llm
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.provider: isDefined
+  res.body.model: isDefined
+  res.body.available_providers: isDefined
+}

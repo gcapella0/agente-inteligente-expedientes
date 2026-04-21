@@ -1,0 +1,38 @@
+meta {
+  name: Stream Logs (SSE)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/logs/stream
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~agente: watcher
+  ~nivel: INFO
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbkB1bmVnLmVkdS52ZSIsInJvbCI6ImFkbWluIiwiZXhwIjoxNzc2NzU5MjA3LCJpYXQiOjE3NzY3MzA0MDd9.1D8dtaCObY2vPQ5jrnncqoqQz_C_VtaIv-KriFshPiA
+}
+
+docs {
+  Endpoint SSE (Server-Sent Events). Usar con curl:
+  
+  curl -N "http://localhost:8000/logs/stream" \
+    -H "Authorization: Bearer $TOKEN"
+  
+  Parámetros opcionales:
+  - agente: watcher | ocr | classifier | storage
+  - nivel: DEBUG | INFO | WARNING | ERROR
+  
+  Nota: Bruno no soporta streams SSE nativamente. Usar curl o el frontend.
+}

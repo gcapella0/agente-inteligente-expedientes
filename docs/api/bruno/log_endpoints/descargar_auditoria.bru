@@ -1,0 +1,20 @@
+meta {
+  name: Descargar Auditoría
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/logs/descargar
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 200
+  res.headers["content-disposition"]: contains attachment
+}

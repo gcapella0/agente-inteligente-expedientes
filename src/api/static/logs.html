@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logs — UNEG</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="/ui/assets/app.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+<div id="navbar"></div>
+
+<div x-data="logsApp()" x-init="init()" class="pt-16 px-6 pb-10 max-w-5xl mx-auto">
+
+  <div class="mt-6 mb-4 flex items-center justify-between">
+    <h1 class="text-xl font-semibold text-slate-800">Logs en vivo</h1>
+    <div class="flex items-center gap-2">
+      <span x-show="conectado" class="flex items-center gap-1 text-xs text-green-600">
+        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Conectado
+      </span>
+      <span x-show="!conectado" class="flex items-center gap-1 text-xs text-slate-400">
+        <span class="w-2 h-2 bg-slate-400 rounded-full"></span> Desconectado
+      </span>
+    </div>
+  </div>
+
+  <!-- Controles -->
+  <div class="bg-white border border-slate-200 rounded-lg p-4 mb-4 flex flex-wrap gap-3 items-end">
+    <div>
+      <label class="block text-xs font-medium text-slate-600 mb-1">Agente</label>
+      <select x-model="filtroAgente" @change="reconectar()" class="border border-slate-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="">Todos</option>
+        <option value="watcher">Watcher</option>
+        <option value="ocr">OCR</option>
+        <option value="classifier">Classifier</option>
+        <option value="storage">Storage</option>
+        <option value="api">API</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-slate-600 mb-1">Nivel</label>
+      <select x-model="filtroNivel" @change="reconectar()" class="border border-slate-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="">Todos</option>
+        <option value="DEBUG">DEBUG</option>
+        <option value="INFO">INFO</option>
+        <option value="WARNING">WARNING</option>
+        <option value="ERROR">ERROR</option>
+      </select>
+    </div>
+    <div class="flex gap-2 items-end">
+      <button
+        @click="togglePausa()"
+        :class="pausado ? 'bg-green-600 hover:bg-green-700' : 'bg-amber-500 hover:bg-amber-600'"
+        class="px-3 py-1.5 text-sm text-white rounded-md transition-colors"
+      >
+        <span x-show="!pausado">⏸ Pausar</span>
+        <span x-show="pausado">▶ Reanudar</span>
+      </button>
+      <button @click="limpiar()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">Limpiar</button>
+      <a href="/logs/descargar" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 text-slate-700 no-underline">↓ Descargar audit.jsonl</a>
+    </div>
+  </div>
+
+  <!-- Log viewer -->
+  <div
+    id="log-container"
+    @scroll="onScroll()"
+    class="bg-slate-900 rounded-lg p-3 overflow-y-auto font-mono text-xs leading-5"
+    style="height: 600px;"
+  >
+    <template x-for="(entry, i) in lineas" :key="i">
+      <div class="flex gap-2 hover:bg-slate-800 px-1 rounded">
+        <span class="text-slate-500 flex-shrink-0" x-text="entry.ts"></span>
+        <span
+          :class="{
+            'text-green-400':  entry.nivel === 'INFO',
+            'text-yellow-400': entry.nivel === 'WARNING',
+            'text-red-400':    entry.nivel === 'ERROR',
+            'text-blue-400':   entry.nivel === 'DEBUG',
+            'text-slate-400':  !['INFO','WARNING','ERROR','DEBUG'].includes(entry.nivel),
+          }"
+          class="flex-shrink-0 w-16"
+          x-text="entry.nivel"
+        ></span>
+        <span class="text-slate-400 flex-shrink-0 w-20 truncate" x-text="entry.agente || ''"></span>
+        <span class="text-slate-200" x-text="entry.mensaje"></span>
+      </div>
+    </template>
+    <div x-show="lineas.length === 0" class="text-slate-500 px-1 py-2">
+      <span x-show="!conectado">Stream desconectado. Reconectando...</span>
+      <span x-show="conectado">Esperando entradas de log...</span>
+    </div>
+  </div>
+
+  <p class="text-xs text-slate-400 mt-2">
+    <span x-text="lineas.length"></span> entradas en pantalla
+    <span x-show="autoScroll" class="ml-2 text-green-500">● auto-scroll activo</span>
+    <span x-show="!autoScroll" class="ml-2 text-slate-400">● auto-scroll pausado (scroll hacia abajo para reactivar)</span>
+  </p>
+
+</div>
+
+<script>
+const MAX_LINEAS = 500;
+
+function logsApp() {
+  return {
+    lineas: [],
+    filtroAgente: "",
+    filtroNivel: "",
+    pausado: false,
+    conectado: false,
+    autoScroll: true,
+    es: null,
+    cola: [],
+
+    async init() {
+      requireAuth();
+      await loadNav("logs");
+      this.conectar();
+    },
+
+    buildUrl() {
+      const params = new URLSearchParams();
+      params.set("token", getToken() || "");
+      if (this.filtroAgente) params.set("agente", this.filtroAgente);
+      if (this.filtroNivel) params.set("nivel", this.filtroNivel);
+      return `/logs/stream?${params.toString()}`;
+    },
+
+    conectar() {
+      if (this.es) { this.es.close(); this.es = null; }
+      this.conectado = false;
+      const es = new EventSource(this.buildUrl());
+
+      es.addEventListener("log", e => {
+        if (this.pausado) { this.cola.push(e.data); return; }
+        this.agregarLinea(e.data);
+      });
+
+      es.addEventListener("keepalive", () => {
+        this.conectado = true;
+      });
+
+      es.onopen = () => { this.conectado = true; };
+      es.onerror = () => {
+        this.conectado = false;
+        // Reconectar tras 3s
+        setTimeout(() => { if (!this.pausado) this.conectar(); }, 3000);
+      };
+
+      this.es = es;
+    },
+
+    reconectar() {
+      this.lineas = [];
+      this.cola = [];
+      this.conectar();
+    },
+
+    agregarLinea(raw) {
+      try {
+        const d = JSON.parse(raw);
+        const rec = d.record || d;
+        const ts = (rec.time?.repr || rec.time || "").slice(11, 19) || new Date().toLocaleTimeString("es-VE");
+        const nivel = rec.level?.name || rec.nivel || "INFO";
+        const agente = rec.extra?.agent || rec.agente || rec.name || "";
+        const mensaje = rec.message || rec.mensaje || raw;
+        this.lineas.push({ ts, nivel, agente, mensaje });
+        if (this.lineas.length > MAX_LINEAS) this.lineas.shift();
+        this.$nextTick(() => { if (this.autoScroll) this.scrollAbajo(); });
+      } catch {
+        this.lineas.push({ ts: "", nivel: "INFO", agente: "", mensaje: raw });
+      }
+    },
+
+    togglePausa() {
+      this.pausado = !this.pausado;
+      if (!this.pausado) {
+        // Volcar cola acumulada
+        this.cola.forEach(r => this.agregarLinea(r));
+        this.cola = [];
+        if (!this.conectado) this.conectar();
+      }
+    },
+
+    limpiar() {
+      this.lineas = [];
+      this.cola = [];
+    },
+
+    scrollAbajo() {
+      const el = document.getElementById("log-container");
+      if (el) el.scrollTop = el.scrollHeight;
+    },
+
+    onScroll() {
+      const el = document.getElementById("log-container");
+      if (!el) return;
+      const enFondo = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+      this.autoScroll = enFondo;
+    },
+  };
+}
+</script>
+</body>
+</html>

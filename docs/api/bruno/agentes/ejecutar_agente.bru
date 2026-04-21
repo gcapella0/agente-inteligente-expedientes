@@ -1,0 +1,30 @@
+meta {
+  name: Ejecutar Agente
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/agentes/watcher/ejecutar
+  body: none
+  auth: bearer
+}
+
+params:query {
+  modo: independiente
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbkB1bmVnLmVkdS52ZSIsInJvbCI6ImFkbWluIiwiZXhwIjoxNzc2NzU5MjA3LCJpYXQiOjE3NzY3MzA0MDd9.1D8dtaCObY2vPQ5jrnncqoqQz_C_VtaIv-KriFshPiA
+  base_url: http://localhost:8000
+}
+
+assert {
+  res.status: eq 202
+  res.body.id_ejecucion: isDefined
+  res.body.agente: isDefined
+}

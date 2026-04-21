@@ -1,0 +1,23 @@
+meta {
+  name: Eliminar Documento
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{base_url}}/documentos/{{documento_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.documento_id: isDefined
+  res.body.docente_cedula: isDefined
+  res.body.tipo: isDefined
+  res.body.mensaje: isDefined
+}

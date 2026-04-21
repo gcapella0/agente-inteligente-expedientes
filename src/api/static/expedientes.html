@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expedientes — UNEG</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="/ui/assets/app.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+<div id="navbar"></div>
+
+<div x-data="expedientesApp()" x-init="init()" class="pt-16 px-6 pb-10 max-w-6xl mx-auto">
+
+  <!-- Header -->
+  <div class="mt-6 mb-4 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold text-slate-800">Expedientes docentes</h1>
+      <p class="text-sm text-slate-500 mt-0.5">
+        <span x-text="stats.totalDocentes ?? '…'"></span> docentes ·
+        <span x-text="stats.totalDocumentos ?? '…'"></span> documentos
+      </p>
+    </div>
+  </div>
+
+  <!-- Búsqueda y filtros -->
+  <div class="bg-white border border-slate-200 rounded-lg p-4 mb-4 flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-48">
+      <label class="block text-xs font-medium text-slate-600 mb-1">Buscar</label>
+      <input
+        x-model="busqueda"
+        @input.debounce.300ms="buscar()"
+        type="text"
+        placeholder="Nombre, cédula, departamento..."
+        class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-slate-600 mb-1">Estado</label>
+      <select x-model="filtroEstado" @change="buscar()" class="border border-slate-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="">Todos</option>
+        <option value="activo">Activo</option>
+        <option value="inactivo">Inactivo</option>
+        <option value="retirado">Retirado</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-slate-600 mb-1">Completitud</label>
+      <select x-model="filtroCompletitud" @change="buscar()" class="border border-slate-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="">Todos</option>
+        <option value="baja">Menos de 50%</option>
+        <option value="media">50% – 80%</option>
+        <option value="alta">Más de 80%</option>
+      </select>
+    </div>
+    <button @click="limpiarFiltros()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 text-slate-600">Limpiar</button>
+  </div>
+
+  <!-- Tabla -->
+  <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 border-b border-slate-200">
+        <tr>
+          <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Cédula</th>
+          <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Nombre</th>
+          <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Departamento</th>
+          <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Completitud</th>
+          <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="doc in docentes" :key="doc.cedula">
+          <tr class="border-b border-slate-100 hover:bg-slate-50">
+            <td class="px-4 py-2.5 font-mono text-xs text-slate-600" x-text="doc.cedula"></td>
+            <td class="px-4 py-2.5 text-slate-800" x-text="(doc.nombre || '') + ' ' + (doc.apellido || '')"></td>
+            <td class="px-4 py-2.5 text-slate-600" x-text="doc.departamento || '—'"></td>
+            <td class="px-4 py-2.5" x-html="completitudBadge(doc.completitud?.porcentaje)"></td>
+            <td class="px-4 py-2.5">
+              <div class="flex items-center gap-2">
+                <a :href="'/ui/expediente.html?cedula=' + doc.cedula" class="text-xs text-blue-600 hover:underline">Ver</a>
+                <button @click="abrirEditar(doc)" class="text-xs text-slate-600 hover:text-slate-900">Editar</button>
+                <button @click="eliminar(doc.cedula)" class="text-xs text-red-500 hover:text-red-700">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </template>
+        <tr x-show="cargando">
+          <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-400">Cargando...</td>
+        </tr>
+        <tr x-show="!cargando && docentes.length === 0">
+          <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-400">Sin resultados</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="px-4 py-3 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
+      <span>Mostrando <span x-text="docentes.length"></span> resultados</span>
+      <div class="flex gap-2">
+        <button @click="paginaAnterior()" :disabled="!cursorAnterior" class="px-3 py-1 border border-slate-300 rounded text-xs hover:bg-slate-50 disabled:opacity-40">← Anterior</button>
+        <button @click="paginaSiguiente()" :disabled="!cursorSiguiente" class="px-3 py-1 border border-slate-300 rounded text-xs hover:bg-slate-50 disabled:opacity-40">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal editar -->
+<div x-show="editModal.visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" x-cloak>
+  <div class="bg-white rounded-lg border border-slate-200 shadow-xl p-6 max-w-md w-full mx-4">
+    <h3 class="text-base font-semibold text-slate-800 mb-4">Editar docente</h3>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Nombre</label>
+        <input x-model="editModal.form.nombre" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Apellido</label>
+        <input x-model="editModal.form.apellido" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Email</label>
+        <input x-model="editModal.form.email" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Teléfono</label>
+        <input x-model="editModal.form.telefono" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Departamento</label>
+        <input x-model="editModal.form.departamento" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Sede</label>
+        <input x-model="editModal.form.sede" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+      </div>
+    </div>
+    <div x-show="editModal.error" class="mt-3 text-xs text-red-600" x-text="editModal.error"></div>
+    <div class="flex justify-end gap-2 mt-4">
+      <button @click="editModal.visible = false" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">Cancelar</button>
+      <button @click="guardarEdicion()" :disabled="editModal.guardando" class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-60">
+        <span x-show="!editModal.guardando">Guardar</span>
+        <span x-show="editModal.guardando">Guardando...</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function expedientesApp() {
+  return {
+    docentes: [],
+    cargando: false,
+    busqueda: "",
+    filtroEstado: "",
+    filtroCompletitud: "",
+    cursorSiguiente: null,
+    cursorAnterior: null,
+    cursorStack: [],
+    stats: {},
+    editModal: { visible: false, cedula: "", form: {}, error: "", guardando: false },
+
+    async init() {
+      requireAuth();
+      await loadNav("expedientes");
+      await Promise.all([this.cargar(), this.loadStats()]);
+    },
+
+    async loadStats() {
+      try {
+        const [rExp, rDoc] = await Promise.all([
+          fetchApi("/estadisticas/expedientes?agrupar_por=status"),
+          fetchApi("/estadisticas/documentos"),
+        ]);
+        if (rExp && rExp.ok) { const d = await rExp.json(); this.stats.totalDocentes = d.total_docentes; }
+        if (rDoc && rDoc.ok) { const d = await rDoc.json(); this.stats.totalDocumentos = d.total_documentos; }
+      } catch {}
+    },
+
+    async cargar(cursor = null) {
+      this.cargando = true;
+      try {
+        let url;
+        if (this.busqueda.trim()) {
+          url = `/expedientes/buscar-texto?q=${encodeURIComponent(this.busqueda)}&campos=cedula,nombre,apellido,departamento,completitud`;
+          if (this.filtroEstado) url += `&estado=${this.filtroEstado}`;
+          const r = await fetchApi(url);
+          if (r && r.ok) {
+            const d = await r.json();
+            this.docentes = this._filtrarCompletitud(d.resultados || []);
+            this.cursorSiguiente = null;
+          }
+        } else {
+          url = `/docentes?limit=20`;
+          if (cursor) url += `&cursor=${cursor}`;
+          if (this.filtroEstado) url += `&status=${this.filtroEstado}`;
+          const r = await fetchApi(url);
+          if (r && r.ok) {
+            const d = await r.json();
+            this.docentes = this._filtrarCompletitud(d.docentes || []);
+            this.cursorSiguiente = d.cursor_siguiente || null;
+          }
+        }
+      } catch {} finally {
+        this.cargando = false;
+      }
+    },
+
+    _filtrarCompletitud(lista) {
+      if (!this.filtroCompletitud) return lista;
+      return lista.filter(d => {
+        const pct = d.completitud?.porcentaje ?? 0;
+        if (this.filtroCompletitud === "baja") return pct < 50;
+        if (this.filtroCompletitud === "media") return pct >= 50 && pct <= 80;
+        if (this.filtroCompletitud === "alta") return pct > 80;
+        return true;
+      });
+    },
+
+    buscar() {
+      this.cursorStack = [];
+      this.cursorAnterior = null;
+      this.cargar();
+    },
+
+    limpiarFiltros() {
+      this.busqueda = "";
+      this.filtroEstado = "";
+      this.filtroCompletitud = "";
+      this.buscar();
+    },
+
+    paginaSiguiente() {
+      if (!this.cursorSiguiente) return;
+      this.cursorStack.push(this.cursorSiguiente);
+      this.cursorAnterior = this.cursorStack[this.cursorStack.length - 2] || null;
+      this.cargar(this.cursorSiguiente);
+    },
+
+    paginaAnterior() {
+      this.cursorStack.pop();
+      const prev = this.cursorStack[this.cursorStack.length - 1] || null;
+      this.cursorAnterior = this.cursorStack.length > 1 ? this.cursorStack[this.cursorStack.length - 2] : null;
+      this.cargar(prev);
+    },
+
+    abrirEditar(doc) {
+      this.editModal = {
+        visible: true,
+        cedula: doc.cedula,
+        form: {
+          nombre: doc.nombre || "",
+          apellido: doc.apellido || "",
+          email: doc.contacto?.email || "",
+          telefono: doc.contacto?.telefono || "",
+          departamento: doc.departamento || "",
+          sede: doc.sede || "",
+        },
+        error: "",
+        guardando: false,
+      };
+    },
+
+    async guardarEdicion() {
+      this.editModal.guardando = true;
+      this.editModal.error = "";
+      try {
+        const body = {};
+        const f = this.editModal.form;
+        if (f.nombre) body.nombre = f.nombre;
+        if (f.apellido) body.apellido = f.apellido;
+        if (f.departamento) body.departamento = f.departamento;
+        if (f.sede) body.sede = f.sede;
+        if (f.email || f.telefono) body.contacto = {};
+        if (f.email) body.contacto.email = f.email;
+        if (f.telefono) body.contacto.telefono = f.telefono;
+
+        const r = await fetchApi(`/expedientes/${this.editModal.cedula}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (r && r.ok) {
+          this.editModal.visible = false;
+          showToast("Docente actualizado", "success");
+          await this.cargar();
+        } else {
+          const d = await r.json().catch(() => ({}));
+          this.editModal.error = d.detail || "Error al guardar";
+        }
+      } finally { this.editModal.guardando = false; }
+    },
+
+    async eliminar(cedula) {
+      if (!confirm(`¿Eliminar expediente de cédula ${cedula}? Esta acción no se puede deshacer.`)) return;
+      const r = await fetchApi(`/expedientes/${cedula}`, { method: "DELETE" });
+      if (r && r.ok) {
+        showToast("Expediente eliminado", "success");
+        await this.cargar();
+      } else {
+        showToast("Error al eliminar", "error");
+      }
+    },
+  };
+}
+</script>
+</body>
+</html>

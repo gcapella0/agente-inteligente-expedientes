@@ -1,20 +1,39 @@
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
-from src.api.routers import config, documentos, expedientes, health
+from src.api.routers import (
+    agentes,
+    auth,
+    auditoria,
+    busqueda,
+    config,
+    config_llm,
+    documentos,
+    documentos_escribir,
+    estadisticas,
+    expedientes,
+    expedientes_escribir,
+    exportacion,
+    health,
+    logs,
+    validacion,
+)
 from src.core.logger import get_agent_logger
 
 logger = get_agent_logger("api")
 
 app = FastAPI(
     title="Expedientes API",
-    description="API read-only para expedientes docentes UNEG",
-    version="1.1.0",
+    description="API read-write con autenticación JWT para gestión de expedientes docentes UNEG",
+    version="2.2.0",
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=500)
@@ -22,19 +41,38 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://localhost:8080"],
     allow_credentials=True,
-    allow_methods=["GET", "HEAD", "OPTIONS"],
-    allow_headers=["*"],
+    allow_methods=["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE", "PATCH"],
+    allow_headers=["*", "Authorization"],
 )
 
 app.include_router(health.router, tags=["Health"])
+app.include_router(auth.router, prefix="/auth", tags=["Autenticación"])
 app.include_router(expedientes.router, tags=["Expedientes"])
 app.include_router(documentos.router, prefix="/documentos", tags=["Documentos"])
 app.include_router(config.router, prefix="/config", tags=["Configuración"])
+app.include_router(estadisticas.router, prefix="/estadisticas", tags=["Estadísticas"])
+app.include_router(validacion.router, prefix="/validacion", tags=["Validación"])
+app.include_router(busqueda.router, prefix="/expedientes", tags=["Búsqueda"])
+app.include_router(exportacion.router, prefix="/expedientes", tags=["Exportación"])
+app.include_router(expedientes_escribir.router, prefix="/expedientes", tags=["Expedientes (Escritura)"])
+app.include_router(documentos_escribir.router, prefix="/documentos", tags=["Documentos (Escritura)"])
+app.include_router(auditoria.router, prefix="/admin/auditoria", tags=["Auditoría (Admin)"])
+app.include_router(agentes.router, prefix="/agentes", tags=["Agentes"])
+app.include_router(config_llm.router, prefix="/config", tags=["Configuración LLM"])
+app.include_router(logs.router, prefix="/logs", tags=["Logs"])
+
+
+@app.on_event("startup")
+async def startup_event() -> None:
+    """Inicializa datos requeridos al arrancar la API."""
+    from src.api.routers.auth import init_usuarios
+    init_usuarios()
+    logger.info("API v2.1.0 iniciada. Documentación en /docs")
 
 
 @app.get("/")
 async def root():
-    return {"app": "Expedientes API", "version": "1.1.0"}
+    return {"app": "Expedientes API", "version": "2.2.0"}
 
 
 @app.get("/info")
@@ -42,20 +80,18 @@ async def info():
     """Información de la API."""
     return {
         "nombre": "Expedientes API",
-        "version": "1.1.0",
-        "descripcion": "API read-only para consulta de expedientes docentes UNEG",
-        "endpoints": {
-            "health": "/health",
-            "docentes": "/docentes",
-            "buscar_docentes": "/docentes/buscar",
-            "expediente": "/expediente/{cedula}",
-            "expediente_documentos": "/expediente/{cedula}/documentos",
-            "expediente_resumen": "/expediente/{cedula}/resumen",
-            "documento": "/documentos/{id}",
-            "documento_validacion": "/documentos/{id}/validacion",
-            "tipos_documento": "/config/tipos-documento",
-            "estados_validacion": "/config/estados-validacion",
-            "estados_docente": "/config/estados-docente",
+        "version": "2.2.0",
+        "descripcion": "API read-write con autenticación JWT para expedientes docentes UNEG",
+        "fecha_deploy": "2026-04-19T00:00:00Z",
+        "endpoints_totales": 37,
+        "autenticacion": "JWT Bearer",
+        "contacto": "soporte@uneg.edu.ve",
+        "capacidades": {
+            "lectura": True,
+            "escritura": True,
+            "auditoria": True,
+            "validacion": True,
+            "autenticacion": True,
         },
         "documentacion": "/docs",
     }
@@ -65,6 +101,11 @@ async def info():
 async def validation_exception_handler(request, exc):
     logger.warning(f"Error de validación: {exc.errors()}")
     return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+
+_ui_path = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(_ui_path):
+    app.mount("/ui", StaticFiles(directory=_ui_path, html=True), name="ui")
 
 
 if __name__ == "__main__":

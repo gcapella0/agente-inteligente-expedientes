@@ -110,8 +110,9 @@ class TestRoot:
         r = client.get("/info")
         assert r.status_code == 200
         data = r.json()
-        assert "endpoints" in data
-        assert "/docentes/buscar" in data["endpoints"]["buscar_docentes"]
+        assert "version" in data
+        assert "endpoints_totales" in data
+        assert "documentacion" in data
 
 
 # ---------------------------------------------------------------------------

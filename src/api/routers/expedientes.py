@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from base64 import b64decode, b64encode
 from typing import Optional
 
+from bson import ObjectId
 from fastapi import APIRouter, HTTPException, Query
 
 from src.core.logger import get_agent_logger
@@ -28,19 +30,45 @@ _DOCUMENTOS_REQUERIDOS = [
 async def list_docentes(
     skip: int = Query(0, ge=0, description="Registros a saltar"),
     limit: int = Query(10, ge=1, le=100, description="Máximo de registros"),
+    cursor: Optional[str] = Query(None, description="Cursor opaco para siguiente página"),
 ):
-    """Lista todos los docentes con paginación."""
+    """Lista todos los docentes con paginación (skip/limit o cursor)."""
     try:
         mongo = MongoService()
-        docentes = list(mongo.docentes.find().skip(skip).limit(limit))
-        total = mongo.docentes.count_documents({})
+        filtro: dict = {}
 
+        if cursor:
+            try:
+                cursor_id = ObjectId(b64decode(cursor).decode())
+                filtro["_id"] = {"$gt": cursor_id}
+            except Exception:
+                raise HTTPException(status_code=422, detail="Cursor inválido")
+
+        docentes = list(mongo.docentes.find(filtro).sort([("_id", 1)]).skip(skip).limit(limit + 1))
+        tiene_mas = len(docentes) > limit
+        if tiene_mas:
+            docentes = docentes[:limit]
+
+        cursor_siguiente: Optional[str] = None
+        if tiene_mas and docentes:
+            cursor_siguiente = b64encode(str(docentes[-1]["_id"]).encode()).decode()
+
+        total = mongo.docentes.count_documents({})
         for doc in docentes:
             if "_id" in doc:
                 doc["_id"] = str(doc["_id"])
 
-        logger.info(f"Docentes listados: {len(docentes)} (skip={skip}, limit={limit})")
-        return {"items": docentes, "total": total, "skip": skip, "limit": limit}
+        logger.info(f"Docentes listados: {len(docentes)} (skip={skip}, limit={limit}, cursor={'sí' if cursor else 'no'})")
+        return {
+            "items": docentes,
+            "total": total,
+            "skip": skip,
+            "limit": limit,
+            "cursor_siguiente": cursor_siguiente,
+            "tiene_mas": tiene_mas,
+        }
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error al listar docentes: {e}")
         raise HTTPException(status_code=500, detail="Error de base de datos")
@@ -55,8 +83,9 @@ async def buscar_docentes(
     ordenar: str = Query("apellidos", description="Campo de ordenamiento (apellidos|cedula|completitud|-updated_at)"),
     skip: int = Query(0, ge=0, description="Registros a saltar"),
     limit: int = Query(10, ge=1, le=100, description="Máximo de registros"),
+    cursor: Optional[str] = Query(None, description="Cursor opaco para siguiente página"),
 ):
-    """Búsqueda avanzada de docentes con filtros."""
+    """Búsqueda avanzada de docentes con filtros y cursor-based pagination."""
     try:
         mongo = MongoService()
 
@@ -73,6 +102,13 @@ async def buscar_docentes(
         if status:
             filtro["status"] = status
 
+        if cursor:
+            try:
+                cursor_id = ObjectId(b64decode(cursor).decode())
+                filtro["_id"] = {"$gt": cursor_id}
+            except Exception:
+                raise HTTPException(status_code=422, detail="Cursor inválido")
+
         sort_field = ordenar.lstrip("-")
         sort_direction = -1 if ordenar.startswith("-") else 1
         _sort_map = {
@@ -85,9 +121,19 @@ async def buscar_docentes(
         sort_tuple = [(sort_key, sort_direction)]
 
         docentes = list(
-            mongo.docentes.find(filtro).sort(sort_tuple).skip(skip).limit(limit)
+            mongo.docentes.find(filtro).sort(sort_tuple).skip(skip).limit(limit + 1)
         )
-        total = mongo.docentes.count_documents(filtro)
+        tiene_mas = len(docentes) > limit
+        if tiene_mas:
+            docentes = docentes[:limit]
+
+        cursor_siguiente: Optional[str] = None
+        if tiene_mas and docentes:
+            cursor_siguiente = b64encode(str(docentes[-1]["_id"]).encode()).decode()
+
+        # Recalcular total sin cursor (total real del filtro base)
+        filtro_total = {k: v for k, v in filtro.items() if k != "_id"}
+        total = mongo.docentes.count_documents(filtro_total)
 
         for doc in docentes:
             if "_id" in doc:
@@ -100,7 +146,11 @@ async def buscar_docentes(
             "skip": skip,
             "limit": limit,
             "total_pages": (total + limit - 1) // limit if limit > 0 else 0,
+            "cursor_siguiente": cursor_siguiente,
+            "tiene_mas": tiene_mas,
         }
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error en búsqueda docentes: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error de base de datos")

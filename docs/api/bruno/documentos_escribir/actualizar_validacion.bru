@@ -1,0 +1,30 @@
+meta {
+  name: Actualizar Validación Documento
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{base_url}}/documentos/{{documento_id}}/validacion
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "estado": "aprobado",
+    "observaciones": "Documento verificado y en regla"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.documento_id: isDefined
+  res.body.estado: isDefined
+  res.body.mensaje: isDefined
+  res.body.timestamp: isDefined
+}
