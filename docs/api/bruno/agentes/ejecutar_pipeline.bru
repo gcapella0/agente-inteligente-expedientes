@@ -1,0 +1,25 @@
+meta {
+  name: Ejecutar Pipeline
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/agentes/watcher/ejecutar
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  modo: pipeline
+}
+
+assert {
+  res.status: eq 202
+  res.body.id_ejecucion: isDefined
+  res.body.siguiente_agente: isDefined
+}

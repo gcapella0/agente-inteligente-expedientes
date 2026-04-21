@@ -8,6 +8,7 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 - Comprimir automaticamente PDFs e imagenes antes del almacenamiento.
 - Almacenar y organizar la informacion en **MongoDB**.
 - Exponer los expedientes a traves de una **API REST** con autenticacion JWT.
+- Controlar y monitorear los agentes desde una interfaz web (frontend MVP en progreso).
 
 ---
 
@@ -20,7 +21,7 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
    - **ClassifierAgent** → clasifica documentos y extrae campos via LLM.
    - **StorageAgent** → comprime archivos, persiste metadatos en MongoDB y organiza el almacenamiento.
 3. Facilitar la consulta y recuperacion de expedientes desde UNEG.
-4. Exponer la informacion a traves de una **API REST FastAPI** con autenticacion JWT, endpoints de lectura/escritura, busqueda de texto completo, exportacion (JSON/XML/CSV) y auditoria admin.
+4. Exponer la informacion a traves de una **API REST FastAPI** con autenticacion JWT, endpoints de lectura/escritura, busqueda de texto completo, exportacion (JSON/XML/CSV), auditoria admin, control de agentes y streaming de logs via SSE.
 
 ---
 
@@ -70,6 +71,9 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 │           ├── config.py            # GET tipos-documento/estados
 │           ├── auth.py              # POST login/crear-usuario/cambiar-password
 │           ├── auditoria.py         # GET auditoria expediente/documento (admin)
+│           ├── agentes.py           # GET /agentes, POST ejecutar (independiente/pipeline)
+│           ├── config_llm.py        # GET/PUT /config/llm, POST /config/llm/probar
+│           ├── logs.py              # GET /logs/stream (SSE), GET /logs/descargar
 │           └── health.py            # GET /health, /, /info
 ├── tests/
 │   ├── test_watcher_agent.py        # Tests del WatcherAgent (47)
@@ -81,7 +85,8 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 │   ├── test_api_fase2.py            # Tests API: estadisticas y validacion (31)
 │   ├── test_api_fase3.py            # Tests API: busqueda, exportacion, paginacion (22)
 │   ├── test_api_fase4.py            # Tests API: escritura CRUD (26)
-│   └── test_api_fase5.py            # Tests API: autenticacion JWT y auditoria (32)
+│   ├── test_api_fase5.py            # Tests API: autenticacion JWT y auditoria (32)
+│   └── test_api_fase6.py            # Tests API: agentes, config LLM, logs SSE (34)
 ├── data/
 │   ├── input/                       # Expedientes descargados por docente
 │   ├── storage/                     # Archivos almacenados por cedula
@@ -93,7 +98,8 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 │   ├── classifier.log               # Log del ClassifierAgent
 │   ├── storage.log                  # Log del StorageAgent
 │   ├── audit.jsonl                  # Log de auditoria estructurado (JSON)
-│   └── api.log                      # Log de la API REST
+│   ├── api.log                      # Log de la API REST
+│   └── operational.log              # Log operacional unificado (JSON, todos los agentes)
 ├── .env                             # Variables de entorno (no versionado)
 ├── .env.example                     # Plantilla de variables de entorno
 └── requirements.txt                 # Dependencias Python
@@ -220,7 +226,7 @@ Patron plugin con clase base abstracta `BaseLlmProvider`:
 
 - **`OpenRouterProvider`**: usa el SDK de OpenAI apuntado a OpenRouter. Soporta rotacion de modelos ante rate limit (primary + fallback models). Retorna `tokens_usados` desde el API.
 - **`OllamaProvider`**: usa `requests.post` al endpoint `/api/chat` de Ollama. Texto truncado a 1500 caracteres antes de enviar. Opciones: `num_predict=400`, `num_ctx=2048`. Modelos recomendados para CPU: `phi3:mini`.
-- **`create_llm_provider()`** (factory en `llm_factory.py`): lee `LLM_PROVIDER` del entorno y crea el proveedor correspondiente.
+- **`create_llm_provider()`** (factory en `llm_factory.py`): consulta primero la coleccion `sistema_config` de MongoDB (doc `_id="llm_config"`) y, si existe, sobrescribe los valores de `config.*` en runtime. Si no hay doc o MongoDB no esta disponible, usa las variables de `.env` como fallback. Esto permite cambiar el proveedor y modelo en caliente desde la API sin reiniciar el servidor.
 
 ### LlmService (`src/services/llm_service.py`)
 
@@ -321,7 +327,7 @@ Servicio de persistencia con `pymongo`. Colecciones: `docentes` y `documentos`.
 
 ## API REST (`src/api/`)
 
-Interfaz HTTP FastAPI sobre MongoDB. Version 2.0.0. Iniciada con:
+Interfaz HTTP FastAPI sobre MongoDB. Version **2.2.0**. Iniciada con:
 
 ```bash
 uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
@@ -356,7 +362,11 @@ Swagger UI disponible en `http://localhost:8000/docs`.
 | `GET /validacion/expediente/{cedula}` | Auditoria del expediente (apto/requiere_atencion/critico) |
 | `GET /config/tipos-documento` | Catalogo de los 22 tipos de documento |
 | `GET /config/estados-validacion` | Catalogo de estados de validacion |
+| `GET /config/tipos-documento` | Catalogo de los 22 tipos de documento |
+| `GET /config/estados-validacion` | Catalogo de estados de validacion |
 | `GET /config/estados-docente` | Catalogo de estados del docente |
+| `GET /config/llm` | Configuracion actual del proveedor LLM |
+| `GET /agentes` | Estado actual de cada agente y del pipeline |
 | `GET /health` | Estado del servicio |
 
 ### Endpoints de escritura (requieren JWT)
@@ -368,6 +378,11 @@ Swagger UI disponible en `http://localhost:8000/docs`.
 | `POST /documentos/{cedula}/agregar-documento` | Inserta documento y recalcula completitud |
 | `PATCH /documentos/{documento_id}/validacion` | Actualiza estado de validacion |
 | `DELETE /documentos/{documento_id}` | Elimina documento y recalcula completitud |
+| `PUT /config/llm` | Actualiza proveedor y modelo LLM (persiste en MongoDB) |
+| `POST /config/llm/probar` | Verifica conectividad con el proveedor LLM activo |
+| `POST /agentes/{nombre}/ejecutar` | Dispara ejecucion manual de un agente (`?modo=independiente\|pipeline`) |
+| `GET /logs/descargar` | Descarga `audit.jsonl` como adjunto |
+| `GET /logs/stream` | Stream en tiempo real de `operational.log` via SSE |
 
 ### Auditoria admin (solo rol admin)
 
@@ -376,9 +391,35 @@ Swagger UI disponible en `http://localhost:8000/docs`.
 | `GET /admin/auditoria/expediente/{cedula}` | Eventos de auditoria de un expediente (filtro por dias, max 100) |
 | `GET /admin/auditoria/documento/{documento_id}` | Historial de cambios de un documento |
 
+### Agentes (control manual)
+
+El router `/agentes` permite disparar y monitorear los agentes desde la API:
+
+- `GET /agentes` devuelve el estado de cada agente (`idle|running|error`), `total_procesados`, `ultimo_run` y si hay un pipeline activo.
+- `POST /agentes/{nombre}/ejecutar?modo=independiente` corre un solo agente en background y retorna 202 inmediatamente.
+- `POST /agentes/{nombre}/ejecutar?modo=pipeline` encadena los agentes desde `{nombre}` hasta `storage` (orden: `watcher→ocr→classifier→storage`), con 2 segundos de pausa entre cada uno. El pipeline se detiene si alguno falla.
+
+**Agentes validos:** `watcher`, `ocr`, `classifier`, `storage`.
+
+### Configuracion LLM en caliente
+
+`PUT /config/llm` persiste la configuracion en MongoDB (`sistema_config`, doc `llm_config`). Al siguiente llamado a `create_llm_provider()`, el factory lee esa configuracion antes que `.env`, permitiendo cambiar proveedor y modelo sin reiniciar el servidor.
+
+**Providers disponibles:** `openrouter`, `ollama`. Cuando `provider=ollama`, el campo `host` es obligatorio (ej: `http://localhost:11434`).
+
+### Logs y auditoria
+
+- `GET /logs/descargar` — descarga `audit.jsonl` como archivo adjunto (`Content-Disposition: attachment`).
+- `GET /logs/stream` — stream SSE sobre `operational.log` (JSON serializado, captura todos los agentes). Soporta filtros `?agente=watcher&nivel=INFO`. Emite keepalives cada 15s. **No compatible con Bruno** — usar `curl -N`.
+
+```bash
+curl -N "http://localhost:8000/logs/stream?agente=classifier" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
 ### Coleccion Bruno
 
-Manual de pruebas en `docs/api/bruno/` — 35 requests organizados en carpetas. Importar en Bruno y seleccionar el environment `local`. El request `auth/login.bru` guarda automaticamente el token en `{{token}}`.
+Manual de pruebas en `docs/api/bruno/` — 43 requests organizados en carpetas. Importar en Bruno y seleccionar el environment `local`. El request `auth/login.bru` guarda automaticamente el token en `{{token}}`.
 
 ---
 
@@ -469,6 +510,7 @@ Sistema de logging estructurado con **Loguru** (`src/core/logger.py`).
 | `storage.log` | Log del StorageAgent |
 | `audit.jsonl` | Log de auditoria en JSON estructurado (filtrado por `audit=True`) |
 | `api.log` | Log de la API REST |
+| `operational.log` | Log operacional unificado en JSON (todos los agentes, fuente del SSE) |
 
 - `get_agent_logger("nombre")`: obtiene logger filtrado por agente
 - `audit_log(evento, datos)`: registra eventos de auditoria en `audit.jsonl`
@@ -606,14 +648,14 @@ pytest tests/test_storage.py -v
 # Solo tests de proveedores LLM
 pytest tests/test_llm_providers.py -v
 
-# Solo tests de la API REST (Fases 1-5)
-pytest tests/test_api_fase1.py tests/test_api_fase2.py tests/test_api_fase3.py tests/test_api_fase4.py tests/test_api_fase5.py -v
+# Solo tests de la API REST (Fases 1-6)
+pytest tests/test_api_fase1.py tests/test_api_fase2.py tests/test_api_fase3.py tests/test_api_fase4.py tests/test_api_fase5.py tests/test_api_fase6.py -v
 
 # Un test especifico
 pytest tests/test_ocr.py -k "test_name_here" -v
 ```
 
-La suite de tests incluye **406 pruebas** organizadas por agente y fase:
+La suite de tests incluye **440 pruebas** organizadas por agente y fase:
 
 **WatcherAgent (47 tests):**
 - Procesamiento basico de emails y creacion de expedientes
@@ -699,6 +741,15 @@ La suite de tests incluye **406 pruebas** organizadas por agente y fase:
 - GET auditoria expediente/documento: historial de eventos con filtros
 - Proteccion de endpoints: token invalido (401), rol insuficiente (403)
 
+**API REST Fase 6 (34 tests):**
+- GET agentes: estado idle/running/error, defaults cuando la coleccion esta vacia, siguiente_en_pipeline
+- POST agentes ejecutar: 202 en llamadas validas, 400 en nombre/modo invalido, 409 en agente ya en ejecucion o pipeline activo
+- Funcion `_ejecutar` directamente: encadenamiento en modo pipeline, detencion ante fallo, sleep entre pasos
+- GET/PUT config/llm: lectura de defaults y desde MongoDB, upsert, 400 en ollama sin host
+- POST config/llm/probar: simulacion de exito y fallo en Ollama y OpenRouter
+- GET logs/stream: 200 con content-type text/event-stream, keepalive SSE
+- GET logs/descargar: 200 con Content-Disposition attachment, 404 si no existe audit.jsonl
+
 ---
 
 ## Dependencias principales
@@ -715,7 +766,8 @@ La suite de tests incluye **406 pruebas** organizadas por agente y fase:
 | `pymongo` | 4.10.1 | Conexion a MongoDB |
 | `motor` | 3.6.0 | Driver async para MongoDB |
 | `openai` | >=1.50.0 | Cliente para OpenRouter |
-| `requests` | 2.32.3 | Cliente HTTP (Ollama) |
+| `requests` | 2.32.3 | Cliente HTTP (Ollama, probar conexion LLM) |
+| `aiofiles` | >=23.2.0 | Lectura async de archivos (SSE de logs) |
 | `aiohttp` | 3.10.5 | Peticiones HTTP asincronas |
 | `email-validator` | 2.2.0 | Validacion de emails (Pydantic) |
 | `passlib[bcrypt]` | >=1.7.4 | Hash de contraseñas con bcrypt |
@@ -751,5 +803,7 @@ La suite de tests incluye **406 pruebas** organizadas por agente y fase:
 - [x] **API REST Fase 3**: Busqueda full-text, exportacion JSON/XML/CSV, cursor pagination (22 tests)
 - [x] **API REST Fase 4**: Endpoints de escritura CRUD con JWT (26 tests)
 - [x] **API REST Fase 5**: Autenticacion JWT, usuarios, auditoria admin (32 tests)
+- [x] **API REST Fase 6**: Control de agentes, configuracion LLM en caliente, logs SSE (34 tests)
+- [ ] **Frontend MVP**: Interfaz web (HTML + Alpine.js + Tailwind) para gestion de expedientes
 - [ ] **Busqueda semantica**: Recuperacion de expedientes por similitud
 - [ ] Soporte para extraccion de texto de emails HTML-only

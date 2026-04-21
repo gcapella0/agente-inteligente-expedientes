@@ -1,0 +1,26 @@
+meta {
+  name: Listar Agentes
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/agentes
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbkB1bmVnLmVkdS52ZSIsInJvbCI6ImFkbWluIiwiZXhwIjoxNzc2NzU5MjA3LCJpYXQiOjE3NzY3MzA0MDd9.1D8dtaCObY2vPQ5jrnncqoqQz_C_VtaIv-KriFshPiA
+}
+
+assert {
+  res.status: eq 200
+  res.body.agentes: isDefined
+  res.body.pipeline_activo: isDefined
+}
