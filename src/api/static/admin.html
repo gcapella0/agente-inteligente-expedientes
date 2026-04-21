@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administración — UNEG</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="/ui/assets/app.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+<div id="navbar"></div>
+
+<div x-data="adminApp()" x-init="init()" class="pt-16 px-6 pb-10 max-w-3xl mx-auto">
+
+  <div class="mt-6 mb-5">
+    <h1 class="text-xl font-semibold text-slate-800">Administración de Usuarios</h1>
+    <p class="text-sm text-slate-500 mt-0.5">Gestión de accesos al sistema</p>
+  </div>
+
+  <!-- Tabs header -->
+  <div class="flex gap-1 mb-6 border-b border-slate-200">
+    <button
+      @click="tabActivo='usuarios'"
+      :class="tabActivo==='usuarios' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-slate-500 hover:text-slate-700'"
+      class="px-4 py-2 text-sm transition-colors"
+    >Usuarios Activos</button>
+    <button
+      @click="tabActivo='crear'"
+      :class="tabActivo==='crear' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-slate-500 hover:text-slate-700'"
+      class="px-4 py-2 text-sm transition-colors"
+    >Crear Nuevo</button>
+  </div>
+
+  <!-- TAB: USUARIOS ACTIVOS -->
+  <div x-show="tabActivo === 'usuarios'">
+    <div x-show="cargando" class="text-sm text-slate-500 py-4">Cargando usuarios...</div>
+    <div x-show="!cargando && usuarios.length === 0" class="text-sm text-slate-400 py-4">No hay usuarios registrados.</div>
+    <div class="space-y-3">
+      <template x-for="u in usuarios" :key="u.id">
+        <div class="bg-white border border-slate-200 rounded-lg px-5 py-4 flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-slate-800 truncate" x-text="u.email"></p>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Rol: <span class="font-medium text-slate-600" x-text="u.rol"></span>
+              · Creado: <span x-text="u.createdAt ? new Date(u.createdAt).toLocaleDateString('es-VE') : '—'"></span>
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <select
+              @change="cambiarRol(u.id, $event.target.value)"
+              class="border border-slate-300 rounded-md px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="viewer"  :selected="u.rol === 'viewer'">Viewer</option>
+              <option value="docente" :selected="u.rol === 'docente'">Docente</option>
+              <option value="admin"   :selected="u.rol === 'admin'">Admin</option>
+            </select>
+            <button
+              @click="eliminarUsuario(u.id, u.email)"
+              class="px-3 py-1.5 text-xs border border-red-200 text-red-600 rounded-md hover:bg-red-50 transition-colors"
+            >Eliminar</button>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- TAB: CREAR NUEVO -->
+  <div x-show="tabActivo === 'crear'" class="max-w-md">
+    <div class="bg-white border border-slate-200 rounded-lg p-5">
+      <form @submit.prevent="crearUsuario()" class="space-y-4">
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Email</label>
+          <input
+            type="email"
+            x-model="formNuevo.email"
+            placeholder="usuario@uneg.edu.ve"
+            class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Contraseña (mín. 6 caracteres)</label>
+          <input
+            type="password"
+            x-model="formNuevo.password"
+            placeholder="••••••"
+            class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-2">Rol</label>
+          <div class="space-y-2">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" x-model="formNuevo.rol" value="viewer" class="text-blue-600" />
+              <span class="text-sm text-slate-700">Viewer — solo lectura</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" x-model="formNuevo.rol" value="docente" class="text-blue-600" />
+              <span class="text-sm text-slate-700">Docente — acceso estándar</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" x-model="formNuevo.rol" value="admin" class="text-blue-600" />
+              <span class="text-sm text-slate-700">Admin — acceso completo</span>
+            </label>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          :disabled="creando"
+          class="w-full px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-60 transition-colors"
+        >
+          <span x-show="!creando">Crear Usuario</span>
+          <span x-show="creando">Creando...</span>
+        </button>
+      </form>
+
+      <div
+        x-show="message"
+        :class="message?.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'"
+        class="mt-4 px-3 py-2 border rounded-md text-xs"
+        x-text="message?.text"
+      ></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function _jwtPayload() {
+  const t = getToken();
+  if (!t) return null;
+  try {
+    return JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+  } catch { return null; }
+}
+
+function adminApp() {
+  return {
+    tabActivo: 'usuarios',
+    usuarios: [],
+    cargando: false,
+    message: null,
+    creando: false,
+    formNuevo: { email: '', password: '', rol: 'docente' },
+
+    async init() {
+      requireAuth();
+      const jwt = _jwtPayload();
+      if (!jwt || jwt.rol !== 'admin') {
+        window.location.href = '/ui/';
+        return;
+      }
+      await loadNav('admin');
+      await this.loadUsuarios();
+    },
+
+    async loadUsuarios() {
+      this.cargando = true;
+      try {
+        const r = await fetchApi('/usuarios/');
+        if (r && r.ok) this.usuarios = await r.json();
+      } catch (e) {
+        console.error('Error cargando usuarios:', e);
+      } finally {
+        this.cargando = false;
+      }
+    },
+
+    async crearUsuario() {
+      if (!this.formNuevo.email || !this.formNuevo.password) {
+        this.message = { type: 'error', text: 'Email y contraseña son requeridos' };
+        return;
+      }
+      this.creando = true;
+      this.message = null;
+      try {
+        const r = await fetchApi('/usuarios/crear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.formNuevo),
+        });
+        if (r && r.ok) {
+          this.message = { type: 'success', text: 'Usuario creado exitosamente' };
+          this.formNuevo = { email: '', password: '', rol: 'docente' };
+          setTimeout(async () => {
+            await this.loadUsuarios();
+            this.message = null;
+            this.tabActivo = 'usuarios';
+          }, 1500);
+        } else {
+          const d = await r.json().catch(() => ({}));
+          this.message = { type: 'error', text: d.detail || 'Error al crear usuario' };
+        }
+      } catch (e) {
+        this.message = { type: 'error', text: e.message };
+      } finally {
+        this.creando = false;
+      }
+    },
+
+    async cambiarRol(userId, nuevoRol) {
+      try {
+        const r = await fetchApi(`/usuarios/${userId}/rol`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rol: nuevoRol }),
+        });
+        if (r && r.ok) showToast('Rol actualizado', 'success');
+        else showToast('Error al actualizar rol', 'error');
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    },
+
+    async eliminarUsuario(userId, email) {
+      if (!confirm(`¿Eliminar el usuario "${email}"?\nEsta acción no se puede deshacer.`)) return;
+      try {
+        const r = await fetchApi(`/usuarios/${userId}`, { method: 'DELETE' });
+        if (r && r.ok) {
+          showToast('Usuario eliminado', 'success');
+          await this.loadUsuarios();
+        } else {
+          const d = await r.json().catch(() => ({}));
+          showToast(d.detail || 'Error al eliminar', 'error');
+        }
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    },
+  };
+}
+</script>
+</body>
+</html>
