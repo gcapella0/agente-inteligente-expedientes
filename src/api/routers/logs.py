@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 
 from src import config
-from src.api.dependencies import verify_token
+from src.api.dependencies import verify_token, verify_token_sse
 from src.core.logger import get_agent_logger
 
 router = APIRouter()
@@ -31,7 +31,7 @@ _POLL_INTERVAL = 0.5        # segundos
 async def stream_logs(
     agente: str | None = Query(None, description="Filtrar por nombre de agente"),
     nivel: str | None = Query(None, description="Filtrar por nivel: INFO, WARNING, ERROR"),
-    payload: dict = Depends(verify_token),
+    payload: dict = Depends(verify_token_sse),
 ):
     """SSE endpoint que tailea operational.log en tiempo real."""
 

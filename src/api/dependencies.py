@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import Header, HTTPException, status
+from fastapi import Header, HTTPException, Query, status
 
 from src.api.security import decode_token
 from src.core.logger import get_agent_logger
@@ -32,6 +32,18 @@ async def verify_token(authorization: str = Header(...)) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="No autenticado",
         )
+
+
+async def verify_token_sse(token: str = Query(..., description="JWT token para SSE")) -> dict:
+    """Verifica JWT pasado como query param ?token=... (para EventSource que no soporta headers)."""
+    try:
+        return decode_token(token)
+    except ValueError as e:
+        logger.warning(f"Token SSE rechazado: {e}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error verificando token SSE: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No autenticado")
 
 
 async def verify_admin(authorization: str = Header(...)) -> dict:

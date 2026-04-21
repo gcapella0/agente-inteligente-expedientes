@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from src.api.routers import (
     agentes,
@@ -98,6 +101,11 @@ async def info():
 async def validation_exception_handler(request, exc):
     logger.warning(f"Error de validación: {exc.errors()}")
     return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+
+_ui_path = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(_ui_path):
+    app.mount("/ui", StaticFiles(directory=_ui_path, html=True), name="ui")
 
 
 if __name__ == "__main__":
