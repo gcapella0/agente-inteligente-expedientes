@@ -807,3 +807,4 @@ La suite de tests incluye **440 pruebas** organizadas por agente y fase:
 - [ ] **Frontend MVP**: Interfaz web (HTML + Alpine.js + Tailwind) para gestion de expedientes
 - [ ] **Busqueda semantica**: Recuperacion de expedientes por similitud
 - [ ] Soporte para extraccion de texto de emails HTML-only
+- [x] **API REST**: Endpoints FastAPI para consulta y busqueda de expedientes
