@@ -8,13 +8,13 @@
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="/ui/assets/app.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-900 text-white min-h-screen">
 <div id="navbar"></div>
 
 <div x-data="logsApp()" x-init="init()" class="pt-16 px-6 pb-10 max-w-5xl mx-auto">
 
   <div class="mt-6 mb-4 flex items-center justify-between">
-    <h1 class="text-xl font-semibold text-slate-800">Logs en vivo</h1>
+    <h1 class="text-xl font-semibold text-white">Logs en vivo</h1>
     <div class="flex items-center gap-2">
       <span x-show="conectado" class="flex items-center gap-1 text-xs text-green-600">
         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Conectado

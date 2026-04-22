@@ -8,26 +8,26 @@
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="/ui/assets/app.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-900 text-white min-h-screen">
 <div id="navbar"></div>
 
 <div x-data="configApp()" x-init="init()" class="pt-16 px-6 pb-10 max-w-2xl mx-auto">
 
   <div class="mt-6 mb-5">
-    <h1 class="text-xl font-semibold text-slate-800">Configuración</h1>
-    <p class="text-sm text-slate-500 mt-0.5">Parámetros de agentes y proveedor LLM</p>
+    <h1 class="text-xl font-semibold text-white">Configuración</h1>
+    <p class="text-sm text-white/60 mt-0.5">Parámetros de agentes y proveedor LLM</p>
   </div>
 
   <!-- Tabs header -->
-  <div class="flex gap-1 mb-6 border-b border-slate-200">
+  <div class="flex gap-1 mb-6 border-b border-white/10">
     <button
       @click="tabActivo='agentes'"
-      :class="tabActivo==='agentes' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-slate-500 hover:text-slate-700'"
+      :class="tabActivo==='agentes' ? 'border-b-2 border-blue-400 text-blue-400 font-medium' : 'text-white/50 hover:text-white'"
       class="px-4 py-2 text-sm transition-colors"
     >Agentes</button>
     <button
       @click="tabActivo='llm'"
-      :class="tabActivo==='llm' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-slate-500 hover:text-slate-700'"
+      :class="tabActivo==='llm' ? 'border-b-2 border-blue-400 text-blue-400 font-medium' : 'text-white/50 hover:text-white'"
       class="px-4 py-2 text-sm transition-colors"
     >LLM</button>
   </div>
@@ -36,107 +36,107 @@
   <div x-show="tabActivo === 'agentes'" class="space-y-4">
 
     <!-- Watcher -->
-    <div class="bg-white border border-slate-200 rounded-lg p-5">
-      <h2 class="text-sm font-semibold text-slate-700 mb-4">Watcher</h2>
+    <div class="bg-white/5 border border-white/10 rounded-lg p-5">
+      <h2 class="text-sm font-semibold text-white/80 mb-4">Watcher</h2>
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Timeout (segundos)</label>
+          <label class="block text-xs font-medium text-white/60 mb-1">Timeout (segundos)</label>
           <input type="number" x-model.number="configAgentes.watcher.timeout_segundos"
                  min="5" max="300" step="1"
-                 class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                 class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Reintentos</label>
+          <label class="block text-xs font-medium text-white/60 mb-1">Reintentos</label>
           <input type="number" x-model.number="configAgentes.watcher.retry_veces"
                  min="0" max="10" step="1"
-                 class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                 class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
         </div>
       </div>
       <div class="flex items-center gap-2">
         <button @click="guardarConfigAgente('watcher')"
                 class="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">Guardar</button>
         <button @click="resetearConfigAgente('watcher')"
-                class="px-4 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 transition-colors">Resetear</button>
+                class="px-4 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70 transition-colors">Resetear</button>
         <span x-show="messageAgente.watcher"
-              :class="messageAgente.watcher?.type === 'success' ? 'text-green-600' : 'text-red-600'"
+              :class="messageAgente.watcher?.type === 'success' ? 'text-green-400' : 'text-red-400'"
               class="text-xs ml-1" x-text="messageAgente.watcher?.text"></span>
       </div>
     </div>
 
     <!-- OCR -->
-    <div class="bg-white border border-slate-200 rounded-lg p-5">
-      <h2 class="text-sm font-semibold text-slate-700 mb-4">OCR</h2>
+    <div class="bg-white/5 border border-white/10 rounded-lg p-5">
+      <h2 class="text-sm font-semibold text-white/80 mb-4">OCR</h2>
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Timeout (segundos)</label>
+          <label class="block text-xs font-medium text-white/60 mb-1">Timeout (segundos)</label>
           <input type="number" x-model.number="configAgentes.ocr.timeout_segundos"
                  min="5" max="300" step="1"
-                 class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                 class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Reintentos</label>
+          <label class="block text-xs font-medium text-white/60 mb-1">Reintentos</label>
           <input type="number" x-model.number="configAgentes.ocr.retry_veces"
                  min="0" max="10" step="1"
-                 class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                 class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
         </div>
       </div>
       <div class="flex items-center gap-2">
         <button @click="guardarConfigAgente('ocr')"
                 class="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">Guardar</button>
         <button @click="resetearConfigAgente('ocr')"
-                class="px-4 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 transition-colors">Resetear</button>
+                class="px-4 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70 transition-colors">Resetear</button>
         <span x-show="messageAgente.ocr"
-              :class="messageAgente.ocr?.type === 'success' ? 'text-green-600' : 'text-red-600'"
+              :class="messageAgente.ocr?.type === 'success' ? 'text-green-400' : 'text-red-400'"
               class="text-xs ml-1" x-text="messageAgente.ocr?.text"></span>
       </div>
     </div>
 
     <!-- Classifier -->
-    <div class="bg-white border border-slate-200 rounded-lg p-5">
-      <h2 class="text-sm font-semibold text-slate-700 mb-4">Classifier</h2>
+    <div class="bg-white/5 border border-white/10 rounded-lg p-5">
+      <h2 class="text-sm font-semibold text-white/80 mb-4">Classifier</h2>
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Temperatura (0–1)</label>
+          <label class="block text-xs font-medium text-white/60 mb-1">Temperatura (0–1)</label>
           <input type="number" x-model.number="configAgentes.classifier.temperatura"
                  min="0" max="1" step="0.1"
-                 class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                 class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Max tokens</label>
+          <label class="block text-xs font-medium text-white/60 mb-1">Max tokens</label>
           <input type="number" x-model.number="configAgentes.classifier.max_tokens"
                  min="100" max="4000" step="100"
-                 class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                 class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
         </div>
       </div>
       <div class="flex items-center gap-2">
         <button @click="guardarConfigAgente('classifier')"
                 class="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">Guardar</button>
         <button @click="resetearConfigAgente('classifier')"
-                class="px-4 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 transition-colors">Resetear</button>
+                class="px-4 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70 transition-colors">Resetear</button>
         <span x-show="messageAgente.classifier"
-              :class="messageAgente.classifier?.type === 'success' ? 'text-green-600' : 'text-red-600'"
+              :class="messageAgente.classifier?.type === 'success' ? 'text-green-400' : 'text-red-400'"
               class="text-xs ml-1" x-text="messageAgente.classifier?.text"></span>
       </div>
     </div>
 
     <!-- Storage -->
-    <div class="bg-white border border-slate-200 rounded-lg p-5">
-      <h2 class="text-sm font-semibold text-slate-700 mb-4">Storage</h2>
+    <div class="bg-white/5 border border-white/10 rounded-lg p-5">
+      <h2 class="text-sm font-semibold text-white/80 mb-4">Storage</h2>
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Timeout (segundos)</label>
+          <label class="block text-xs font-medium text-white/60 mb-1">Timeout (segundos)</label>
           <input type="number" x-model.number="configAgentes.storage.timeout_segundos"
                  min="5" max="300" step="1"
-                 class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                 class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
         </div>
       </div>
       <div class="flex items-center gap-2">
         <button @click="guardarConfigAgente('storage')"
                 class="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">Guardar</button>
         <button @click="resetearConfigAgente('storage')"
-                class="px-4 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 transition-colors">Resetear</button>
+                class="px-4 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70 transition-colors">Resetear</button>
         <span x-show="messageAgente.storage"
-              :class="messageAgente.storage?.type === 'success' ? 'text-green-600' : 'text-red-600'"
+              :class="messageAgente.storage?.type === 'success' ? 'text-green-400' : 'text-red-400'"
               class="text-xs ml-1" x-text="messageAgente.storage?.text"></span>
       </div>
     </div>
@@ -144,77 +144,73 @@
   </div>
 
   <!-- TAB: LLM -->
-  <div x-show="tabActivo === 'llm'">
+  <div x-show="tabActivo === 'llm'" class="space-y-4">
 
     <!-- Sección 1: Provider -->
-    <div class="bg-white border border-slate-200 rounded-lg p-5 mb-4">
-      <h2 class="text-sm font-semibold text-slate-700 mb-3">Proveedor</h2>
+    <div class="bg-white/5 border border-white/10 rounded-lg p-5">
+      <h2 class="text-sm font-semibold text-white/80 mb-3">Proveedor</h2>
       <div class="flex gap-4">
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" x-model="form.provider" value="openrouter" class="text-blue-600" />
-          <span class="text-sm text-slate-700">OpenRouter</span>
+          <input type="radio" x-model="form.provider" value="openrouter" class="text-blue-500" />
+          <span class="text-sm text-white/80">OpenRouter</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" x-model="form.provider" value="ollama" class="text-blue-600" />
-          <span class="text-sm text-slate-700">Ollama (local)</span>
+          <input type="radio" x-model="form.provider" value="ollama" class="text-blue-500" />
+          <span class="text-sm text-white/80">Ollama (local)</span>
         </label>
       </div>
-      <div x-show="form.provider === 'openrouter'" class="mt-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded-md text-xs text-blue-700">
-        Requiere <code class="bg-blue-100 px-1 rounded">OPENROUTER_API_KEY</code> configurada en el archivo <code class="bg-blue-100 px-1 rounded">.env</code> del servidor.
+      <div x-show="form.provider === 'openrouter'" class="mt-3 px-3 py-2 bg-blue-500/10 border border-blue-500/30 rounded-md text-xs text-blue-300">
+        Requiere <code class="bg-blue-500/20 px-1 rounded">OPENROUTER_API_KEY</code> configurada en el archivo <code class="bg-blue-500/20 px-1 rounded">.env</code> del servidor.
       </div>
       <div x-show="form.provider === 'ollama'" class="mt-3">
-        <label class="block text-xs font-medium text-slate-600 mb-1">Host de Ollama</label>
+        <label class="block text-xs font-medium text-white/60 mb-1">Host de Ollama</label>
         <input
           x-model="form.host"
           type="url"
           placeholder="http://10.25.101.21:11434"
-          class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </div>
     </div>
 
     <!-- Sección 2: Modelo -->
-    <div class="bg-white border border-slate-200 rounded-lg p-5 mb-4">
-      <h2 class="text-sm font-semibold text-slate-700 mb-3">Modelo</h2>
+    <div class="bg-white/5 border border-white/10 rounded-lg p-5">
+      <h2 class="text-sm font-semibold text-white/80 mb-3">Modelo</h2>
       <select
         x-model="form.model"
-        class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
-        <option value="">Seleccionar modelo...</option>
+        <option value="" class="bg-slate-800">Seleccionar modelo...</option>
         <template x-for="m in modelosDisponibles" :key="m">
-          <option :value="m" x-text="m"></option>
+          <option :value="m" x-text="m" class="bg-slate-800"></option>
         </template>
       </select>
-      <p x-show="form.provider === 'ollama'" class="mt-2 text-xs text-slate-500">
-        Recomendado para CPU: <code class="bg-slate-100 px-1 rounded">phi3:mini</code>
+      <p x-show="form.provider === 'ollama'" class="mt-2 text-xs text-white/50">
+        Recomendado para CPU: <code class="bg-white/10 px-1 rounded">phi3:mini</code>
       </p>
     </div>
 
     <!-- Sección 3: Test conexión -->
-    <div class="bg-white border border-slate-200 rounded-lg p-5 mb-4">
-      <h2 class="text-sm font-semibold text-slate-700 mb-3">Probar conexión</h2>
+    <div class="bg-white/5 border border-white/10 rounded-lg p-5">
+      <h2 class="text-sm font-semibold text-white/80 mb-3">Probar conexión</h2>
       <button
         @click="probarConexion()"
         :disabled="probando"
-        class="px-4 py-2 text-sm border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-60 transition-colors"
+        class="px-4 py-2 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70 disabled:opacity-60 transition-colors"
       >
         <span x-show="!probando">Probar conexión</span>
         <span x-show="probando">Probando...</span>
       </button>
       <div x-show="testResult !== null" class="mt-3">
-        <div
-          x-show="testResult && testResult.ok"
-          class="px-3 py-2 bg-green-50 border border-green-200 rounded-md text-xs text-green-700"
-        >
+        <div x-show="testResult && testResult.ok"
+             class="px-3 py-2 bg-green-500/10 border border-green-500/30 rounded-md text-xs text-green-300">
           ✓ Conexión exitosa · Latencia: <span x-text="testResult?.latencia_ms"></span> ms
           <span x-show="testResult?.modelos_disponibles?.length" class="block mt-1">
             Modelos: <span x-text="(testResult?.modelos_disponibles || []).slice(0, 5).join(', ')"></span>
           </span>
         </div>
-        <div
-          x-show="testResult && !testResult.ok"
-          class="px-3 py-2 bg-red-50 border border-red-200 rounded-md text-xs text-red-700"
-        >
+        <div x-show="testResult && !testResult.ok"
+             class="px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-md text-xs text-red-300">
           ✗ Error: <span x-text="testResult?.error || 'Sin respuesta del servidor'"></span>
         </div>
       </div>
@@ -230,7 +226,7 @@
         <span x-show="!guardando">Guardar cambios</span>
         <span x-show="guardando">Guardando...</span>
       </button>
-      <span x-show="guardado" class="text-sm text-green-600">✓ Configuración guardada</span>
+      <span x-show="guardado" class="text-sm text-green-400">✓ Configuración guardada</span>
     </div>
 
   </div>

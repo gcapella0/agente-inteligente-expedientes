@@ -8,56 +8,56 @@
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="/ui/assets/app.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-900 text-white min-h-screen">
 <div id="navbar"></div>
 
 <div x-data="adminApp()" x-init="init()" class="pt-16 px-6 pb-10 max-w-3xl mx-auto">
 
   <div class="mt-6 mb-5">
-    <h1 class="text-xl font-semibold text-slate-800">Administración de Usuarios</h1>
-    <p class="text-sm text-slate-500 mt-0.5">Gestión de accesos al sistema</p>
+    <h1 class="text-xl font-semibold text-white">Administración de Usuarios</h1>
+    <p class="text-sm text-white/60 mt-0.5">Gestión de accesos al sistema</p>
   </div>
 
   <!-- Tabs header -->
-  <div class="flex gap-1 mb-6 border-b border-slate-200">
+  <div class="flex gap-1 mb-6 border-b border-white/10">
     <button
       @click="tabActivo='usuarios'"
-      :class="tabActivo==='usuarios' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-slate-500 hover:text-slate-700'"
+      :class="tabActivo==='usuarios' ? 'border-b-2 border-blue-400 text-blue-400 font-medium' : 'text-white/50 hover:text-white'"
       class="px-4 py-2 text-sm transition-colors"
     >Usuarios Activos</button>
     <button
       @click="tabActivo='crear'"
-      :class="tabActivo==='crear' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-slate-500 hover:text-slate-700'"
+      :class="tabActivo==='crear' ? 'border-b-2 border-blue-400 text-blue-400 font-medium' : 'text-white/50 hover:text-white'"
       class="px-4 py-2 text-sm transition-colors"
     >Crear Nuevo</button>
   </div>
 
   <!-- TAB: USUARIOS ACTIVOS -->
   <div x-show="tabActivo === 'usuarios'">
-    <div x-show="cargando" class="text-sm text-slate-500 py-4">Cargando usuarios...</div>
-    <div x-show="!cargando && usuarios.length === 0" class="text-sm text-slate-400 py-4">No hay usuarios registrados.</div>
+    <div x-show="cargando" class="text-sm text-white/50 py-4">Cargando usuarios...</div>
+    <div x-show="!cargando && usuarios.length === 0" class="text-sm text-white/30 py-4">No hay usuarios registrados.</div>
     <div class="space-y-3">
       <template x-for="u in usuarios" :key="u.id">
-        <div class="bg-white border border-slate-200 rounded-lg px-5 py-4 flex items-center justify-between gap-4">
+        <div class="bg-white/5 border border-white/10 rounded-lg px-5 py-4 flex items-center justify-between gap-4">
           <div class="min-w-0">
-            <p class="text-sm font-medium text-slate-800 truncate" x-text="u.email"></p>
-            <p class="text-xs text-slate-400 mt-0.5">
-              Rol: <span class="font-medium text-slate-600" x-text="u.rol"></span>
+            <p class="text-sm font-medium text-white truncate" x-text="u.email"></p>
+            <p class="text-xs text-white/40 mt-0.5">
+              Rol: <span class="font-medium text-white/70" x-text="u.rol"></span>
               · Creado: <span x-text="u.createdAt ? new Date(u.createdAt).toLocaleDateString('es-VE') : '—'"></span>
             </p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
             <select
               @change="cambiarRol(u.id, $event.target.value)"
-              class="border border-slate-300 rounded-md px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="bg-white/5 border border-white/20 rounded-md px-2 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="viewer"  :selected="u.rol === 'viewer'">Viewer</option>
-              <option value="docente" :selected="u.rol === 'docente'">Docente</option>
-              <option value="admin"   :selected="u.rol === 'admin'">Admin</option>
+              <option value="viewer"  :selected="u.rol === 'viewer'"  class="bg-slate-800">Viewer</option>
+              <option value="docente" :selected="u.rol === 'docente'" class="bg-slate-800">Docente</option>
+              <option value="admin"   :selected="u.rol === 'admin'"   class="bg-slate-800">Admin</option>
             </select>
             <button
               @click="eliminarUsuario(u.id, u.email)"
-              class="px-3 py-1.5 text-xs border border-red-200 text-red-600 rounded-md hover:bg-red-50 transition-colors"
+              class="px-3 py-1.5 text-xs border border-red-500/30 text-red-400 rounded-md hover:bg-red-500/20 transition-colors"
             >Eliminar</button>
           </div>
         </div>
@@ -67,43 +67,43 @@
 
   <!-- TAB: CREAR NUEVO -->
   <div x-show="tabActivo === 'crear'" class="max-w-md">
-    <div class="bg-white border border-slate-200 rounded-lg p-5">
+    <div class="bg-white/5 border border-white/10 rounded-lg p-5">
       <form @submit.prevent="crearUsuario()" class="space-y-4">
 
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Email</label>
+          <label class="block text-xs font-medium text-white/60 mb-1">Email</label>
           <input
             type="email"
             x-model="formNuevo.email"
             placeholder="usuario@uneg.edu.ve"
-            class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Contraseña (mín. 6 caracteres)</label>
+          <label class="block text-xs font-medium text-white/60 mb-1">Contraseña (mín. 6 caracteres)</label>
           <input
             type="password"
             x-model="formNuevo.password"
             placeholder="••••••"
-            class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-2">Rol</label>
+          <label class="block text-xs font-medium text-white/60 mb-2">Rol</label>
           <div class="space-y-2">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" x-model="formNuevo.rol" value="viewer" class="text-blue-600" />
-              <span class="text-sm text-slate-700">Viewer — solo lectura</span>
+              <input type="radio" x-model="formNuevo.rol" value="viewer" class="text-blue-500" />
+              <span class="text-sm text-white/80">Viewer — solo lectura</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" x-model="formNuevo.rol" value="docente" class="text-blue-600" />
-              <span class="text-sm text-slate-700">Docente — acceso estándar</span>
+              <input type="radio" x-model="formNuevo.rol" value="docente" class="text-blue-500" />
+              <span class="text-sm text-white/80">Docente — acceso estándar</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" x-model="formNuevo.rol" value="admin" class="text-blue-600" />
-              <span class="text-sm text-slate-700">Admin — acceso completo</span>
+              <input type="radio" x-model="formNuevo.rol" value="admin" class="text-blue-500" />
+              <span class="text-sm text-white/80">Admin — acceso completo</span>
             </label>
           </div>
         </div>
@@ -120,7 +120,7 @@
 
       <div
         x-show="message"
-        :class="message?.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'"
+        :class="message?.type === 'success' ? 'bg-green-500/10 border-green-500/30 text-green-300' : 'bg-red-500/10 border-red-500/30 text-red-300'"
         class="mt-4 px-3 py-2 border rounded-md text-xs"
         x-text="message?.text"
       ></div>

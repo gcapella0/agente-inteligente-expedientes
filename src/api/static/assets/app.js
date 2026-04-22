@@ -75,8 +75,8 @@ async function loadNav(activeLink) {
   if (activeLink) {
     el.querySelectorAll("a[data-page]").forEach(a => {
       if (a.dataset.page === activeLink) {
-        a.classList.remove("text-slate-500");
-        a.classList.add("text-blue-600", "font-semibold");
+        a.classList.remove("text-white/60");
+        a.classList.add("text-white", "font-semibold");
       }
     });
   }

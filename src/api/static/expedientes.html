@@ -8,7 +8,7 @@
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="/ui/assets/app.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-900 text-white min-h-screen">
 <div id="navbar"></div>
 
 <div x-data="expedientesApp()" x-init="init()" class="pt-16 px-6 pb-10 max-w-6xl mx-auto">
@@ -16,8 +16,8 @@
   <!-- Header -->
   <div class="mt-6 mb-4 flex items-center justify-between">
     <div>
-      <h1 class="text-xl font-semibold text-slate-800">Expedientes docentes</h1>
-      <p class="text-sm text-slate-500 mt-0.5">
+      <h1 class="text-xl font-semibold text-white">Expedientes docentes</h1>
+      <p class="text-sm text-white/60 mt-0.5">
         <span x-text="stats.totalDocentes ?? '…'"></span> docentes ·
         <span x-text="stats.totalDocumentos ?? '…'"></span> documentos
       </p>
