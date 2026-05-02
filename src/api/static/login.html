@@ -206,7 +206,7 @@ function loginForm() {
           const data = await resp.json();
           localStorage.setItem('token', data.access_token);
           this.success = 'Acceso correcto. Redirigiendo...';
-          setTimeout(() => { window.location.href = '/ui'; }, 1500);
+          setTimeout(() => { window.location.replace('/ui/'); }, 1500);
         } else {
           const data = await resp.json().catch(() => ({}));
           this.error = data.detail || 'Credenciales incorrectas';

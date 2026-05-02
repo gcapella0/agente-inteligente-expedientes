@@ -17,7 +17,7 @@ async function fetchApi(path, options = {}) {
   const response = await fetch(path, { ...options, headers });
   if (response.status === 401) {
     clearToken();
-    window.location.href = "/ui/login.html";
+    window.location.replace("/ui/login.html");
     return null;
   }
   return response;
@@ -25,11 +25,11 @@ async function fetchApi(path, options = {}) {
 
 // ---- Auth ----
 function requireAuth() {
-  if (!getToken()) window.location.href = "/ui/login.html";
+  if (!getToken()) window.location.replace("/ui/login.html");
 }
 function logout() {
   clearToken();
-  window.location.href = "/ui/login.html";
+  window.location.replace("/ui/login.html");
 }
 
 // ---- Tiempo relativo ----
