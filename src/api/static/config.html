@@ -151,11 +151,11 @@
       <h2 class="text-sm font-semibold text-white/80 mb-3">Proveedor</h2>
       <div class="flex gap-4">
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" x-model="form.provider" value="openrouter" class="text-blue-500" />
+          <input type="radio" x-model="form.provider" value="openrouter" @change="form.model = ''" class="text-blue-500" />
           <span class="text-sm text-white/80">OpenRouter</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" x-model="form.provider" value="ollama" class="text-blue-500" />
+          <input type="radio" x-model="form.provider" value="ollama" @change="form.model = ''" class="text-blue-500" />
           <span class="text-sm text-white/80">Ollama (local)</span>
         </label>
       </div>
@@ -167,7 +167,7 @@
         <input
           x-model="form.host"
           type="url"
-          placeholder="http://10.25.101.21:11434"
+          placeholder="http://localhost:11434"
           class="w-full bg-white/5 border border-white/20 rounded-md px-3 py-1.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </div>
@@ -239,7 +239,7 @@ function configApp() {
     tabActivo: 'agentes',
 
     // LLM state
-    form: { provider: "openrouter", model: "", host: "http://10.25.101.21:11434" },
+    form: { provider: "openrouter", model: "", host: "http://localhost:11434" },
     modelosOR: [],
     modelosOllama: [],
     testResult: null,
@@ -275,7 +275,7 @@ function configApp() {
         const d = await r.json();
         this.form.provider = d.provider || "openrouter";
         this.form.model = d.model || "";
-        this.form.host = d.host || "http://10.25.101.21:11434";
+        this.form.host = d.host || "http://localhost:11434";
         this.modelosOR = d.available_models_openrouter || [];
         this.modelosOllama = d.available_models_ollama || [];
       } catch {}
@@ -302,6 +302,14 @@ function configApp() {
     },
 
     async guardar() {
+      if (!this.form.model) {
+        showToast("Seleccioná un modelo antes de guardar", "warning");
+        return;
+      }
+      if (this.form.provider === "ollama" && !this.form.host) {
+        showToast("Ingresá el host de Ollama antes de guardar", "warning");
+        return;
+      }
       this.guardando = true;
       this.guardado = false;
       try {
