@@ -114,6 +114,14 @@
         </button>
       </form>
 
+      <!-- Enlace recuperar contraseña -->
+      <div class="mt-4 text-center">
+        <button type="button" @click="recoveryModal = true"
+                class="text-sm text-blue-300 hover:text-blue-200 hover:underline transition-colors">
+          ¿Olvidaste tu contraseña?
+        </button>
+      </div>
+
     </div>
 
     <!-- Footer -->
@@ -123,6 +131,24 @@
     </div>
 
   </div>
+
+  <!-- Modal recuperar contraseña -->
+  <div x-show="recoveryModal" x-cloak class="fixed inset-0 bg-slate-900/90 flex items-center justify-center z-50">
+    <div class="bg-slate-800 border border-white/10 rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4">
+      <h3 class="text-base font-semibold text-white mb-3">Recuperar contraseña</h3>
+      <p class="text-sm text-white/70 mb-2">
+        Para restablecer tu contraseña, contactá al administrador del sistema:
+      </p>
+      <p class="text-sm text-blue-300 font-medium mb-5">admin@uneg.edu.ve</p>
+      <div class="flex justify-end">
+        <button @click="recoveryModal = false"
+                class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -136,6 +162,7 @@ function loginForm() {
     success: '',
     emailError: '',
     passwordError: '',
+    recoveryModal: false,
 
     validar() {
       this.emailError = '';
