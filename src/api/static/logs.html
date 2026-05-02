@@ -58,7 +58,7 @@
         <span x-show="pausado">▶ Reanudar</span>
       </button>
       <button @click="limpiar()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">Limpiar</button>
-      <a href="/logs/descargar" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 text-slate-700 no-underline">↓ Descargar audit.jsonl</a>
+      <button @click="descargar()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 text-slate-700">↓ Descargar audit.jsonl</button>
     </div>
   </div>
 
@@ -200,6 +200,21 @@ function logsApp() {
       if (!el) return;
       const enFondo = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
       this.autoScroll = enFondo;
+    },
+
+    async descargar() {
+      const r = await fetchApi("/logs/descargar");
+      if (!r || !r.ok) {
+        showToast("Error al descargar audit.jsonl", "error");
+        return;
+      }
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `audit-${new Date().toISOString().slice(0, 10)}.jsonl`;
+      a.click();
+      URL.revokeObjectURL(url);
     },
   };
 }
