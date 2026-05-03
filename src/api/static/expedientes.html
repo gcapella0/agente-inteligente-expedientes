@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="/ui/assets/app.js"></script>
+  <style>[x-cloak]{display:none!important}</style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen">
 <div id="navbar"></div>
@@ -104,7 +105,6 @@
     </div>
   </div>
 
-</div>
 
 <!-- Modal editar -->
 <div x-show="editModal.visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" x-cloak>
@@ -145,6 +145,8 @@
       </button>
     </div>
   </div>
+</div>
+
 </div>
 
 <script>
