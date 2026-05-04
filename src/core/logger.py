@@ -62,7 +62,14 @@ logger.add(
 # ---------------------------------------------------------------------------
 # Sink operacional: logs/operational.log (todos los eventos, JSON por línea)
 # ---------------------------------------------------------------------------
-_MONGO_NOISE_PATTERNS = ("pymongo", "[mongodb", "db.docentes", "db.documentos")
+_MONGO_NOISE_PATTERNS = (
+    "pymongo",
+    "mongoservice",
+    "mongodb",
+    "db.docentes",
+    "db.documentos",
+    "índices de mongodb",
+)
 
 
 def _is_mongo_noise(record) -> bool:
