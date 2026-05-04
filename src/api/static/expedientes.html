@@ -26,81 +26,81 @@
   </div>
 
   <!-- Búsqueda y filtros -->
-  <div class="bg-white border border-slate-200 rounded-lg p-4 mb-4 flex flex-wrap gap-3 items-end">
+  <div class="bg-white/5 border border-white/10 rounded-lg p-4 mb-4 flex flex-wrap gap-3 items-end">
     <div class="flex-1 min-w-48">
-      <label class="block text-xs font-medium text-slate-600 mb-1">Buscar</label>
+      <label class="block text-xs font-medium text-white/60 mb-1">Buscar</label>
       <input
         x-model="busqueda"
         @input.debounce.300ms="buscar()"
         type="text"
         placeholder="Nombre, cédula, departamento..."
-        class="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="w-full bg-white/5 border border-white/20 text-white placeholder-white/30 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
     <div>
-      <label class="block text-xs font-medium text-slate-600 mb-1">Estado</label>
-      <select x-model="filtroEstado" @change="buscar()" class="border border-slate-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <option value="">Todos</option>
-        <option value="activo">Activo</option>
-        <option value="inactivo">Inactivo</option>
-        <option value="retirado">Retirado</option>
+      <label class="block text-xs font-medium text-white/60 mb-1">Estado</label>
+      <select x-model="filtroEstado" @change="buscar()" class="bg-white/5 border border-white/20 text-white rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="" class="bg-slate-800">Todos</option>
+        <option value="activo" class="bg-slate-800">Activo</option>
+        <option value="inactivo" class="bg-slate-800">Inactivo</option>
+        <option value="retirado" class="bg-slate-800">Retirado</option>
       </select>
     </div>
     <div>
-      <label class="block text-xs font-medium text-slate-600 mb-1">Completitud</label>
-      <select x-model="filtroCompletitud" @change="buscar()" class="border border-slate-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <option value="">Todos</option>
-        <option value="baja">Menos de 50%</option>
-        <option value="media">50% – 80%</option>
-        <option value="alta">Más de 80%</option>
+      <label class="block text-xs font-medium text-white/60 mb-1">Completitud</label>
+      <select x-model="filtroCompletitud" @change="buscar()" class="bg-white/5 border border-white/20 text-white rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="" class="bg-slate-800">Todos</option>
+        <option value="baja" class="bg-slate-800">Menos de 50%</option>
+        <option value="media" class="bg-slate-800">50% – 80%</option>
+        <option value="alta" class="bg-slate-800">Más de 80%</option>
       </select>
     </div>
-    <button @click="limpiarFiltros()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 text-slate-600">Limpiar</button>
+    <button @click="limpiarFiltros()" class="px-3 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70">Limpiar</button>
   </div>
 
   <!-- Tabla -->
-  <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+  <div class="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
     <table class="w-full text-sm">
-      <thead class="bg-slate-50 border-b border-slate-200">
+      <thead class="bg-white/5 border-b border-white/10">
         <tr>
-          <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Cédula</th>
-          <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Nombre</th>
-          <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Departamento</th>
-          <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Completitud</th>
-          <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Acciones</th>
+          <th class="text-left px-4 py-2.5 text-xs font-medium text-white/60 uppercase">Cédula</th>
+          <th class="text-left px-4 py-2.5 text-xs font-medium text-white/60 uppercase">Nombre</th>
+          <th class="text-left px-4 py-2.5 text-xs font-medium text-white/60 uppercase">Departamento</th>
+          <th class="text-left px-4 py-2.5 text-xs font-medium text-white/60 uppercase">Completitud</th>
+          <th class="text-left px-4 py-2.5 text-xs font-medium text-white/60 uppercase">Acciones</th>
         </tr>
       </thead>
       <tbody>
         <template x-for="doc in docentes" :key="doc.docente?.cedula || doc._id">
-          <tr class="border-b border-slate-100 hover:bg-slate-50">
-            <td class="px-4 py-2.5 font-mono text-xs text-slate-600" x-text="doc.docente?.cedula"></td>
-            <td class="px-4 py-2.5 text-slate-800" x-text="(doc.docente?.nombres || '') + ' ' + (doc.docente?.apellidos || '')"></td>
-            <td class="px-4 py-2.5 text-slate-600" x-text="doc.vinculacion_institucional?.departamento || '—'"></td>
+          <tr class="border-b border-white/10 hover:bg-white/5">
+            <td class="px-4 py-2.5 font-mono text-xs text-white/60" x-text="doc.docente?.cedula"></td>
+            <td class="px-4 py-2.5 text-white" x-text="(doc.docente?.nombres || '') + ' ' + (doc.docente?.apellidos || '')"></td>
+            <td class="px-4 py-2.5 text-white/60" x-text="doc.vinculacion_institucional?.departamento || '—'"></td>
             <td class="px-4 py-2.5" x-html="completitudBadge(doc.completitud?.porcentaje)"></td>
             <td class="px-4 py-2.5">
               <div class="flex items-center gap-2">
-                <a :href="'/ui/expediente.html?cedula=' + doc.docente?.cedula" class="text-xs text-blue-600 hover:underline">Ver</a>
-                <button @click="abrirEditar(doc)" class="text-xs text-slate-600 hover:text-slate-900">Editar</button>
-                <button @click="eliminar(doc.docente?.cedula)" class="text-xs text-red-500 hover:text-red-700">Eliminar</button>
+                <a :href="'/ui/expediente.html?cedula=' + doc.docente?.cedula" class="text-xs text-blue-400 hover:text-blue-300">Ver</a>
+                <button @click="abrirEditar(doc)" class="text-xs text-white/70 hover:text-white">Editar</button>
+                <button @click="eliminar(doc.docente?.cedula)" class="text-xs text-red-400 hover:text-red-300">Eliminar</button>
               </div>
             </td>
           </tr>
         </template>
         <tr x-show="cargando">
-          <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-400">Cargando...</td>
+          <td colspan="5" class="px-4 py-6 text-center text-sm text-white/40">Cargando...</td>
         </tr>
         <tr x-show="!cargando && docentes.length === 0">
-          <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-400">Sin resultados</td>
+          <td colspan="5" class="px-4 py-6 text-center text-sm text-white/40">Sin resultados</td>
         </tr>
       </tbody>
     </table>
 
     <!-- Paginación -->
-    <div class="px-4 py-3 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
+    <div class="px-4 py-3 border-t border-white/10 flex items-center justify-between text-sm text-white/60">
       <span>Mostrando <span x-text="docentes.length"></span> resultados</span>
       <div class="flex gap-2">
-        <button @click="paginaAnterior()" :disabled="!cursorAnterior" class="px-3 py-1 border border-slate-300 rounded text-xs hover:bg-slate-50 disabled:opacity-40">← Anterior</button>
-        <button @click="paginaSiguiente()" :disabled="!cursorSiguiente" class="px-3 py-1 border border-slate-300 rounded text-xs hover:bg-slate-50 disabled:opacity-40">Siguiente →</button>
+        <button @click="paginaAnterior()" :disabled="!cursorAnterior" class="px-3 py-1 border border-white/20 rounded text-xs hover:bg-white/10 text-white/70 disabled:opacity-40">← Anterior</button>
+        <button @click="paginaSiguiente()" :disabled="!cursorSiguiente" class="px-3 py-1 border border-white/20 rounded text-xs hover:bg-white/10 text-white/70 disabled:opacity-40">Siguiente →</button>
       </div>
     </div>
   </div>
@@ -108,37 +108,37 @@
 
 <!-- Modal editar -->
 <div x-show="editModal.visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" x-cloak>
-  <div class="bg-white rounded-lg border border-slate-200 shadow-xl p-6 max-w-md w-full mx-4">
-    <h3 class="text-base font-semibold text-slate-800 mb-4">Editar docente</h3>
+  <div class="bg-slate-800 rounded-lg border border-white/10 shadow-xl p-6 max-w-md w-full mx-4">
+    <h3 class="text-base font-semibold text-white mb-4">Editar docente</h3>
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Nombre</label>
-        <input x-model="editModal.form.nombre" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Nombre</label>
+        <input x-model="editModal.form.nombre" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Apellido</label>
-        <input x-model="editModal.form.apellido" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Apellido</label>
+        <input x-model="editModal.form.apellido" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Email</label>
-        <input x-model="editModal.form.email" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Email</label>
+        <input x-model="editModal.form.email" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Teléfono</label>
-        <input x-model="editModal.form.telefono" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Teléfono</label>
+        <input x-model="editModal.form.telefono" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Departamento</label>
-        <input x-model="editModal.form.departamento" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Departamento</label>
+        <input x-model="editModal.form.departamento" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Sede</label>
-        <input x-model="editModal.form.sede" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Sede</label>
+        <input x-model="editModal.form.sede" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
     </div>
-    <div x-show="editModal.error" class="mt-3 text-xs text-red-600" x-text="editModal.error"></div>
+    <div x-show="editModal.error" class="mt-3 text-xs text-red-300" x-text="editModal.error"></div>
     <div class="flex justify-end gap-2 mt-4">
-      <button @click="editModal.visible = false" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">Cancelar</button>
+      <button @click="editModal.visible = false" class="px-3 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70">Cancelar</button>
       <button @click="guardarEdicion()" :disabled="editModal.guardando" class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-60">
         <span x-show="!editModal.guardando">Guardar</span>
         <span x-show="editModal.guardando">Guardando...</span>
