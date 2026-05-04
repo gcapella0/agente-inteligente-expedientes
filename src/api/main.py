@@ -26,6 +26,7 @@ from src.api.routers import (
     health,
     logs,
     metricas,
+    usuarios,
     validacion,
 )
 from src.core.logger import get_agent_logger
@@ -64,6 +65,7 @@ app.include_router(config_llm.router, prefix="/config", tags=["Configuración LL
 app.include_router(config_agentes.router, prefix="/config", tags=["Configuración Agentes"])
 app.include_router(logs.router, prefix="/logs", tags=["Logs"])
 app.include_router(metricas.router, prefix="/metricas", tags=["Métricas"])
+app.include_router(usuarios.router, prefix="/usuarios", tags=["Usuarios"])
 
 
 @app.on_event("startup")

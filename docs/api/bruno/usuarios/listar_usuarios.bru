@@ -1,0 +1,24 @@
+meta {
+  name: Listar Usuarios
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/usuarios/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+}

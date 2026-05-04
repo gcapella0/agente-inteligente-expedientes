@@ -1,0 +1,40 @@
+meta {
+  name: Crear Usuario
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/usuarios/crear
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "email": "nuevo@uneg.edu.ve",
+    "password": "password123",
+    "rol": "docente"
+  }
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+}
+
+assert {
+  res.status: eq 201
+  res.body.id: isDefined
+  res.body.email: isDefined
+  res.body.rol: isDefined
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setEnvVar("usuario_id", res.body.id);
+  }
+}
