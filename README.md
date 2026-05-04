@@ -71,10 +71,25 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 │           ├── config.py            # GET tipos-documento/estados
 │           ├── auth.py              # POST login/crear-usuario/cambiar-password
 │           ├── auditoria.py         # GET auditoria expediente/documento (admin)
-│           ├── agentes.py           # GET /agentes, POST ejecutar (independiente/pipeline)
+│           ├── agentes.py           # GET /agentes, POST ejecutar, POST stop
 │           ├── config_llm.py        # GET/PUT /config/llm, POST /config/llm/probar
+│           ├── config_agentes.py    # GET/PUT /config/agentes (parametros de cada agente)
+│           ├── metricas.py          # GET /metricas/ (4 KPIs del sistema)
+│           ├── usuarios.py          # CRUD usuarios (solo admin)
 │           ├── logs.py              # GET /logs/stream (SSE), GET /logs/descargar
 │           └── health.py            # GET /health, /, /info
+│   └── static/                      # Frontend MVP servido en /ui
+│       ├── login.html               # Login JWT
+│       ├── index.html               # Dashboard: KPIs, cards agentes, mini-log SSE
+│       ├── expedientes.html         # Listado con busqueda y paginacion cursor
+│       ├── expediente.html          # Detalle expediente con modales y exportacion
+│       ├── config.html              # Configuracion agentes y LLM
+│       ├── admin.html               # CRUD usuarios (solo admin)
+│       ├── logs.html                # Visor SSE con filtros
+│       └── assets/
+│           ├── app.js               # Helpers compartidos (fetchApi, requireAuth, SSE)
+│           ├── nav.html             # Navbar reutilizable
+│           └── logo_uneg.png        # Logo UNEG
 ├── tests/
 │   ├── test_watcher_agent.py        # Tests del WatcherAgent (47)
 │   ├── test_ocr.py                  # Tests del OcrAgent y OcrService (57)
@@ -86,7 +101,10 @@ Sistema desarrollado en **Python**, diseñado para automatizar la gestion de exp
 │   ├── test_api_fase3.py            # Tests API: busqueda, exportacion, paginacion (22)
 │   ├── test_api_fase4.py            # Tests API: escritura CRUD (26)
 │   ├── test_api_fase5.py            # Tests API: autenticacion JWT y auditoria (32)
-│   └── test_api_fase6.py            # Tests API: agentes, config LLM, logs SSE (34)
+│   ├── test_api_fase6.py            # Tests API: agentes, config LLM, logs SSE (34)
+│   ├── test_metricas.py             # Tests del endpoint /metricas/ (10)
+│   ├── test_config_agentes.py       # Tests de GET/PUT /config/agentes (14)
+│   └── test_usuarios.py             # Tests CRUD usuarios (23)
 ├── data/
 │   ├── input/                       # Expedientes descargados por docente
 │   ├── storage/                     # Archivos almacenados por cedula
@@ -381,6 +399,7 @@ Swagger UI disponible en `http://localhost:8000/docs`.
 | `PUT /config/llm` | Actualiza proveedor y modelo LLM (persiste en MongoDB) |
 | `POST /config/llm/probar` | Verifica conectividad con el proveedor LLM activo |
 | `POST /agentes/{nombre}/ejecutar` | Dispara ejecucion manual de un agente (`?modo=independiente\|pipeline`) |
+| `POST /agentes/{nombre}/stop` | Marca el agente como detenido y limpia el estado del pipeline |
 | `GET /logs/descargar` | Descarga `audit.jsonl` como adjunto |
 | `GET /logs/stream` | Stream en tiempo real de `operational.log` via SSE |
 
@@ -398,8 +417,11 @@ El router `/agentes` permite disparar y monitorear los agentes desde la API:
 - `GET /agentes` devuelve el estado de cada agente (`idle|running|error`), `total_procesados`, `ultimo_run` y si hay un pipeline activo.
 - `POST /agentes/{nombre}/ejecutar?modo=independiente` corre un solo agente en background y retorna 202 inmediatamente.
 - `POST /agentes/{nombre}/ejecutar?modo=pipeline` encadena los agentes desde `{nombre}` hasta `storage` (orden: `watcher→ocr→classifier→storage`), con 2 segundos de pausa entre cada uno. El pipeline se detiene si alguno falla.
+- `POST /agentes/{nombre}/stop` marca el agente como detenido e interrumpe el pipeline en el siguiente checkpoint. **No aborta** una ejecucion ya en curso (BackgroundTasks no es cancelable), pero evita el encadenamiento de los siguientes pasos.
 
 **Agentes validos:** `watcher`, `ocr`, `classifier`, `storage`.
+
+**Reset en startup:** al iniciar la API, todos los agentes con estado `running` se marcan automaticamente como `idle`. Esto evita que un crash previo de uvicorn deje estados bloqueados que el frontend interprete como agentes activos.
 
 ### Configuracion LLM en caliente
 
@@ -630,7 +652,7 @@ python -m src.main
 ### Tests
 
 ```bash
-# Ejecutar todos los tests (406 tests)
+# Ejecutar todos los tests (487 tests)
 pytest tests/ -v
 
 # Solo tests del WatcherAgent
@@ -655,7 +677,7 @@ pytest tests/test_api_fase1.py tests/test_api_fase2.py tests/test_api_fase3.py t
 pytest tests/test_ocr.py -k "test_name_here" -v
 ```
 
-La suite de tests incluye **440 pruebas** organizadas por agente y fase:
+La suite de tests incluye **487 pruebas** organizadas por agente y fase:
 
 **WatcherAgent (47 tests):**
 - Procesamiento basico de emails y creacion de expedientes
@@ -750,6 +772,43 @@ La suite de tests incluye **440 pruebas** organizadas por agente y fase:
 - GET logs/stream: 200 con content-type text/event-stream, keepalive SSE
 - GET logs/descargar: 200 con Content-Disposition attachment, 404 si no existe audit.jsonl
 
+**Metricas (10 tests):**
+- GET /metricas/: totalDocumentos, completitudPromedio, docentesAptos, docentesTotales
+- Autenticacion requerida (401 sin token)
+
+**Config Agentes (14 tests):**
+- GET /config/agentes: defaults hardcodeados si no hay doc en Mongo, lectura desde MongoDB
+- PUT /config/agentes: upsert completo, validacion de campos Pydantic
+
+**Usuarios (23 tests):**
+- GET /usuarios/: lista sin exponer password_hash, solo admin
+- POST /usuarios/crear: validacion email, password min 6 chars, roles validos
+- PUT /usuarios/{id}/rol: actualizacion de rol por ObjectId
+- DELETE /usuarios/{id}: eliminacion por ObjectId
+- Proteccion admin: 403 para usuarios sin rol admin
+
+---
+
+## Frontend MVP (`/ui`)
+
+Interfaz web estatica servida por FastAPI en `http://localhost:8000/ui`. Stack: **Alpine.js 3.x + Tailwind CSS** (vía CDN). Sin build step.
+
+| Pagina | Ruta | Descripcion |
+|---|---|---|
+| Login | `/ui/login.html` | Autenticacion JWT, POST a `/auth/login` con JSON |
+| Dashboard | `/ui/index.html` | KPIs, cards de agentes (Ejecutar / En cadena / Detener), mini-log SSE |
+| Expedientes | `/ui/expedientes.html` | Listado con busqueda debounce, filtros, paginacion cursor |
+| Expediente | `/ui/expediente.html` | Detalle: documentos, modales OCR/validacion/edicion, exportacion |
+| Configuracion | `/ui/config.html` | Tabs Agentes/LLM: parametros de cada agente, proveedor y modelo LLM |
+| Admin | `/ui/admin.html` | CRUD usuarios (solo admin). Proteccion JWT en cliente |
+| Logs | `/ui/logs.html` | Visor SSE con filtros agente/nivel, pausa, auto-scroll |
+
+**Convenciones clave:**
+- JWT en `localStorage.token`. `fetchApi()` lo inyecta en `Authorization: Bearer` automaticamente.
+- SSE pasa JWT como `?token=XXX` (EventSource no soporta headers). Incluye `Content-Encoding: identity` para evitar buffering del GZipMiddleware.
+- El botón **Detener** aparece en cada card solo cuando `agente.estado === 'running'`. Llama a `POST /agentes/{nombre}/stop`.
+- El polling de estado (cada 2s) se inicia automaticamente al ejecutar un agente y se detiene cuando todos estan `idle`. Al reiniciar el servidor, el estado se resetea automaticamente para evitar polling fantasma.
+
 ---
 
 ## Dependencias principales
@@ -804,6 +863,8 @@ La suite de tests incluye **440 pruebas** organizadas por agente y fase:
 - [x] **API REST Fase 4**: Endpoints de escritura CRUD con JWT (26 tests)
 - [x] **API REST Fase 5**: Autenticacion JWT, usuarios, auditoria admin (32 tests)
 - [x] **API REST Fase 6**: Control de agentes, configuracion LLM en caliente, logs SSE (34 tests)
-- [ ] **Frontend MVP**: Interfaz web (HTML + Alpine.js + Tailwind) para gestion de expedientes
-- [ ] **Busqueda semantica**: Recuperacion de expedientes por similitud
+- [x] **Metricas y usuarios**: KPIs del sistema, CRUD usuarios admin (33 tests adicionales)
+- [x] **Frontend MVP**: Interfaz web completa (Alpine.js + Tailwind): dashboard, expedientes, configuracion, logs, admin
+- [x] **Control de agentes desde UI**: botones Ejecutar / En cadena / Detener, polling en tiempo real, SSE mini-log
+- [ ] **Busqueda semantica (RAG)**: Recuperacion de expedientes por similitud con embeddings
 - [ ] Soporte para extraccion de texto de emails HTML-only
