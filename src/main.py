@@ -44,10 +44,14 @@ def test_ocr() -> None:
     output_dir = config.DATA_DIR / "ocr_output"
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    state_file = config.DATA_DIR / "processed_pipeline.json"
+    hashes_procesados = _load_processed_hashes(state_file)
+    logger.info("OCR: {} archivos ya procesados (se omitirán)", len(hashes_procesados))
+
     logger.info("Iniciando prueba de OCR Agent")
     ocr_service = OcrService()
     ocr_agent = OcrAgent(ocr_service)
-    resultados = ocr_agent.process_directory()
+    resultados = ocr_agent.process_directory(skip_hashes=hashes_procesados)
 
     for r in resultados:
         ocr = r["ocr_resultado"]
@@ -70,9 +74,11 @@ def test_ocr() -> None:
                 encoding="utf-8",
             )
             logger.info("JSON guardado en: {}", json_path)
+            hashes_procesados.add(r["hash_sha256"])
         else:
             logger.warning("Archivo: {} | OCR fallido", r["archivo_nombre"])
 
+    _save_processed_hashes(state_file, hashes_procesados)
     logger.info("Prueba finalizada: {} archivos procesados", len(resultados))
     logger.info("JSONs guardados en: {}", output_dir)
 
@@ -92,14 +98,18 @@ def test_classifier() -> None:
     output_dir = config.DATA_DIR / "classifier_output"
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    state_file = config.DATA_DIR / "processed_pipeline.json"
+    hashes_procesados = _load_processed_hashes(state_file)
+    logger.info("Classifier: {} archivos ya procesados (se omitirán)", len(hashes_procesados))
+
     # 1. OCR
     logger.info("=== Paso 1: OCR ===")
     ocr_service = OcrService()
     ocr_agent = OcrAgent(ocr_service)
-    resultados_ocr = ocr_agent.process_directory()
+    resultados_ocr = ocr_agent.process_directory(skip_hashes=hashes_procesados)
 
     if not resultados_ocr:
-        logger.warning("No hay archivos para procesar en data/input/")
+        logger.info("No hay archivos nuevos para clasificar.")
         return
 
     # 2. Clasificación
@@ -111,6 +121,8 @@ def test_classifier() -> None:
     for ocr_result in resultados_ocr:
         resultado = classifier.classify(ocr_result)
         resultados_clasificados.append(resultado)
+        hashes_procesados.add(resultado["hash_sha256"])
+        _save_processed_hashes(state_file, hashes_procesados)
 
     # 3. Mostrar resultados y guardar
     for r in resultados_clasificados:
@@ -161,6 +173,7 @@ def test_storage() -> None:
     from src.services.ocr_service import OcrService
     from src.agents.ocr_agent import OcrAgent
     from src.services.llm_service import LlmService
+    from src.services.llm import create_llm_provider
     from src.agents.classifier_agent import ClassifierAgent
     from src.services.mongo_service import MongoService
     from src.services.file_service import FileService
@@ -170,19 +183,23 @@ def test_storage() -> None:
     config.validate_ocr()
     config.ensure_directories()
 
+    state_file = config.DATA_DIR / "processed_pipeline.json"
+    hashes_procesados = _load_processed_hashes(state_file)
+    logger.info("Storage: {} archivos ya procesados (se omitirán)", len(hashes_procesados))
+
     # 1. OCR
     logger.info("=== Paso 1: OCR ===")
     ocr_service = OcrService()
     ocr_agent = OcrAgent(ocr_service)
-    resultados_ocr = ocr_agent.process_directory()
+    resultados_ocr = ocr_agent.process_directory(skip_hashes=hashes_procesados)
 
     if not resultados_ocr:
-        logger.warning("No hay archivos para procesar en data/input/")
+        logger.info("No hay archivos nuevos para procesar en data/input/")
         return
 
     # 2. Clasificación
     logger.info("=== Paso 2: Clasificación ===")
-    llm_service = LlmService()
+    llm_service = LlmService(create_llm_provider())
     classifier = ClassifierAgent(llm_service)
     resultados_clasificados = [classifier.classify(r) for r in resultados_ocr]
 
@@ -199,6 +216,8 @@ def test_storage() -> None:
         storage_result = storage_agent.process(resultado)
         if storage_result.get("exito"):
             almacenados += 1
+            hashes_procesados.add(resultado["hash_sha256"])
+            _save_processed_hashes(state_file, hashes_procesados)
         elif storage_result.get("accion") == "skip":
             omitidos += 1
         else:
