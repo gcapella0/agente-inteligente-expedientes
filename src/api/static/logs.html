@@ -8,13 +8,13 @@
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="/ui/assets/app.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-900 text-white min-h-screen">
 <div id="navbar"></div>
 
 <div x-data="logsApp()" x-init="init()" class="pt-16 px-6 pb-10 max-w-5xl mx-auto">
 
   <div class="mt-6 mb-4 flex items-center justify-between">
-    <h1 class="text-xl font-semibold text-slate-800">Logs en vivo</h1>
+    <h1 class="text-xl font-semibold text-white">Logs en vivo</h1>
     <div class="flex items-center gap-2">
       <span x-show="conectado" class="flex items-center gap-1 text-xs text-green-600">
         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Conectado
@@ -58,7 +58,7 @@
         <span x-show="pausado">▶ Reanudar</span>
       </button>
       <button @click="limpiar()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">Limpiar</button>
-      <a href="/logs/descargar" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 text-slate-700 no-underline">↓ Descargar audit.jsonl</a>
+      <button @click="descargar()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 text-slate-700">↓ Descargar audit.jsonl</button>
     </div>
   </div>
 
@@ -200,6 +200,21 @@ function logsApp() {
       if (!el) return;
       const enFondo = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
       this.autoScroll = enFondo;
+    },
+
+    async descargar() {
+      const r = await fetchApi("/logs/descargar");
+      if (!r || !r.ok) {
+        showToast("Error al descargar audit.jsonl", "error");
+        return;
+      }
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `audit-${new Date().toISOString().slice(0, 10)}.jsonl`;
+      a.click();
+      URL.revokeObjectURL(url);
     },
   };
 }

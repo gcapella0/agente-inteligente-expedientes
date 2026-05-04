@@ -1,0 +1,27 @@
+meta {
+  name: Obtener Métricas
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/metricas/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+}
+
+assert {
+  res.status: eq 200
+  res.body.totalDocumentos: isDefined
+  res.body.completitudPromedio: isDefined
+  res.body.docentesAptos: isDefined
+  res.body.docentesTotales: isDefined
+}

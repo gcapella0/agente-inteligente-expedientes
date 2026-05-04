@@ -1,0 +1,28 @@
+meta {
+  name: Obtener Config Agentes
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/config/agentes
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.watcher: isDefined
+  res.body.ocr: isDefined
+  res.body.classifier: isDefined
+  res.body.storage: isDefined
+}

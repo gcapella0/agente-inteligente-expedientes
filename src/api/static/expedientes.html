@@ -7,8 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="/ui/assets/app.js"></script>
+  <style>[x-cloak]{display:none!important}</style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-900 text-white min-h-screen">
 <div id="navbar"></div>
 
 <div x-data="expedientesApp()" x-init="init()" class="pt-16 px-6 pb-10 max-w-6xl mx-auto">
@@ -16,8 +17,8 @@
   <!-- Header -->
   <div class="mt-6 mb-4 flex items-center justify-between">
     <div>
-      <h1 class="text-xl font-semibold text-slate-800">Expedientes docentes</h1>
-      <p class="text-sm text-slate-500 mt-0.5">
+      <h1 class="text-xl font-semibold text-white">Expedientes docentes</h1>
+      <p class="text-sm text-white/60 mt-0.5">
         <span x-text="stats.totalDocentes ?? '…'"></span> docentes ·
         <span x-text="stats.totalDocumentos ?? '…'"></span> documentos
       </p>
@@ -70,17 +71,17 @@
         </tr>
       </thead>
       <tbody>
-        <template x-for="doc in docentes" :key="doc.cedula">
+        <template x-for="doc in docentes" :key="doc.docente?.cedula || doc._id">
           <tr class="border-b border-slate-100 hover:bg-slate-50">
-            <td class="px-4 py-2.5 font-mono text-xs text-slate-600" x-text="doc.cedula"></td>
-            <td class="px-4 py-2.5 text-slate-800" x-text="(doc.nombre || '') + ' ' + (doc.apellido || '')"></td>
-            <td class="px-4 py-2.5 text-slate-600" x-text="doc.departamento || '—'"></td>
+            <td class="px-4 py-2.5 font-mono text-xs text-slate-600" x-text="doc.docente?.cedula"></td>
+            <td class="px-4 py-2.5 text-slate-800" x-text="(doc.docente?.nombres || '') + ' ' + (doc.docente?.apellidos || '')"></td>
+            <td class="px-4 py-2.5 text-slate-600" x-text="doc.vinculacion_institucional?.departamento || '—'"></td>
             <td class="px-4 py-2.5" x-html="completitudBadge(doc.completitud?.porcentaje)"></td>
             <td class="px-4 py-2.5">
               <div class="flex items-center gap-2">
-                <a :href="'/ui/expediente.html?cedula=' + doc.cedula" class="text-xs text-blue-600 hover:underline">Ver</a>
+                <a :href="'/ui/expediente.html?cedula=' + doc.docente?.cedula" class="text-xs text-blue-600 hover:underline">Ver</a>
                 <button @click="abrirEditar(doc)" class="text-xs text-slate-600 hover:text-slate-900">Editar</button>
-                <button @click="eliminar(doc.cedula)" class="text-xs text-red-500 hover:text-red-700">Eliminar</button>
+                <button @click="eliminar(doc.docente?.cedula)" class="text-xs text-red-500 hover:text-red-700">Eliminar</button>
               </div>
             </td>
           </tr>
@@ -104,7 +105,6 @@
     </div>
   </div>
 
-</div>
 
 <!-- Modal editar -->
 <div x-show="editModal.visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" x-cloak>
@@ -147,6 +147,8 @@
   </div>
 </div>
 
+</div>
+
 <script>
 function expedientesApp() {
   return {
@@ -181,26 +183,15 @@ function expedientesApp() {
     async cargar(cursor = null) {
       this.cargando = true;
       try {
-        let url;
-        if (this.busqueda.trim()) {
-          url = `/expedientes/buscar-texto?q=${encodeURIComponent(this.busqueda)}&campos=cedula,nombre,apellido,departamento,completitud`;
-          if (this.filtroEstado) url += `&estado=${this.filtroEstado}`;
-          const r = await fetchApi(url);
-          if (r && r.ok) {
-            const d = await r.json();
-            this.docentes = this._filtrarCompletitud(d.resultados || []);
-            this.cursorSiguiente = null;
-          }
-        } else {
-          url = `/docentes?limit=20`;
-          if (cursor) url += `&cursor=${cursor}`;
-          if (this.filtroEstado) url += `&status=${this.filtroEstado}`;
-          const r = await fetchApi(url);
-          if (r && r.ok) {
-            const d = await r.json();
-            this.docentes = this._filtrarCompletitud(d.docentes || []);
-            this.cursorSiguiente = d.cursor_siguiente || null;
-          }
+        let url = `/docentes/buscar?limit=20`;
+        if (this.busqueda.trim()) url += `&q=${encodeURIComponent(this.busqueda)}`;
+        if (this.filtroEstado) url += `&status=${this.filtroEstado}`;
+        if (cursor) url += `&cursor=${cursor}`;
+        const r = await fetchApi(url);
+        if (r && r.ok) {
+          const d = await r.json();
+          this.docentes = this._filtrarCompletitud(d.items || []);
+          this.cursorSiguiente = d.cursor_siguiente || null;
         }
       } catch {} finally {
         this.cargando = false;
@@ -248,14 +239,14 @@ function expedientesApp() {
     abrirEditar(doc) {
       this.editModal = {
         visible: true,
-        cedula: doc.cedula,
+        cedula: doc.docente?.cedula || "",
         form: {
-          nombre: doc.nombre || "",
-          apellido: doc.apellido || "",
-          email: doc.contacto?.email || "",
-          telefono: doc.contacto?.telefono || "",
-          departamento: doc.departamento || "",
-          sede: doc.sede || "",
+          nombre: doc.docente?.nombres || "",
+          apellido: doc.docente?.apellidos || "",
+          email: doc.docente?.contacto?.email_personal || "",
+          telefono: doc.docente?.contacto?.telefono_principal || "",
+          departamento: doc.vinculacion_institucional?.departamento || "",
+          sede: doc.vinculacion_institucional?.sede || "",
         },
         error: "",
         guardando: false,
@@ -268,13 +259,12 @@ function expedientesApp() {
       try {
         const body = {};
         const f = this.editModal.form;
-        if (f.nombre) body.nombre = f.nombre;
-        if (f.apellido) body.apellido = f.apellido;
+        if (f.nombre)      body.nombres = f.nombre;
+        if (f.apellido)    body.apellidos = f.apellido;
+        if (f.email)       body.email_personal = f.email;
+        if (f.telefono)    body.telefono_principal = f.telefono;
         if (f.departamento) body.departamento = f.departamento;
-        if (f.sede) body.sede = f.sede;
-        if (f.email || f.telefono) body.contacto = {};
-        if (f.email) body.contacto.email = f.email;
-        if (f.telefono) body.contacto.telefono = f.telefono;
+        if (f.sede)        body.sede = f.sede;
 
         const r = await fetchApi(`/expedientes/${this.editModal.cedula}`, {
           method: "PUT",
@@ -293,6 +283,7 @@ function expedientesApp() {
     },
 
     async eliminar(cedula) {
+      if (!cedula) return;
       if (!confirm(`¿Eliminar expediente de cédula ${cedula}? Esta acción no se puede deshacer.`)) return;
       const r = await fetchApi(`/expedientes/${cedula}`, { method: "DELETE" });
       if (r && r.ok) {

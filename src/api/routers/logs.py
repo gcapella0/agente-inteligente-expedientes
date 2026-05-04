@@ -90,6 +90,7 @@ async def stream_logs(
         headers={
             "Cache-Control": "no-cache",
             "X-Accel-Buffering": "no",
+            "Content-Encoding": "identity",
         },
     )
 

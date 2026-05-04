@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 import sys
 from datetime import datetime, timezone
@@ -13,6 +14,11 @@ LOG_ROTATION = os.getenv("LOG_ROTATION", "10 MB")
 LOG_RETENTION = os.getenv("LOG_RETENTION", "14 days")
 
 config.LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+# Silenciar pymongo a nivel stdlib para no contaminar operational.log ni SSE.
+logging.getLogger("pymongo").setLevel(logging.WARNING)
+for _pymongo_logger in ("pymongo.command", "pymongo.connection", "pymongo.serverSelection"):
+    logging.getLogger(_pymongo_logger).setLevel(logging.WARNING)
 
 # ---------------------------------------------------------------------------
 # Sink principal: stdout
@@ -56,6 +62,24 @@ logger.add(
 # ---------------------------------------------------------------------------
 # Sink operacional: logs/operational.log (todos los eventos, JSON por línea)
 # ---------------------------------------------------------------------------
+_MONGO_NOISE_PATTERNS = (
+    "pymongo",
+    "mongoservice",
+    "mongodb",
+    "db.docentes",
+    "db.documentos",
+    "índices de mongodb",
+)
+
+
+def _is_mongo_noise(record) -> bool:
+    """Excluye mensajes de bajo nivel de MongoDB del log operacional y SSE."""
+    msg = record["message"].lower()
+    if any(p in msg for p in _MONGO_NOISE_PATTERNS):
+        return record["level"].name not in ("ERROR", "CRITICAL")
+    return False
+
+
 logger.add(
     config.LOG_DIR / "operational.log",
     level=LOG_LEVEL,
@@ -64,6 +88,7 @@ logger.add(
     retention=LOG_RETENTION,
     encoding="utf-8",
     enqueue=True,
+    filter=lambda record: not _is_mongo_noise(record),
 )
 
 # ---------------------------------------------------------------------------

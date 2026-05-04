@@ -1,0 +1,30 @@
+meta {
+  name: Actualizar Rol Usuario
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{base_url}}/usuarios/{{usuario_id}}/rol
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "rol": "admin"
+  }
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+}
+
+assert {
+  res.status: eq 200
+  res.body.message: eq "Rol actualizado"
+}

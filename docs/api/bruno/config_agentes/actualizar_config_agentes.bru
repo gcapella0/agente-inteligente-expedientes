@@ -1,0 +1,45 @@
+meta {
+  name: Actualizar Config Agentes
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{base_url}}/config/agentes
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "watcher": {
+      "timeout_segundos": 60,
+      "retry_veces": 3
+    },
+    "ocr": {
+      "timeout_segundos": 120,
+      "retry_veces": 2
+    },
+    "classifier": {
+      "temperatura": 0.7,
+      "max_tokens": 2000
+    },
+    "storage": {
+      "timeout_segundos": 30
+    }
+  }
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.message: eq "Configuración guardada"
+}

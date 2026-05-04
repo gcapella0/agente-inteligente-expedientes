@@ -17,7 +17,7 @@ async function fetchApi(path, options = {}) {
   const response = await fetch(path, { ...options, headers });
   if (response.status === 401) {
     clearToken();
-    window.location.href = "/ui/login.html";
+    window.location.replace("/ui/login.html");
     return null;
   }
   return response;
@@ -25,11 +25,11 @@ async function fetchApi(path, options = {}) {
 
 // ---- Auth ----
 function requireAuth() {
-  if (!getToken()) window.location.href = "/ui/login.html";
+  if (!getToken()) window.location.replace("/ui/login.html");
 }
 function logout() {
   clearToken();
-  window.location.href = "/ui/login.html";
+  window.location.replace("/ui/login.html");
 }
 
 // ---- Tiempo relativo ----
@@ -75,8 +75,8 @@ async function loadNav(activeLink) {
   if (activeLink) {
     el.querySelectorAll("a[data-page]").forEach(a => {
       if (a.dataset.page === activeLink) {
-        a.classList.remove("text-slate-500");
-        a.classList.add("text-blue-600", "font-semibold");
+        a.classList.remove("text-white/60");
+        a.classList.add("text-white", "font-semibold");
       }
     });
   }

@@ -8,7 +8,7 @@
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="/ui/assets/app.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-900 text-white min-h-screen">
 <div id="navbar"></div>
 
 <div x-data="expedienteApp()" x-init="init()" class="pt-16 px-6 pb-10 max-w-5xl mx-auto">
@@ -25,11 +25,11 @@
     <!-- Encabezado docente -->
     <div class="bg-white border border-slate-200 rounded-lg p-5 mb-5 flex items-start justify-between">
       <div>
-        <h1 class="text-xl font-semibold text-slate-800" x-text="(docente?.nombre || '') + ' ' + (docente?.apellido || '')"></h1>
+        <h1 class="text-xl font-semibold text-slate-800" x-text="(docente?.docente?.nombres || '') + ' ' + (docente?.docente?.apellidos || '')"></h1>
         <p class="text-sm text-slate-500 mt-0.5">
-          Cédula: <span class="font-mono" x-text="docente?.cedula"></span>
-          · Departamento: <span x-text="docente?.departamento || '—'"></span>
-          · Sede: <span x-text="docente?.sede || '—'"></span>
+          Cédula: <span class="font-mono" x-text="docente?.docente?.cedula"></span>
+          · Departamento: <span x-text="docente?.vinculacion_institucional?.departamento || '—'"></span>
+          · Sede: <span x-text="docente?.vinculacion_institucional?.sede || '—'"></span>
         </p>
       </div>
       <div class="flex gap-2">
@@ -297,12 +297,12 @@ function expedienteApp() {
       this.editModal = {
         visible: true,
         form: {
-          nombre: this.docente?.nombre || "",
-          apellido: this.docente?.apellido || "",
-          email: this.docente?.contacto?.email || "",
-          telefono: this.docente?.contacto?.telefono || "",
-          departamento: this.docente?.departamento || "",
-          sede: this.docente?.sede || "",
+          nombre: this.docente?.docente?.nombres || "",
+          apellido: this.docente?.docente?.apellidos || "",
+          email: this.docente?.docente?.contacto?.email_personal || "",
+          telefono: this.docente?.docente?.contacto?.telefono_principal || "",
+          departamento: this.docente?.vinculacion_institucional?.departamento || "",
+          sede: this.docente?.vinculacion_institucional?.sede || "",
         },
         error: "",
         guardando: false,
@@ -315,15 +315,12 @@ function expedienteApp() {
       try {
         const f = this.editModal.form;
         const body = {};
-        if (f.nombre) body.nombre = f.nombre;
-        if (f.apellido) body.apellido = f.apellido;
+        if (f.nombre)       body.nombres = f.nombre;
+        if (f.apellido)     body.apellidos = f.apellido;
+        if (f.email)        body.email_personal = f.email;
+        if (f.telefono)     body.telefono_principal = f.telefono;
         if (f.departamento) body.departamento = f.departamento;
-        if (f.sede) body.sede = f.sede;
-        if (f.email || f.telefono) {
-          body.contacto = {};
-          if (f.email) body.contacto.email = f.email;
-          if (f.telefono) body.contacto.telefono = f.telefono;
-        }
+        if (f.sede)         body.sede = f.sede;
         const r = await fetchApi(`/expedientes/${this.cedula}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -341,7 +338,7 @@ function expedienteApp() {
     },
 
     async eliminar() {
-      if (!confirm(`¿Eliminar el expediente de ${this.docente?.nombre} ${this.docente?.apellido}? Esta acción no se puede deshacer.`)) return;
+      if (!confirm(`¿Eliminar el expediente de ${this.docente?.docente?.nombres} ${this.docente?.docente?.apellidos}? Esta acción no se puede deshacer.`)) return;
       const r = await fetchApi(`/expedientes/${this.cedula}`, { method: "DELETE" });
       if (r && r.ok) {
         showToast("Expediente eliminado", "success");
