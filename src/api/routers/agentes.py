@@ -9,7 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, s
 from pydantic import BaseModel
 
 from src.api.dependencies import verify_token
-from src.core.logger import get_agent_logger
+from src.core.logger import audit_log, get_agent_logger
 from src.services.mongo_service import MongoService
 
 router = APIRouter()
@@ -120,6 +120,11 @@ def _ejecutar(nombre: str, modo: str, id_ejecucion: str) -> None:
         agentes_a_correr = [nombre]
 
     for i, a in enumerate(agentes_a_correr):
+        if modo == "pipeline":
+            pipeline_doc = _get_col(mongo).find_one({"_id": _PIPELINE_ID})
+            if pipeline_doc is not None and pipeline_doc.get("pipeline_activo") is False:
+                logger.info("Pipeline detenido externamente — abortando antes de '{}'", a)
+                return
         _actualizar_estado(mongo, a, "running", id_ejecucion_actual=id_ejecucion)
         if modo == "pipeline":
             _marcar_pipeline(mongo, activo=True, paso=a)
@@ -246,3 +251,31 @@ async def ejecutar_agente(
     except Exception as e:
         logger.error("Error iniciando agente '{}': {}", nombre, e, exc_info=True)
         raise HTTPException(status_code=500, detail="Error al iniciar ejecución")
+
+
+@router.post("/{nombre}/stop")
+async def detener_agente(nombre: str, payload: dict = Depends(verify_token)) -> dict:
+    """Marca un agente como detenido y limpia el estado del pipeline.
+
+    No aborta una ejecución en curso (BackgroundTasks de Starlette no es cancelable),
+    pero sí impide que el pipeline continúe al siguiente paso mediante el checkpoint en _ejecutar.
+    """
+    if nombre not in _AGENTES_VALIDOS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Agente inválido '{nombre}'. Válidos: {_AGENTES_VALIDOS}",
+        )
+    try:
+        mongo = MongoService()
+        _actualizar_estado(
+            mongo, nombre, "idle",
+            error_msg="Detenido por el usuario",
+            id_ejecucion_actual=None,
+        )
+        _marcar_pipeline(mongo, activo=False, paso=None)
+        audit_log("api", "stop_agente", "ok", detalle=f"agente={nombre}")
+        logger.info("Agente '{}' detenido por solicitud del usuario", nombre)
+        return {"exito": True, "agente": nombre, "estado": "detenido"}
+    except Exception as e:
+        logger.error("Error deteniendo agente '{}': {}", nombre, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Error al detener agente")

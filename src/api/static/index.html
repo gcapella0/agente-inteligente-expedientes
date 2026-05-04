@@ -121,6 +121,11 @@
             :disabled="agente.estado === 'running'"
             class="flex-1 text-xs py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >En cadena</button>
+          <button
+            x-show="agente.estado === 'running'"
+            @click="detenerAgente(agente.nombre)"
+            class="flex-1 text-xs py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+          >⏹ Detener</button>
         </div>
       </div>
     </template>
@@ -266,7 +271,7 @@ function dashApp() {
         await this.loadAgentes();
         this.checkErrores();
         const anyRunning = this.agentes.some(a => a.estado === "running");
-        if (!anyRunning) {
+        if (!anyRunning || !this.pipeline.activo) {
           this.pipeline.activo = false;
           clearInterval(this.pollTimer);
           this.pollTimer = null;
@@ -296,6 +301,21 @@ function dashApp() {
         this.startPolling();
       } else {
         showToast(`Error al iniciar ${nombre}`, "error");
+      }
+    },
+
+    async detenerAgente(nombre) {
+      try {
+        const r = await fetchApi(`/agentes/${nombre}/stop`, { method: "POST" });
+        if (r && r.ok) {
+          showToast(`${nombre} detenido`, "success");
+          this.pipeline.activo = false;
+          await this.loadAgentes();
+        } else {
+          showToast(`Error al detener ${nombre}`, "error");
+        }
+      } catch (e) {
+        showToast(`Error al detener ${nombre}: ${e.message}`, "error");
       }
     },
 

@@ -72,8 +72,24 @@ app.include_router(usuarios.router, prefix="/usuarios", tags=["Usuarios"])
 async def startup_event() -> None:
     """Inicializa datos requeridos al arrancar la API."""
     from src.api.routers.auth import init_usuarios
+    from src.services.mongo_service import MongoService
     init_usuarios()
-    logger.info("API v2.1.0 iniciada. Documentación en /docs")
+    try:
+        mongo = MongoService()
+        col = mongo.db["sistema_agentes_estado"]
+        col.update_many(
+            {"estado": "running"},
+            {"$set": {"estado": "idle", "error_msg": "Reset al iniciar API", "id_ejecucion_actual": None}},
+        )
+        col.update_one(
+            {"_id": "__pipeline__"},
+            {"$set": {"pipeline_activo": False, "pipeline_paso_actual": None}},
+            upsert=True,
+        )
+        logger.info("Estado de agentes reseteado tras startup")
+    except Exception as e:
+        logger.warning("No se pudo resetear estado de agentes en startup: {}", e)
+    logger.info("API v2.2.0 iniciada. Documentación en /docs")
 
 
 @app.get("/")
