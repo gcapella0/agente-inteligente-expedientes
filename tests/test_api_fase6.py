@@ -670,7 +670,9 @@ class TestLogs:
                 with patch("src.api.routers.auth.init_usuarios"):
                     from src.api.main import app
                     client = TestClient(app, raise_server_exceptions=False)
-                    with client.stream("GET", "/logs/stream", headers=_AUTH_ADMIN) as resp:
+                    # SSE usa verify_token_sse: token como query param, no como header
+                    url = f"/logs/stream?token={_TOKEN_ADMIN}"
+                    with client.stream("GET", url) as resp:
                         # Headers ya comprometidos como 200 antes de que el generador falle
                         assert resp.status_code == 200
                         ct = resp.headers.get("content-type", "")
