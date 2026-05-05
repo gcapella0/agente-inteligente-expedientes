@@ -118,6 +118,56 @@
       </table>
     </div>
 
+    <!-- Asistente IA del expediente -->
+    <div class="bg-white/5 border border-white/10 rounded-lg overflow-hidden mt-5">
+      <div class="px-4 py-3 border-b border-white/10">
+        <h2 class="text-sm font-medium text-white/80">Asistente IA del expediente</h2>
+        <p class="text-xs text-white/40 mt-0.5">Haz preguntas sobre este docente. Las respuestas se basan solo en su expediente.</p>
+      </div>
+
+      <!-- Conversación -->
+      <div class="p-4 space-y-3 max-h-96 overflow-y-auto" x-ref="chatLog">
+        <template x-for="(t, i) in conversacion" :key="i">
+          <div>
+            <div class="text-xs text-white/40 mb-1 flex gap-2">
+              <span x-text="t.rol === 'usuario' ? 'Tú' : 'Asistente'"></span>
+              <span x-show="t.rol === 'asistente' && t.latencia_ms" class="text-white/25" x-text="t.latencia_ms ? (t.latencia_ms / 1000).toFixed(1) + 's' : ''"></span>
+            </div>
+            <div :class="t.rol === 'usuario'
+                  ? 'bg-blue-500/10 border-blue-500/20 text-blue-100'
+                  : 'bg-white/5 border-white/10 text-white/90'"
+                 class="border rounded-md px-3 py-2 text-sm whitespace-pre-wrap" x-text="t.texto"></div>
+          </div>
+        </template>
+        <div x-show="conversacion.length === 0" class="text-center text-xs text-white/40 py-6">
+          Ejemplos: "¿Cuántos documentos tiene?" · "¿Qué le falta para ser apto?" · "¿En qué se especializa según su CV?"
+        </div>
+        <div x-show="esperandoRespuesta" class="text-xs text-white/40 italic">El asistente está pensando...</div>
+      </div>
+
+      <!-- Input -->
+      <div class="border-t border-white/10 p-3 flex gap-2">
+        <input type="text"
+               x-model="preguntaActual"
+               @keydown.enter.prevent="enviarPregunta()"
+               :disabled="esperandoRespuesta"
+               maxlength="500"
+               placeholder="Escribe tu pregunta..."
+               class="flex-1 bg-white/5 border border-white/20 text-white rounded-md px-3 py-2 text-sm placeholder-white/40 disabled:opacity-50">
+        <button x-show="!esperandoRespuesta"
+                @click="enviarPregunta()"
+                :disabled="!preguntaActual.trim()"
+                class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">
+          Enviar
+        </button>
+        <button x-show="esperandoRespuesta"
+                @click="pararPregunta()"
+                class="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700">
+          Parar
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <div x-show="!cargando && !docente" class="py-12 text-center text-white/40 text-sm">Docente no encontrado</div>
@@ -235,39 +285,34 @@
 </div>
 
 <!-- Modal editar docente -->
-<div x-show="editModal.visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" x-cloak>
-  <div class="bg-slate-800 rounded-lg border border-white/10 shadow-xl p-6 max-w-md w-full mx-4">
-    <h3 class="text-base font-semibold text-white mb-4">Editar docente</h3>
-    <div class="grid grid-cols-2 gap-3">
-      <div>
-        <label class="block text-xs font-medium text-white/60 mb-1">Nombre</label>
-        <input x-model="editModal.form.nombre" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-white/60 mb-1">Apellido</label>
-        <input x-model="editModal.form.apellido" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-white/60 mb-1">Email</label>
-        <input x-model="editModal.form.email" type="email" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-white/60 mb-1">Teléfono</label>
-        <input x-model="editModal.form.telefono" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-white/60 mb-1">Departamento</label>
-        <input x-model="editModal.form.departamento" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-white/60 mb-1">Sede</label>
-        <input x-model="editModal.form.sede" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
-      </div>
+<div x-show="editModal.visible" @click.self="editModal.visible = false"
+     class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" x-cloak>
+  <div class="bg-slate-800 rounded-lg border border-white/10 shadow-xl p-6 w-full max-w-3xl max-h-[85vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base font-semibold text-white">Editar docente</h3>
+      <button @click="editModal.visible = false" class="text-white/40 hover:text-white text-lg">✕</button>
     </div>
-    <div x-show="editModal.error" class="mt-2 text-xs text-red-300" x-text="editModal.error"></div>
-    <div class="flex justify-end gap-2 mt-4">
-      <button @click="editModal.visible = false" class="px-3 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70">Cancelar</button>
-      <button @click="guardarEdicion()" :disabled="editModal.guardando" class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-60">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <template x-for="campo in camposEdicion" :key="campo.nombre">
+        <div :class="campo.tipo === 'textarea' ? 'sm:col-span-2 lg:col-span-3' : ''">
+          <label class="block text-xs font-medium text-white/60 mb-1" x-text="campo.label"></label>
+          <template x-if="campo.tipo === 'textarea'">
+            <textarea x-model="editModal.form[campo.nombre]"
+                      class="w-full bg-white/5 border border-white/20 text-white rounded-md px-3 py-2 text-sm placeholder-white/40 h-20"></textarea>
+          </template>
+          <template x-if="campo.tipo !== 'textarea'">
+            <input :type="campo.tipo" x-model="editModal.form[campo.nombre]"
+                   class="w-full bg-white/5 border border-white/20 text-white rounded-md px-3 py-2 text-sm placeholder-white/40">
+          </template>
+        </div>
+      </template>
+    </div>
+    <p x-show="editModal.error" x-text="editModal.error" class="text-red-400 text-xs mt-3"></p>
+    <div class="flex justify-end gap-2 mt-5">
+      <button @click="editModal.visible = false"
+              class="px-3 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70">Cancelar</button>
+      <button @click="guardarEdicion()" :disabled="editModal.guardando"
+              class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">
         <span x-show="!editModal.guardando">Guardar</span>
         <span x-show="editModal.guardando">Guardando...</span>
       </button>
@@ -287,6 +332,23 @@ function expedienteApp() {
     ocrModal: { visible: false, doc: null, tab: "documento" },
     estadoModal: { visible: false, docId: "", tipo: "", nuevoEstado: "pendiente" },
     editModal: { visible: false, form: {}, error: "", guardando: false },
+    conversacion: [],
+    preguntaActual: "",
+    esperandoRespuesta: false,
+    abortController: null,
+    camposEdicion: [
+      { nombre: "nombres",             label: "Nombres",              tipo: "text" },
+      { nombre: "apellidos",           label: "Apellidos",            tipo: "text" },
+      { nombre: "email_personal",      label: "Email personal",       tipo: "email" },
+      { nombre: "email_institucional", label: "Email institucional",  tipo: "email" },
+      { nombre: "telefono_principal",  label: "Teléfono principal",   tipo: "text" },
+      { nombre: "telefono_secundario", label: "Teléfono secundario",  tipo: "text" },
+      { nombre: "direccion_completa",  label: "Dirección",            tipo: "textarea" },
+      { nombre: "departamento",        label: "Departamento",         tipo: "text" },
+      { nombre: "sede",                label: "Sede",                 tipo: "text" },
+      { nombre: "estado_civil",        label: "Estado civil",         tipo: "text" },
+      { nombre: "nacionalidad",        label: "Nacionalidad",         tipo: "text" },
+    ],
 
     async init() {
       requireAuth();
@@ -300,9 +362,15 @@ function expedienteApp() {
     async cargar() {
       this.cargando = true;
       try {
-        const [rDoc, rVal] = await Promise.all([
-          fetchApi(`/expediente/${this.cedula}`),
-          fetchApi(`/validacion/expediente/${this.cedula}`),
+        const timeout = new Promise((_, rej) =>
+          setTimeout(() => rej(new Error("Tiempo agotado al cargar el expediente")), 15000)
+        );
+        const [rDoc, rVal] = await Promise.race([
+          Promise.all([
+            fetchApi(`/expediente/${this.cedula}`),
+            fetchApi(`/validacion/expediente/${this.cedula}`),
+          ]),
+          timeout,
         ]);
         if (rDoc && rDoc.ok) {
           const d = await rDoc.json();
@@ -312,6 +380,8 @@ function expedienteApp() {
         if (rVal && rVal.ok) {
           this.validacion = await rVal.json();
         }
+      } catch (e) {
+        showToast(e.message || "Error al cargar", "error");
       } finally {
         this.cargando = false;
       }
@@ -415,15 +485,24 @@ function expedienteApp() {
     },
 
     abrirEditar() {
+      const d = this.docente?.docente || {};
+      const c = d.contacto || {};
+      const dir = d.direccion || {};
+      const v = this.docente?.vinculacion_institucional || {};
       this.editModal = {
         visible: true,
         form: {
-          nombre: this.docente?.docente?.nombres || "",
-          apellido: this.docente?.docente?.apellidos || "",
-          email: this.docente?.docente?.contacto?.email_personal || "",
-          telefono: this.docente?.docente?.contacto?.telefono_principal || "",
-          departamento: this.docente?.vinculacion_institucional?.departamento || "",
-          sede: this.docente?.vinculacion_institucional?.sede || "",
+          nombres: d.nombres || "",
+          apellidos: d.apellidos || "",
+          email_personal: c.email_personal || "",
+          email_institucional: c.email_institucional || "",
+          telefono_principal: c.telefono_principal || "",
+          telefono_secundario: c.telefono_secundario || "",
+          direccion_completa: dir.direccion_completa || "",
+          departamento: v.departamento || "",
+          sede: v.sede || "",
+          estado_civil: d.estado_civil || "",
+          nacionalidad: d.nacionalidad || "",
         },
         error: "",
         guardando: false,
@@ -434,14 +513,11 @@ function expedienteApp() {
       this.editModal.guardando = true;
       this.editModal.error = "";
       try {
-        const f = this.editModal.form;
         const body = {};
-        if (f.nombre)       body.nombres = f.nombre;
-        if (f.apellido)     body.apellidos = f.apellido;
-        if (f.email)        body.email_personal = f.email;
-        if (f.telefono)     body.telefono_principal = f.telefono;
-        if (f.departamento) body.departamento = f.departamento;
-        if (f.sede)         body.sede = f.sede;
+        for (const campo of this.camposEdicion) {
+          const v = this.editModal.form[campo.nombre];
+          if (v !== undefined && v !== "") body[campo.nombre] = v;
+        }
         const r = await fetchApi(`/expedientes/${this.cedula}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -467,6 +543,50 @@ function expedienteApp() {
       } else {
         showToast("Error al eliminar", "error");
       }
+    },
+
+    async enviarPregunta() {
+      const pregunta = (this.preguntaActual || "").trim();
+      if (!pregunta || this.esperandoRespuesta) return;
+      this.conversacion.push({ rol: "usuario", texto: pregunta });
+      this.preguntaActual = "";
+      this.esperandoRespuesta = true;
+      this.abortController = new AbortController();
+      this.$nextTick(() => {
+        if (this.$refs.chatLog) this.$refs.chatLog.scrollTop = this.$refs.chatLog.scrollHeight;
+      });
+      try {
+        const r = await fetchApi(`/expedientes/${this.cedula}/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pregunta }),
+          signal: this.abortController.signal,
+        });
+        if (r && r.ok) {
+          const d = await r.json();
+          this.conversacion.push({ rol: "asistente", texto: d.respuesta || "(sin respuesta)", latencia_ms: d.latencia_ms });
+        } else {
+          const d = r ? await r.json().catch(() => ({})) : {};
+          this.conversacion.push({ rol: "asistente", texto: `Error: ${d.detail || "no se pudo obtener respuesta"}` });
+          showToast("Error al consultar al asistente", "error");
+        }
+      } catch (e) {
+        if (e.name === "AbortError") {
+          this.conversacion.push({ rol: "asistente", texto: "(Pregunta cancelada)" });
+        } else {
+          this.conversacion.push({ rol: "asistente", texto: "Error de red al consultar al asistente." });
+        }
+      } finally {
+        this.esperandoRespuesta = false;
+        this.abortController = null;
+        this.$nextTick(() => {
+          if (this.$refs.chatLog) this.$refs.chatLog.scrollTop = this.$refs.chatLog.scrollHeight;
+        });
+      }
+    },
+
+    pararPregunta() {
+      if (this.abortController) this.abortController.abort();
     },
   };
 }

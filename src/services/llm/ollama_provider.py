@@ -116,6 +116,74 @@ class OllamaProvider(BaseLlmProvider):
         logger.error("Ollama: no se obtuvo JSON válido tras 2 intentos ({} ms)", latencia_ms)
         return self._error_result(latencia_ms, "Respuesta no es JSON válido")
 
+    def chat(
+        self,
+        system: str,
+        user: str,
+        *,
+        max_tokens: int = 500,
+        temperature: float = 0.3,
+    ) -> str:
+        """Envía una pregunta libre a Ollama y devuelve la respuesta como texto.
+
+        No reutiliza ``_call_api`` para poder controlar ``num_predict`` y
+        ``temperature`` independientemente del valor configurado en el provider.
+
+        Args:
+            system: Prompt de sistema.
+            user: Pregunta/contexto del usuario.
+            max_tokens: Máximo de tokens en la respuesta (``num_predict``).
+            temperature: Aleatoriedad (0.0–1.0).
+
+        Returns:
+            Texto plano con la respuesta del modelo.
+
+        Raises:
+            RuntimeError: Si Ollama no responde o devuelve un error.
+        """
+        mensajes = [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ]
+        payload = {
+            "model": self._model,
+            "messages": mensajes,
+            "stream": False,
+            "keep_alive": "5m",
+            "options": {
+                "num_predict": max_tokens,
+                "num_ctx": 2048,
+                "num_thread": _NUM_THREADS,
+                "temperature": temperature,
+            },
+        }
+        inicio = time.perf_counter()
+        try:
+            resp = requests.post(
+                f"{self._base_url}/api/chat",
+                json=payload,
+                timeout=self._timeout,
+            )
+            resp.raise_for_status()
+        except requests.exceptions.Timeout:
+            raise RuntimeError(
+                f"Ollama: timeout tras {self._timeout}s al responder pregunta"
+            )
+        except requests.exceptions.ConnectionError as exc:
+            raise RuntimeError(f"Ollama: error de conexión — {exc}")
+        except requests.exceptions.HTTPError as exc:
+            raise RuntimeError(f"Ollama: error HTTP {resp.status_code} — {exc}")
+
+        latencia_ms = round((time.perf_counter() - inicio) * 1000)
+        try:
+            data = resp.json()
+        except ValueError as exc:
+            raise RuntimeError(f"Ollama: respuesta no es JSON — {exc}")
+
+        contenido = data.get("message", {}).get("content", "")
+        logger.info("Ollama chat '{}': {} ms", self._model, latencia_ms)
+        return contenido
+
     def health_check(self) -> dict:
         """Verifica que Ollama esté corriendo consultando ``/api/tags``.
 

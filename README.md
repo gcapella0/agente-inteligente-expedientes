@@ -638,6 +638,103 @@ cp .env.example .env
 sudo apt install ghostscript
 ```
 
+---
+
+## Chat IA para Expedientes
+
+El sistema incluye un asistente IA que responde preguntas sobre expedientes basandose en documentos adjuntos procesados con OCR.
+
+### Caracteristicas
+
+- **RAG (Retrieval-Augmented Generation):** contexto basado en datos reales del expediente (docente + documentos + OCR)
+- **Multiples Proveedores:** OpenRouter (con fallback automatico a modelos alternativos) u Ollama (local, sin costo)
+- **OCR Estructurado:** extrae `campos_extraidos` de cada documento; para CVs parsea la seccion Education con fechas, universidades y especializacion
+- **Respuestas Precisas:** temperatura 0.2, max_tokens 300 para respuestas cortas y exactas
+- **Cancela preguntas:** boton "Parar" en el frontend para abortar una peticion en curso
+
+### Uso desde el frontend
+
+1. Ir a **Expedientes** → clickear un docente → se abre el detalle del expediente
+2. Al final de la pagina hay la seccion **"Preguntar al Agente IA"**
+3. Ejemplos de preguntas:
+   - "¿Cuál es el promedio de notas de bachillerato?"
+   - "¿En qué año hizo el doctorado?"
+   - "¿En qué universidad estudió?"
+
+### Endpoint
+
+```
+POST /expedientes/{cedula}/chat
+Authorization: Bearer <token>
+
+{
+  "pregunta": "¿Cuál es el título académico más alto?"
+}
+```
+
+Respuesta:
+
+```json
+{
+  "exito": true,
+  "respuesta": "Doctorado en Ciencias de la Computación (2012-2014) — Universidad Rafael Belloso Chacin",
+  "cedula": "27504759",
+  "modelo": "google/gemma-4-31b-it:free",
+  "latencia_ms": 1240
+}
+```
+
+### Configuracion del proveedor
+
+**OpenRouter (recomendado para demostracion):**
+
+```env
+LLM_PROVIDER=openrouter
+OPENROUTER_API_KEY=sk-or-v1-xxxxx
+OPENROUTER_MODEL=google/gemma-4-31b-it:free
+OPENROUTER_FALLBACK_MODELS=google/gemma-3-27b-it:free,minimax/minimax-m2.5:free
+```
+
+**Ollama (local, sin costo):**
+
+```bash
+# Instalar Ollama: https://ollama.com
+ollama pull phi3:mini
+```
+
+```env
+LLM_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=phi3:mini
+OLLAMA_TIMEOUT_SECONDS=120
+```
+
+El proveedor tambien se puede cambiar en caliente desde **Configuracion → LLM** en la interfaz web.
+
+### Estructura de documentos OCR en MongoDB
+
+```javascript
+{
+  tipo: "diploma_curso",
+  ocr: {
+    procesado: true,
+    motor: "doctr",
+    confianza_promedio: 0.93,
+    campos_extraidos: {
+      nombre_titular: "Genghis Capella",
+      institucion_emisora: "Educacion IT",
+      fecha_emision: "2026-02-11",
+      duracion_horas: "18"
+    },
+    texto_completo: "..."
+  }
+}
+```
+
+Para **curriculo_vitae**, la seccion Education se parsea automaticamente extrayendo titulo, especializacion, fechas (inicio-fin) e institucion por cada entrada.
+
+---
+
 ### Ejecucion
 
 ```bash
@@ -652,7 +749,7 @@ python -m src.main
 ### Tests
 
 ```bash
-# Ejecutar todos los tests (487 tests)
+# Ejecutar todos los tests (496 tests)
 pytest tests/ -v
 
 # Solo tests del WatcherAgent
@@ -673,11 +770,14 @@ pytest tests/test_llm_providers.py -v
 # Solo tests de la API REST (Fases 1-6)
 pytest tests/test_api_fase1.py tests/test_api_fase2.py tests/test_api_fase3.py tests/test_api_fase4.py tests/test_api_fase5.py tests/test_api_fase6.py -v
 
+# Solo tests del Chat IA
+pytest tests/test_expedientes_chat.py -v
+
 # Un test especifico
 pytest tests/test_ocr.py -k "test_name_here" -v
 ```
 
-La suite de tests incluye **487 pruebas** organizadas por agente y fase:
+La suite de tests incluye **496 pruebas** organizadas por agente y fase:
 
 **WatcherAgent (47 tests):**
 - Procesamiento basico de emails y creacion de expedientes
@@ -787,6 +887,13 @@ La suite de tests incluye **487 pruebas** organizadas por agente y fase:
 - DELETE /usuarios/{id}: eliminacion por ObjectId
 - Proteccion admin: 403 para usuarios sin rol admin
 
+**Chat IA (6 tests):**
+- POST /expedientes/{cedula}/chat: respuesta exitosa con contexto RAG
+- 404 cuando la cedula no existe
+- 400 cuando la pregunta esta vacia o es solo espacios
+- 503 cuando el proveedor LLM falla
+- Verificacion de que el provider.chat no se llama en el path 404
+
 ---
 
 ## Frontend MVP (`/ui`)
@@ -866,6 +973,7 @@ Interfaz web estatica servida por FastAPI en `http://localhost:8000/ui`. Stack: 
 - [x] **Metricas y usuarios**: KPIs del sistema, CRUD usuarios admin (33 tests adicionales)
 - [x] **Frontend MVP**: Interfaz web completa (Alpine.js + Tailwind): dashboard, expedientes, configuracion, logs, admin
 - [x] **Control de agentes desde UI**: botones Ejecutar / En cadena / Detener, polling en tiempo real, SSE mini-log
+- [x] **Chat IA para expedientes**: endpoint `POST /expedientes/{cedula}/chat`, RAG con contexto MongoDB, OpenRouter + Ollama con fallback, parsing especial de CVs, boton Parar en frontend
 - [ ] **Busqueda semantica (RAG)**: Recuperacion de expedientes por similitud con embeddings
 - [ ] Soporte para extraccion de texto de emails HTML-only
 - [x] **API REST**: Endpoints FastAPI para consulta y busqueda de expedientes

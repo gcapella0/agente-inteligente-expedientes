@@ -49,6 +49,34 @@ class BaseLlmProvider(ABC):
         """
 
     @abstractmethod
+    def chat(
+        self,
+        system: str,
+        user: str,
+        *,
+        max_tokens: int = 500,
+        temperature: float = 0.3,
+    ) -> str:
+        """Conversación libre con el LLM.
+
+        A diferencia de ``classify_and_extract``, devuelve texto plano sin
+        parseo JSON. Cada proveedor concreto es responsable del manejo de
+        reintentos y errores de red.
+
+        Args:
+            system: Mensaje de sistema (rol e instrucciones).
+            user: Mensaje del usuario (pregunta más contexto).
+            max_tokens: Límite de tokens generados.
+            temperature: Aleatoriedad de la respuesta (0.0–1.0).
+
+        Returns:
+            Texto plano con la respuesta del modelo.
+
+        Raises:
+            RuntimeError: Si el backend falla irreversiblemente.
+        """
+
+    @abstractmethod
     def health_check(self) -> dict:
         """Verifica que el backend esté disponible.
 
