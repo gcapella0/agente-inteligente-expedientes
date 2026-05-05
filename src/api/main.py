@@ -21,6 +21,7 @@ from src.api.routers import (
     documentos_escribir,
     estadisticas,
     expedientes,
+    expedientes_chat,
     expedientes_escribir,
     exportacion,
     health,
@@ -57,6 +58,7 @@ app.include_router(estadisticas.router, prefix="/estadisticas", tags=["Estadíst
 app.include_router(validacion.router, prefix="/validacion", tags=["Validación"])
 app.include_router(busqueda.router, prefix="/expedientes", tags=["Búsqueda"])
 app.include_router(exportacion.router, prefix="/expedientes", tags=["Exportación"])
+app.include_router(expedientes_chat.router, tags=["Expedientes (Chat IA)"])
 app.include_router(expedientes_escribir.router, prefix="/expedientes", tags=["Expedientes (Escritura)"])
 app.include_router(documentos_escribir.router, prefix="/documentos", tags=["Documentos (Escritura)"])
 app.include_router(auditoria.router, prefix="/admin/auditoria", tags=["Auditoría (Admin)"])
