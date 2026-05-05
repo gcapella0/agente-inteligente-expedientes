@@ -99,8 +99,8 @@
           <template x-for="documento in documentos" :key="documento._id">
             <tr class="border-b border-white/10 hover:bg-white/5">
               <td class="px-4 py-2.5 text-white text-xs font-mono" x-text="documento.tipo"></td>
-              <td class="px-4 py-2.5 text-white/60 text-xs uppercase" x-text="documento.ocr_info?.formato || '—'"></td>
-              <td class="px-4 py-2.5 text-white/60 text-xs" x-text="formatTamano(documento.ocr_info?.tamano_bytes)"></td>
+              <td class="px-4 py-2.5 text-white/60 text-xs uppercase" x-text="(documento.archivo?.formato || '—').toUpperCase()"></td>
+              <td class="px-4 py-2.5 text-white/60 text-xs" x-text="formatTamano(documento.archivo?.tamano_bytes)"></td>
               <td class="px-4 py-2.5" x-html="validacionBadge(documento.validacion?.estado)"></td>
               <td class="px-4 py-2.5">
                 <div class="flex items-center gap-2">
@@ -121,16 +121,98 @@
   </div>
 
   <div x-show="!cargando && !docente" class="py-12 text-center text-white/40 text-sm">Docente no encontrado</div>
-</div>
 
-<!-- Modal OCR -->
-<div x-show="ocrModal.visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" x-cloak>
-  <div class="bg-slate-800 rounded-lg border border-white/10 shadow-xl p-5 max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-sm font-semibold text-white">OCR — <span x-text="ocrModal.tipo"></span></h3>
-      <button @click="ocrModal.visible = false" class="text-white/40 hover:text-white">✕</button>
+<!-- Modal Visor de Documento -->
+<div x-show="ocrModal.visible"
+     @click.self="cerrarOcr()"
+     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+     x-cloak>
+  <div class="bg-slate-800 rounded-lg border border-white/10 shadow-xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-3 border-b border-white/10">
+      <h3 class="text-sm font-semibold text-white truncate" x-text="ocrModal.doc?.tipo || 'Documento'"></h3>
+      <button @click="cerrarOcr()" class="text-white/40 hover:text-white text-lg ml-4 shrink-0">✕</button>
     </div>
-    <div class="flex-1 overflow-y-auto bg-white/5 border border-white/10 rounded p-3 text-xs font-mono whitespace-pre-wrap text-white/80" x-text="ocrModal.texto || 'Sin texto OCR disponible'"></div>
+
+    <!-- Tabs -->
+    <div class="flex gap-1 px-5 pt-3 border-b border-white/10">
+      <button @click="ocrModal.tab = 'documento'"
+              :class="ocrModal.tab === 'documento' ? 'border-b-2 border-blue-500 text-blue-400' : 'text-white/60 hover:text-white'"
+              class="pb-2 px-4 text-sm transition">Documento</button>
+      <button @click="ocrModal.tab = 'json'"
+              :class="ocrModal.tab === 'json' ? 'border-b-2 border-blue-500 text-blue-400' : 'text-white/60 hover:text-white'"
+              class="pb-2 px-4 text-sm transition">JSON OCR</button>
+    </div>
+
+    <!-- Contenido -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-4">
+
+      <!-- Tab: Documento -->
+      <template x-if="ocrModal.tab === 'documento'">
+        <div class="space-y-4">
+
+          <!-- Imagen inline -->
+          <template x-if="esImagen()">
+            <div class="bg-white/5 border border-white/10 rounded p-3">
+              <img :src="urlArchivo(false)" alt="Documento" class="max-w-full h-auto mx-auto rounded">
+            </div>
+          </template>
+
+          <!-- PDF: abrir en nueva pestaña o descargar -->
+          <template x-if="esPdf()">
+            <div class="bg-white/5 border border-white/10 rounded p-6 text-center">
+              <p class="text-white/60 mb-3 text-sm">Documento PDF</p>
+              <a :href="urlArchivo(false)" target="_blank" rel="noopener"
+                 class="inline-block bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm text-white">
+                Abrir PDF
+              </a>
+              <a :href="urlArchivo(true)"
+                 class="inline-block ml-2 border border-white/20 hover:bg-white/10 px-4 py-2 rounded text-sm text-white/80">
+                Descargar
+              </a>
+            </div>
+          </template>
+
+          <!-- Sin archivo o formato desconocido -->
+          <template x-if="!esImagen() && !esPdf()">
+            <div class="bg-white/5 border border-white/10 rounded p-4 text-center text-sm">
+              <template x-if="!ocrModal.doc?.archivo?.ruta">
+                <span class="text-white/40">Sin documento adjunto</span>
+              </template>
+              <template x-if="ocrModal.doc?.archivo?.ruta">
+                <span class="text-white/60">
+                  Formato no previsualizable
+                  (<span x-text="formatoDoc() || 'desconocido'"></span>) —
+                  <a :href="urlArchivo(true)" class="text-blue-400 hover:underline">descargar</a>
+                </span>
+              </template>
+            </div>
+          </template>
+
+          <!-- Metadatos -->
+          <div class="bg-white/5 border border-white/10 rounded p-4 space-y-1.5 text-xs">
+            <p><span class="text-white/60">Tipo:</span> <span class="font-mono text-white" x-text="ocrModal.doc?.tipo || '—'"></span></p>
+            <p><span class="text-white/60">Archivo:</span> <span class="text-white" x-text="ocrModal.doc?.archivo?.nombre_original || '—'"></span></p>
+            <p><span class="text-white/60">Tamaño:</span> <span class="text-white" x-text="formatTamano(ocrModal.doc?.archivo?.tamano_bytes)"></span></p>
+            <p><span class="text-white/60">Formato:</span> <span class="text-white uppercase" x-text="formatoDoc() || '—'"></span></p>
+            <p><span class="text-white/60">Estado:</span>
+               <span :class="ocrModal.doc?.validacion?.estado === 'aprobado' ? 'text-green-400' :
+                             ocrModal.doc?.validacion?.estado === 'rechazado' ? 'text-red-400' : 'text-yellow-400'"
+                     x-text="ocrModal.doc?.validacion?.estado || 'pendiente'"></span></p>
+          </div>
+        </div>
+      </template>
+
+      <!-- Tab: JSON OCR -->
+      <template x-if="ocrModal.tab === 'json'">
+        <div class="bg-white/5 border border-white/10 rounded p-4">
+          <pre class="text-xs font-mono whitespace-pre-wrap break-words text-white/80"
+               x-text="jsonOcrFormateado()"></pre>
+        </div>
+      </template>
+
+    </div>
   </div>
 </div>
 
@@ -192,6 +274,7 @@
     </div>
   </div>
 </div>
+</div>
 
 <script>
 function expedienteApp() {
@@ -201,7 +284,7 @@ function expedienteApp() {
     documentos: [],
     validacion: null,
     cargando: true,
-    ocrModal: { visible: false, tipo: "", texto: "" },
+    ocrModal: { visible: false, doc: null, tab: "documento" },
     estadoModal: { visible: false, docId: "", tipo: "", nuevoEstado: "pendiente" },
     editModal: { visible: false, form: {}, error: "", guardando: false },
 
@@ -252,11 +335,48 @@ function expedienteApp() {
     },
 
     verOcr(documento) {
-      this.ocrModal = {
-        visible: true,
-        tipo: documento.tipo,
-        texto: documento.ocr_info?.texto_completo || "",
+      this.ocrModal = { visible: true, doc: documento, tab: "documento" };
+    },
+
+    cerrarOcr() {
+      this.ocrModal = { visible: false, doc: null, tab: "documento" };
+    },
+
+    urlArchivo(descargar = false) {
+      const d = this.ocrModal.doc;
+      if (!d) return "";
+      const token = localStorage.getItem("token") || "";
+      const base = `/expediente/${this.cedula}/documento/${d._id}/archivo`;
+      const params = new URLSearchParams({ token });
+      if (descargar) params.set("descargar", "true");
+      return `${base}?${params.toString()}`;
+    },
+
+    formatoDoc() {
+      return (this.ocrModal.doc?.archivo?.formato || "").toLowerCase();
+    },
+
+    esImagen() {
+      return ["jpg", "jpeg", "png"].includes(this.formatoDoc());
+    },
+
+    esPdf() {
+      return this.formatoDoc() === "pdf";
+    },
+
+    jsonOcrFormateado() {
+      const ocr = this.ocrModal.doc?.ocr;
+      if (!ocr) return "Sin OCR procesado";
+      const payload = {
+        procesado: ocr.procesado,
+        motor: ocr.motor,
+        confianza_promedio: ocr.confianza_promedio,
+        paginas: ocr.paginas,
+        idioma_detectado: ocr.idioma_detectado,
+        campos_extraidos: ocr.campos_extraidos || {},
+        texto_completo: ocr.texto_completo || "",
       };
+      return JSON.stringify(payload, null, 2);
     },
 
     abrirCambiarEstado(documento) {
