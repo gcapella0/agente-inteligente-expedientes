@@ -974,6 +974,6 @@ Interfaz web estatica servida por FastAPI en `http://localhost:8000/ui`. Stack: 
 - [x] **Frontend MVP**: Interfaz web completa (Alpine.js + Tailwind): dashboard, expedientes, configuracion, logs, admin
 - [x] **Control de agentes desde UI**: botones Ejecutar / En cadena / Detener, polling en tiempo real, SSE mini-log
 - [x] **Chat IA para expedientes**: endpoint `POST /expedientes/{cedula}/chat`, RAG con contexto MongoDB, OpenRouter + Ollama con fallback, parsing especial de CVs, boton Parar en frontend
-- [ ] **Busqueda semantica (RAG)**: Recuperacion de expedientes por similitud con embeddings
-- [ ] Soporte para extraccion de texto de emails HTML-only
+- [x] **Busqueda semantica (RAG)**: Recuperacion de expedientes por similitud con embeddings
+- [x] Soporte para extraccion de texto de emails HTML-only
 - [x] **API REST**: Endpoints FastAPI para consulta y busqueda de expedientes
