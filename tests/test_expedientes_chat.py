@@ -15,6 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.api.main import app
+from src.api.routers.expedientes_chat import _extraer_educacion_cv
 from src.api.security import create_access_token
 
 client = TestClient(app, raise_server_exceptions=True)
@@ -83,6 +84,57 @@ def _make_mongo(docente=_DOCENTE_DOC, documentos=None):
 # ===========================================================================
 # Tests
 # ===========================================================================
+
+
+_TEXTO_CV_EDUCACION = """Educacion
+Universidad Rafael Belloso Chacin
+Postdoctorado en Estado, Politicas Publicas y Paz Social, Ciencias
+Politicas : (2016 - 2017)
+Universidad Rafael Belloso Chacin
+Doctor en Ciencias Gerenciales, Gerencia Organizacional : (2012 - 2014)
+Universidad Nacional Experimental Francisco de Miranda
+Medico Cirujano, Medicina General - (1997 - 2002)
+Page 3 of 3"""
+
+
+def test_extraer_educacion_cv_parse_correcto():
+    """Extrae 3 títulos con institución, especialización y fechas del texto real."""
+    entradas = _extraer_educacion_cv(_TEXTO_CV_EDUCACION)
+    assert len(entradas) == 3
+
+    postdoc = entradas[0]
+    assert "Postdoctorado en Estado" in postdoc["titulo"]
+    assert postdoc["fecha_inicio"] == "2016"
+    assert postdoc["fecha_fin"] == "2017"
+    assert postdoc["institucion"] == "Universidad Rafael Belloso Chacin"
+
+    doctor = entradas[1]
+    assert doctor["titulo"] == "Doctor en Ciencias Gerenciales"
+    assert doctor["especializacion"] == "Gerencia Organizacional"
+    assert doctor["fecha_inicio"] == "2012"
+
+    medico = entradas[2]
+    assert medico["titulo"] == "Medico Cirujano"
+    assert medico["institucion"] == "Universidad Nacional Experimental Francisco de Miranda"
+
+
+def test_extraer_educacion_cv_sin_seccion():
+    """Texto sin sección Educacion devuelve lista vacía."""
+    assert _extraer_educacion_cv("Solo experiencia laboral aquí.") == []
+
+
+def test_extraer_educacion_cv_titulo_partido():
+    """Une correctamente títulos que el PDF partió en 2 líneas."""
+    texto = """Educacion
+Universidad Rafael Belloso Chacin
+Magister en Gerencia de Proyectos de Investigacion y Desarrollo, Gerencia de
+Proyectos - (2010 - 2012)"""
+    entradas = _extraer_educacion_cv(texto)
+    assert len(entradas) == 1
+    assert "Magister en Gerencia de Proyectos" in entradas[0]["titulo"]
+    assert entradas[0]["especializacion"] is not None
+    assert "Proyectos" in entradas[0]["especializacion"]
+    assert entradas[0]["fecha_inicio"] == "2010"
 
 
 def test_chat_exito():
@@ -175,6 +227,70 @@ def test_error_llm_503():
         )
 
     assert r.status_code == 503
+
+
+def test_contexto_usa_campos_extraidos():
+    """Los campos_extraidos del OCR se pasan al LLM en lugar del texto_completo."""
+    doc_con_campos = {
+        "_id": ObjectId(),
+        "tipo": "certificado_notas_bachillerato",
+        "docente_cedula": _CEDULA,
+        "archivo": {"nombre_original": "notas.pdf", "formato": "pdf", "tamano_bytes": 50000},
+        "ocr": {
+            "texto_completo": "texto OCR desordenado que no deberia aparecer",
+            "campos_extraidos": {
+                "indice_academico": "17,19",
+                "periodo_academico": "2014-2015",
+                "nombre_titular": "JUAN PÉREZ",
+            },
+        },
+        "validacion": {"estado": "aprobado"},
+    }
+    provider = _mock_provider("El índice académico es 17,19.")
+    mongo = _make_mongo(documentos=[doc_con_campos])
+
+    with patch("src.api.routers.expedientes_chat.MongoService", return_value=mongo), \
+         patch("src.api.routers.expedientes_chat.create_llm_provider", return_value=provider):
+        r = client.post(
+            f"/expedientes/{_CEDULA}/chat",
+            json={"pregunta": "¿Cuál es el promedio de bachillerato?"},
+            headers=_HEADERS,
+        )
+
+    assert r.status_code == 200
+    user_prompt = provider.chat.call_args[0][1]
+    assert "17,19" in user_prompt
+    assert "2014-2015" in user_prompt
+    assert "texto OCR desordenado" not in user_prompt
+
+
+def test_contexto_fallback_a_texto_completo():
+    """Cuando no hay campos_extraidos, se usa texto_completo truncado."""
+    doc_sin_campos = {
+        "_id": ObjectId(),
+        "tipo": "titulo_universitario",
+        "docente_cedula": _CEDULA,
+        "archivo": {"nombre_original": "titulo.pdf", "formato": "pdf", "tamano_bytes": 102400},
+        "ocr": {
+            "texto_completo": "Universidad Central de Venezuela texto largo",
+            "campos_extraidos": {},
+        },
+        "validacion": {"estado": "aprobado"},
+    }
+    provider = _mock_provider("Tiene título de la UCV.")
+    mongo = _make_mongo(documentos=[doc_sin_campos])
+
+    with patch("src.api.routers.expedientes_chat.MongoService", return_value=mongo), \
+         patch("src.api.routers.expedientes_chat.create_llm_provider", return_value=provider):
+        r = client.post(
+            f"/expedientes/{_CEDULA}/chat",
+            json={"pregunta": "¿Cuál es su título?"},
+            headers=_HEADERS,
+        )
+
+    assert r.status_code == 200
+    user_prompt = provider.chat.call_args[0][1]
+    assert "Universidad Central de Venezuela" in user_prompt
 
 
 def test_create_provider_falla_503():

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import time
 from datetime import datetime, timezone
 from typing import Literal
@@ -20,16 +21,24 @@ _COL = "sistema_config"
 _DOC_ID = "llm_config"
 _PROVIDERS_VALIDOS = {"openrouter", "ollama"}
 
-_OLLAMA_MODELS = [
-    "gemma3:12b", "llama3.2", "deepseek-r1", "mistral", "phi3:mini", "qwen2.5:0.5b",
-]
-_OPENROUTER_MODELS = [
-    "openrouter/hunter-alpha",
-    "openai/gpt-4",
-    "openai/gpt-4o-mini",
-    "anthropic/claude-3-opus",
-    "google/gemini-flash-1.5",
-]
+def _openrouter_models_from_env() -> list[str]:
+    """Devuelve la lista de modelos OpenRouter desde el .env (modelo principal + fallbacks)."""
+    modelos: list[str] = []
+    seen: set[str] = set()
+    for m in [config.OPENROUTER_MODEL] + config.OPENROUTER_FALLBACK_MODELS:
+        if m and m not in seen:
+            seen.add(m)
+            modelos.append(m)
+    return modelos or ["openai/gpt-4o-mini"]
+
+
+def _ollama_models_from_env() -> list[str]:
+    """Devuelve la lista de modelos Ollama desde el .env."""
+    raw = os.getenv("OLLAMA_MODELS", "")
+    modelos = [m.strip() for m in raw.split(",") if m.strip()]
+    if not modelos and config.OLLAMA_MODEL:
+        modelos = [config.OLLAMA_MODEL]
+    return modelos or ["phi3:mini"]
 
 
 # ---------------------------------------------------------------------------
@@ -93,8 +102,8 @@ async def obtener_config_llm(payload: dict = Depends(verify_token)) -> dict:
             "model": cfg.get("model", ""),
             "host": cfg.get("host"),
             "available_providers": sorted(_PROVIDERS_VALIDOS),
-            "available_models_ollama": _OLLAMA_MODELS,
-            "available_models_openrouter": _OPENROUTER_MODELS,
+            "available_models_ollama": _ollama_models_from_env(),
+            "available_models_openrouter": _openrouter_models_from_env(),
         }
     except Exception as e:
         logger.error("Error leyendo config LLM: {}", e, exc_info=True)

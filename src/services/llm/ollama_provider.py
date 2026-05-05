@@ -149,6 +149,7 @@ class OllamaProvider(BaseLlmProvider):
             "model": self._model,
             "messages": mensajes,
             "stream": False,
+            "keep_alive": "5m",
             "options": {
                 "num_predict": max_tokens,
                 "num_ctx": 2048,
