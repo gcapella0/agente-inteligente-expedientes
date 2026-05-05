@@ -123,6 +123,38 @@ class LlmService:
             "tokens_usados": 0,
         }
 
+    def chat(
+        self,
+        system: str,
+        user: str,
+        *,
+        max_tokens: int = 500,
+        temperature: float = 0.3,
+    ) -> str:
+        """Envía una pregunta libre al LLM y devuelve la respuesta como texto.
+
+        Requiere que se haya inyectado un proveedor en el constructor.
+
+        Args:
+            system: Prompt de sistema.
+            user: Pregunta/contexto del usuario.
+            max_tokens: Máximo de tokens en la respuesta.
+            temperature: Aleatoriedad (0.0–1.0).
+
+        Returns:
+            Texto plano con la respuesta del modelo.
+
+        Raises:
+            RuntimeError: Si no hay provider inyectado o el backend falla.
+        """
+        delegate = getattr(self, "_delegate", None)
+        if delegate is None:
+            raise RuntimeError(
+                "LlmService.chat requiere un provider inyectado "
+                "(use LlmService(create_llm_provider()))"
+            )
+        return delegate.chat(system, user, max_tokens=max_tokens, temperature=temperature)
+
     def health_check(self) -> dict:
         """Verifica que el backend LLM esté disponible.
 

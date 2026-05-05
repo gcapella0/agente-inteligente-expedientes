@@ -112,6 +112,69 @@ class OpenRouterProvider(BaseLlmProvider):
             "provider": "openrouter",
         }
 
+    def chat(
+        self,
+        system: str,
+        user: str,
+        *,
+        max_tokens: int = 500,
+        temperature: float = 0.3,
+    ) -> str:
+        """Envía una pregunta libre al LLM y devuelve la respuesta como texto.
+
+        Itera sobre los modelos disponibles rotando ante rate limit. Lanza
+        ``RuntimeError`` si todos los modelos fallan.
+
+        Args:
+            system: Prompt de sistema.
+            user: Pregunta/contexto del usuario.
+            max_tokens: Máximo de tokens en la respuesta.
+            temperature: Aleatoriedad (0.0–1.0).
+
+        Returns:
+            Texto plano con la respuesta del modelo.
+
+        Raises:
+            RuntimeError: Si no se pudo obtener respuesta de ningún modelo.
+        """
+        inicio = time.perf_counter()
+        ultimo_error: str = "Error desconocido"
+
+        for model in self.models:
+            for intento in range(_MAX_RETRIES):
+                try:
+                    response = self.client.chat.completions.create(
+                        model=model,
+                        messages=[
+                            {"role": "system", "content": system},
+                            {"role": "user", "content": user},
+                        ],
+                        max_tokens=max_tokens,
+                        temperature=temperature,
+                    )
+                except RateLimitError:
+                    logger.warning("Chat: rate limit en '{}' — rotando modelo", model)
+                    ultimo_error = f"Rate limit en {model}"
+                    break
+                except (APIConnectionError, APITimeoutError) as exc:
+                    logger.error("Chat: conexión/timeout con OpenRouter: {}", exc)
+                    ultimo_error = str(exc)
+                    continue
+                except Exception as exc:
+                    logger.error("Chat: error inesperado en OpenRouter: {}", exc)
+                    ultimo_error = str(exc)
+                    continue
+
+                contenido = response.choices[0].message.content or ""
+                latencia_ms = round((time.perf_counter() - inicio) * 1000)
+                logger.info("OpenRouter chat '{}': {} ms", model, latencia_ms)
+                return contenido
+
+            if intento < _MAX_RETRIES - 1:
+                continue
+
+        raise RuntimeError(f"OpenRouter no disponible: {ultimo_error}")
+
     def health_check(self) -> dict:
         """Verifica conectividad con OpenRouter listando modelos disponibles.
 

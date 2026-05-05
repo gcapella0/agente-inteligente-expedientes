@@ -91,12 +91,16 @@ class TestBaseLlmProvider:
             def classify_and_extract(self, texto_ocr: str) -> dict:
                 return {}
 
+            def chat(self, system: str, user: str, *, max_tokens: int = 500, temperature: float = 0.3) -> str:
+                return "ok"
+
             def health_check(self) -> dict:
                 return {"status": "ok"}
 
         p = FakeProvider()
         assert p.provider_name == "fake"
         assert p.model_name == "fake-model"
+        assert p.chat("sys", "usr") == "ok"
 
 
 # ===========================================================================
@@ -171,6 +175,18 @@ class TestOpenRouterProvider:
 
         assert resultado["status"] == "error"
         assert "detail" in resultado
+
+    def test_chat_devuelve_string(self, provider):
+        """chat() devuelve el texto plano de la respuesta sin parsear JSON."""
+        provider.client.chat.completions.create.return_value = _openrouter_completion(
+            "El docente tiene 3 documentos.", tokens=50
+        )
+
+        respuesta = provider.chat("Eres un asistente.", "¿Cuántos documentos tiene?")
+
+        assert isinstance(respuesta, str)
+        assert "3 documentos" in respuesta
+        provider.client.chat.completions.create.assert_called_once()
 
 
 # ===========================================================================
@@ -266,6 +282,20 @@ class TestOllamaProvider:
 
         assert resultado["status"] == "error"
         assert "Timeout" in resultado["detail"]
+
+    def test_chat_devuelve_string(self, provider):
+        """chat() devuelve el texto plano de Ollama sin parsear JSON."""
+        with patch("requests.post", return_value=_ollama_response("El docente es apto.")):
+            respuesta = provider.chat("Eres un asistente.", "¿Es apto?")
+
+        assert isinstance(respuesta, str)
+        assert "apto" in respuesta
+
+    def test_chat_timeout_lanza_runtimeerror(self, provider):
+        """chat() lanza RuntimeError cuando Ollama hace timeout."""
+        with patch("requests.post", side_effect=requests.exceptions.Timeout):
+            with pytest.raises(RuntimeError, match="timeout"):
+                provider.chat("sys", "usr")
 
     def test_prompt_se_trunca_si_es_largo(self, provider):
         """El texto OCR enviado al user message no supera el límite de caracteres."""
@@ -368,6 +398,9 @@ class TestLlmServiceConProvider:
                 self._calls.append(texto_ocr)
                 return self._response
 
+            def chat(self, system: str, user: str, *, max_tokens: int = 500, temperature: float = 0.3) -> str:
+                return "respuesta del fake provider"
+
             def health_check(self) -> dict:
                 return {"status": "ok", "provider": "fake", "model": "fake/model"}
 
@@ -427,6 +460,28 @@ class TestLlmServiceConProvider:
 
         assert resultado["valido"] is True
         assert resultado["provider"] == "ollama"
+
+    def test_llm_service_chat_delega_al_provider(self, fake_provider):
+        """LlmService.chat delega al provider inyectado y devuelve string."""
+        service = LlmService(provider=fake_provider)
+
+        respuesta = service.chat("sistema", "usuario")
+
+        assert isinstance(respuesta, str)
+        assert respuesta == "respuesta del fake provider"
+
+    def test_llm_service_chat_sin_provider_lanza_runtimeerror(self, monkeypatch):
+        """LlmService.chat sin provider inyectado lanza RuntimeError."""
+        monkeypatch.setattr("src.services.llm_service.config.OPENROUTER_MODEL", "m")
+        monkeypatch.setattr("src.services.llm_service.config.OPENROUTER_BASE_URL", "https://x")
+        monkeypatch.setattr("src.services.llm_service.config.OPENROUTER_API_KEY", "k")
+        monkeypatch.setattr("src.services.llm_service.config.OPENROUTER_FALLBACK_MODELS", [])
+
+        with patch("src.services.llm_service.OpenAI"):
+            service = LlmService()
+
+        with pytest.raises(RuntimeError, match="provider inyectado"):
+            service.chat("sistema", "usuario")
 
     def test_llm_service_sin_provider_usa_modo_legado(self, monkeypatch):
         """LlmService() sin argumentos sigue usando OpenRouter directo."""
