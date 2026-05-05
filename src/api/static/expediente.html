@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="/ui/assets/app.js"></script>
+  <style>[x-cloak]{display:none!important}</style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen">
 <div id="navbar"></div>
@@ -15,18 +16,18 @@
 
   <!-- Header -->
   <div class="mt-6 mb-4">
-    <a href="/ui/expedientes.html" class="text-sm text-blue-600 hover:underline">← Volver al listado</a>
+    <a href="/ui/expedientes.html" class="text-sm text-blue-400 hover:text-blue-300">← Volver al listado</a>
   </div>
 
-  <div x-show="cargando" class="py-12 text-center text-slate-400 text-sm">Cargando expediente...</div>
+  <div x-show="cargando" class="py-12 text-center text-white/40 text-sm">Cargando expediente...</div>
 
   <div x-show="!cargando && docente">
 
     <!-- Encabezado docente -->
-    <div class="bg-white border border-slate-200 rounded-lg p-5 mb-5 flex items-start justify-between">
+    <div class="bg-white/5 border border-white/10 rounded-lg p-5 mb-5 flex items-start justify-between">
       <div>
-        <h1 class="text-xl font-semibold text-slate-800" x-text="(docente?.docente?.nombres || '') + ' ' + (docente?.docente?.apellidos || '')"></h1>
-        <p class="text-sm text-slate-500 mt-0.5">
+        <h1 class="text-xl font-semibold text-white" x-text="(docente?.docente?.nombres || '') + ' ' + (docente?.docente?.apellidos || '')"></h1>
+        <p class="text-sm text-white/60 mt-0.5">
           Cédula: <span class="font-mono" x-text="docente?.docente?.cedula"></span>
           · Departamento: <span x-text="docente?.vinculacion_institucional?.departamento || '—'"></span>
           · Sede: <span x-text="docente?.vinculacion_institucional?.sede || '—'"></span>
@@ -35,83 +36,83 @@
       <div class="flex gap-2">
         <!-- Exportar -->
         <div class="relative" x-data="{ open: false }">
-          <button @click="open = !open" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">Exportar ▾</button>
-          <div x-show="open" @click.outside="open = false" class="absolute right-0 top-8 bg-white border border-slate-200 rounded-md shadow-lg py-1 w-32 z-10">
-            <a :href="'/expedientes/' + cedula + '/exportar?formato=json'" class="block px-3 py-1.5 text-sm hover:bg-slate-50">JSON</a>
-            <a :href="'/expedientes/' + cedula + '/exportar?formato=xml'" class="block px-3 py-1.5 text-sm hover:bg-slate-50">XML</a>
-            <a :href="'/expedientes/' + cedula + '/exportar?formato=csv'" class="block px-3 py-1.5 text-sm hover:bg-slate-50">CSV</a>
+          <button @click="open = !open" class="px-3 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70">Exportar ▾</button>
+          <div x-show="open" @click.outside="open = false" class="absolute right-0 top-8 bg-slate-800 border border-white/10 rounded-md shadow-lg py-1 w-32 z-10">
+            <a :href="'/expedientes/' + cedula + '/exportar?formato=json'" class="block px-3 py-1.5 text-sm text-white/80 hover:bg-white/10">JSON</a>
+            <a :href="'/expedientes/' + cedula + '/exportar?formato=xml'" class="block px-3 py-1.5 text-sm text-white/80 hover:bg-white/10">XML</a>
+            <a :href="'/expedientes/' + cedula + '/exportar?formato=csv'" class="block px-3 py-1.5 text-sm text-white/80 hover:bg-white/10">CSV</a>
           </div>
         </div>
-        <button @click="abrirEditar()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">Editar</button>
-        <button @click="eliminar()" class="px-3 py-1.5 text-sm bg-red-50 border border-red-200 text-red-600 rounded-md hover:bg-red-100">Eliminar</button>
+        <button @click="abrirEditar()" class="px-3 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70">Editar</button>
+        <button @click="eliminar()" class="px-3 py-1.5 text-sm bg-red-500/10 border border-red-500/30 text-red-300 rounded-md hover:bg-red-500/20">Eliminar</button>
       </div>
     </div>
 
     <!-- Metric cards -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-      <div class="bg-white border border-slate-200 rounded-lg p-4">
-        <div class="text-2xl font-bold text-slate-800" x-text="docente?.completitud?.porcentaje != null ? Math.round(docente.completitud.porcentaje) + '%' : '—'"></div>
-        <div class="text-xs text-slate-500 mt-1">Completitud</div>
+      <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+        <div class="text-2xl font-bold text-white" x-text="docente?.completitud?.porcentaje != null ? Math.round(docente.completitud.porcentaje) + '%' : '—'"></div>
+        <div class="text-xs text-white/60 mt-1">Completitud</div>
       </div>
-      <div class="bg-white border border-slate-200 rounded-lg p-4">
-        <div class="text-2xl font-bold text-slate-800">
-          <span x-text="(documentos?.length ?? 0)"></span><span class="text-slate-400 text-lg">/10</span>
+      <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+        <div class="text-2xl font-bold text-white">
+          <span x-text="(documentos?.length ?? 0)"></span><span class="text-white/40 text-lg">/10</span>
         </div>
-        <div class="text-xs text-slate-500 mt-1">Documentos</div>
+        <div class="text-xs text-white/60 mt-1">Documentos</div>
       </div>
-      <div class="bg-white border border-slate-200 rounded-lg p-4">
+      <div class="bg-white/5 border border-white/10 rounded-lg p-4">
         <div class="text-sm font-bold mt-1" x-html="estadoValidacionBadge(validacion?.estado_general)"></div>
-        <div class="text-xs text-slate-500 mt-1">Validación</div>
+        <div class="text-xs text-white/60 mt-1">Validación</div>
       </div>
-      <div class="bg-white border border-slate-200 rounded-lg p-4">
-        <div class="text-xs font-medium text-slate-600 mt-1" x-text="formatDate(docente?.fecha_actualizacion)"></div>
-        <div class="text-xs text-slate-500 mt-1">Último update</div>
+      <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+        <div class="text-xs font-medium text-white/70 mt-1" x-text="formatDate(docente?.fecha_actualizacion)"></div>
+        <div class="text-xs text-white/60 mt-1">Último update</div>
       </div>
     </div>
 
     <!-- Alertas de validación -->
-    <div x-show="validacion?.alertas?.length > 0" class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-5">
-      <p class="text-xs font-medium text-amber-800 mb-1">Alertas de validación:</p>
+    <div x-show="validacion?.alertas?.length > 0" class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 mb-5">
+      <p class="text-xs font-medium text-amber-300 mb-1">Alertas de validación:</p>
       <ul class="list-disc list-inside">
         <template x-for="alerta in (validacion?.alertas || [])" :key="alerta">
-          <li class="text-xs text-amber-700" x-text="alerta"></li>
+          <li class="text-xs text-amber-200" x-text="alerta"></li>
         </template>
       </ul>
     </div>
 
     <!-- Documentos -->
-    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
-      <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-        <h2 class="text-sm font-medium text-slate-700">Documentos del expediente</h2>
+    <div class="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
+      <div class="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+        <h2 class="text-sm font-medium text-white/80">Documentos del expediente</h2>
       </div>
       <table class="w-full text-sm">
-        <thead class="bg-slate-50 border-b border-slate-200">
+        <thead class="bg-white/5 border-b border-white/10">
           <tr>
-            <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Tipo</th>
-            <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Formato</th>
-            <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Tamaño</th>
-            <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Estado</th>
-            <th class="text-left px-4 py-2.5 text-xs font-medium text-slate-500 uppercase">Acciones</th>
+            <th class="text-left px-4 py-2.5 text-xs font-medium text-white/60 uppercase">Tipo</th>
+            <th class="text-left px-4 py-2.5 text-xs font-medium text-white/60 uppercase">Formato</th>
+            <th class="text-left px-4 py-2.5 text-xs font-medium text-white/60 uppercase">Tamaño</th>
+            <th class="text-left px-4 py-2.5 text-xs font-medium text-white/60 uppercase">Estado</th>
+            <th class="text-left px-4 py-2.5 text-xs font-medium text-white/60 uppercase">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <template x-for="documento in documentos" :key="documento._id">
-            <tr class="border-b border-slate-100 hover:bg-slate-50">
-              <td class="px-4 py-2.5 text-slate-800 text-xs font-mono" x-text="documento.tipo"></td>
-              <td class="px-4 py-2.5 text-slate-600 text-xs uppercase" x-text="documento.ocr_info?.formato || '—'"></td>
-              <td class="px-4 py-2.5 text-slate-600 text-xs" x-text="formatTamano(documento.ocr_info?.tamano_bytes)"></td>
+            <tr class="border-b border-white/10 hover:bg-white/5">
+              <td class="px-4 py-2.5 text-white text-xs font-mono" x-text="documento.tipo"></td>
+              <td class="px-4 py-2.5 text-white/60 text-xs uppercase" x-text="documento.ocr_info?.formato || '—'"></td>
+              <td class="px-4 py-2.5 text-white/60 text-xs" x-text="formatTamano(documento.ocr_info?.tamano_bytes)"></td>
               <td class="px-4 py-2.5" x-html="validacionBadge(documento.validacion?.estado)"></td>
               <td class="px-4 py-2.5">
                 <div class="flex items-center gap-2">
-                  <button @click="verOcr(documento)" class="text-xs text-blue-600 hover:underline">Ver OCR</button>
-                  <button @click="abrirCambiarEstado(documento)" class="text-xs text-slate-600 hover:text-slate-900">Estado</button>
-                  <button @click="eliminarDocumento(documento._id)" class="text-xs text-red-500 hover:text-red-700">Eliminar</button>
+                  <button @click="verOcr(documento)" class="text-xs text-blue-400 hover:text-blue-300">Ver OCR</button>
+                  <button @click="abrirCambiarEstado(documento)" class="text-xs text-white/70 hover:text-white">Estado</button>
+                  <button @click="eliminarDocumento(documento._id)" class="text-xs text-red-400 hover:text-red-300">Eliminar</button>
                 </div>
               </td>
             </tr>
           </template>
           <tr x-show="documentos.length === 0">
-            <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-400">Sin documentos</td>
+            <td colspan="5" class="px-4 py-6 text-center text-sm text-white/40">Sin documentos</td>
           </tr>
         </tbody>
       </table>
@@ -119,33 +120,33 @@
 
   </div>
 
-  <div x-show="!cargando && !docente" class="py-12 text-center text-slate-400 text-sm">Docente no encontrado</div>
+  <div x-show="!cargando && !docente" class="py-12 text-center text-white/40 text-sm">Docente no encontrado</div>
 </div>
 
 <!-- Modal OCR -->
 <div x-show="ocrModal.visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" x-cloak>
-  <div class="bg-white rounded-lg border border-slate-200 shadow-xl p-5 max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
+  <div class="bg-slate-800 rounded-lg border border-white/10 shadow-xl p-5 max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
     <div class="flex items-center justify-between mb-3">
-      <h3 class="text-sm font-semibold text-slate-800">OCR — <span x-text="ocrModal.tipo"></span></h3>
-      <button @click="ocrModal.visible = false" class="text-slate-400 hover:text-slate-700">✕</button>
+      <h3 class="text-sm font-semibold text-white">OCR — <span x-text="ocrModal.tipo"></span></h3>
+      <button @click="ocrModal.visible = false" class="text-white/40 hover:text-white">✕</button>
     </div>
-    <div class="flex-1 overflow-y-auto bg-slate-50 border border-slate-200 rounded p-3 text-xs font-mono whitespace-pre-wrap text-slate-700" x-text="ocrModal.texto || 'Sin texto OCR disponible'"></div>
+    <div class="flex-1 overflow-y-auto bg-white/5 border border-white/10 rounded p-3 text-xs font-mono whitespace-pre-wrap text-white/80" x-text="ocrModal.texto || 'Sin texto OCR disponible'"></div>
   </div>
 </div>
 
 <!-- Modal cambiar estado -->
 <div x-show="estadoModal.visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" x-cloak>
-  <div class="bg-white rounded-lg border border-slate-200 shadow-xl p-5 max-w-sm w-full mx-4">
-    <h3 class="text-sm font-semibold text-slate-800 mb-3">Cambiar estado de validación</h3>
-    <p class="text-xs text-slate-500 mb-3">Documento: <span class="font-mono" x-text="estadoModal.tipo"></span></p>
-    <select x-model="estadoModal.nuevoEstado" class="w-full border border-slate-300 rounded-md px-2 py-1.5 text-sm mb-4">
-      <option value="pendiente">Pendiente</option>
-      <option value="aprobado">Aprobado</option>
-      <option value="rechazado">Rechazado</option>
-      <option value="requiere_revision">Requiere revisión</option>
+  <div class="bg-slate-800 rounded-lg border border-white/10 shadow-xl p-5 max-w-sm w-full mx-4">
+    <h3 class="text-sm font-semibold text-white mb-3">Cambiar estado de validación</h3>
+    <p class="text-xs text-white/60 mb-3">Documento: <span class="font-mono" x-text="estadoModal.tipo"></span></p>
+    <select x-model="estadoModal.nuevoEstado" class="w-full bg-white/5 border border-white/20 text-white rounded-md px-2 py-1.5 text-sm mb-4">
+      <option value="pendiente" class="bg-slate-800">Pendiente</option>
+      <option value="aprobado" class="bg-slate-800">Aprobado</option>
+      <option value="rechazado" class="bg-slate-800">Rechazado</option>
+      <option value="requiere_revision" class="bg-slate-800">Requiere revisión</option>
     </select>
     <div class="flex justify-end gap-2">
-      <button @click="estadoModal.visible = false" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">Cancelar</button>
+      <button @click="estadoModal.visible = false" class="px-3 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70">Cancelar</button>
       <button @click="cambiarEstado()" class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">Guardar</button>
     </div>
   </div>
@@ -153,37 +154,37 @@
 
 <!-- Modal editar docente -->
 <div x-show="editModal.visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" x-cloak>
-  <div class="bg-white rounded-lg border border-slate-200 shadow-xl p-6 max-w-md w-full mx-4">
-    <h3 class="text-base font-semibold text-slate-800 mb-4">Editar docente</h3>
+  <div class="bg-slate-800 rounded-lg border border-white/10 shadow-xl p-6 max-w-md w-full mx-4">
+    <h3 class="text-base font-semibold text-white mb-4">Editar docente</h3>
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Nombre</label>
-        <input x-model="editModal.form.nombre" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Nombre</label>
+        <input x-model="editModal.form.nombre" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Apellido</label>
-        <input x-model="editModal.form.apellido" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Apellido</label>
+        <input x-model="editModal.form.apellido" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Email</label>
-        <input x-model="editModal.form.email" type="email" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Email</label>
+        <input x-model="editModal.form.email" type="email" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Teléfono</label>
-        <input x-model="editModal.form.telefono" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Teléfono</label>
+        <input x-model="editModal.form.telefono" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Departamento</label>
-        <input x-model="editModal.form.departamento" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Departamento</label>
+        <input x-model="editModal.form.departamento" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Sede</label>
-        <input x-model="editModal.form.sede" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm" />
+        <label class="block text-xs font-medium text-white/60 mb-1">Sede</label>
+        <input x-model="editModal.form.sede" class="w-full bg-white/5 border border-white/20 text-white rounded px-2 py-1.5 text-sm" />
       </div>
     </div>
-    <div x-show="editModal.error" class="mt-2 text-xs text-red-600" x-text="editModal.error"></div>
+    <div x-show="editModal.error" class="mt-2 text-xs text-red-300" x-text="editModal.error"></div>
     <div class="flex justify-end gap-2 mt-4">
-      <button @click="editModal.visible = false" class="px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">Cancelar</button>
+      <button @click="editModal.visible = false" class="px-3 py-1.5 text-sm border border-white/20 rounded-md hover:bg-white/10 text-white/70">Cancelar</button>
       <button @click="guardarEdicion()" :disabled="editModal.guardando" class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-60">
         <span x-show="!editModal.guardando">Guardar</span>
         <span x-show="editModal.guardando">Guardando...</span>
@@ -235,12 +236,12 @@ function expedienteApp() {
 
     estadoValidacionBadge(estado) {
       const map = {
-        apto: ["bg-green-100","text-green-700"],
-        requiere_atencion: ["bg-yellow-100","text-yellow-700"],
-        critico: ["bg-red-100","text-red-700"],
+        apto: ["bg-green-500/20","text-green-300","border-green-500/30"],
+        requiere_atencion: ["bg-yellow-500/20","text-yellow-300","border-yellow-500/30"],
+        critico: ["bg-red-500/20","text-red-300","border-red-500/30"],
       };
-      const [bg, txt] = map[estado] || ["bg-slate-100","text-slate-500"];
-      return `<span class="px-2 py-0.5 text-xs rounded-full ${bg} ${txt}">${estado || "—"}</span>`;
+      const [bg, txt, border] = map[estado] || ["bg-white/5","text-white/60","border-white/10"];
+      return `<span class="px-2 py-0.5 text-xs rounded-full border ${bg} ${txt} ${border}">${estado || "—"}</span>`;
     },
 
     formatTamano(bytes) {

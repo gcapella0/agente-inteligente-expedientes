@@ -94,6 +94,7 @@ async def buscar_docentes(
             filtro["$or"] = [
                 {"docente.apellidos": {"$regex": q, "$options": "i"}},
                 {"docente.nombres": {"$regex": q, "$options": "i"}},
+                {"docente.cedula": {"$regex": q, "$options": "i"}},
             ]
         if departamento:
             filtro["vinculacion_institucional.departamento"] = departamento
