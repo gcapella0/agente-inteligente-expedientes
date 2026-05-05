@@ -188,6 +188,17 @@ class TestBuscarDocentes:
         assert data["skip"] == 10
         assert data["limit"] == 5
 
+    def test_query_busca_en_cedula(self):
+        mongo = _mongo_mock(docentes_count=0)
+        with patch("src.api.routers.expedientes.MongoService", return_value=mongo):
+            r = client.get("/docentes/buscar", params={"q": "27504759"})
+        assert r.status_code == 200
+        filtro = mongo.docentes.find.call_args[0][0]
+        campos = {clave for cond in filtro["$or"] for clave in cond.keys()}
+        assert "docente.cedula" in campos
+        assert "docente.nombres" in campos
+        assert "docente.apellidos" in campos
+
 
 # ---------------------------------------------------------------------------
 # GET /expediente/{cedula}

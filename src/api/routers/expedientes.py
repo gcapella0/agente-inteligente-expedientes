@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from base64 import b64decode, b64encode
+from pathlib import Path
 from typing import Optional
 
 from bson import ObjectId
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import FileResponse
 
+from src import config
+from src.api.dependencies import verify_token_sse
 from src.core.logger import get_agent_logger
 from src.services.mongo_service import MongoService
 
@@ -94,6 +98,7 @@ async def buscar_docentes(
             filtro["$or"] = [
                 {"docente.apellidos": {"$regex": q, "$options": "i"}},
                 {"docente.nombres": {"$regex": q, "$options": "i"}},
+                {"docente.cedula": {"$regex": q, "$options": "i"}},
             ]
         if departamento:
             filtro["vinculacion_institucional.departamento"] = departamento
@@ -319,3 +324,53 @@ async def obtener_resumen(
     except Exception as e:
         logger.error(f"Error generando resumen para {cedula}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error de base de datos")
+
+
+@router.get("/expediente/{cedula}/documento/{documento_id}/archivo")
+async def servir_archivo_documento(
+    cedula: str,
+    documento_id: str,
+    descargar: bool = Query(False, description="Si true, fuerza descarga (Content-Disposition: attachment)"),
+    _: dict = Depends(verify_token_sse),
+):
+    """Sirve el archivo físico de un documento. Autenticación vía ?token=... (compatible con <img src> e <iframe>)."""
+    try:
+        oid = ObjectId(documento_id)
+    except Exception:
+        raise HTTPException(status_code=422, detail="documento_id inválido")
+
+    mongo = MongoService()
+    doc = mongo.documentos.find_one({"_id": oid, "docente_cedula": cedula})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Documento no encontrado")
+
+    ruta_str = (doc.get("archivo") or {}).get("ruta")
+    if not ruta_str:
+        raise HTTPException(status_code=404, detail="El documento no tiene archivo asociado")
+
+    archivo_path = Path(ruta_str).resolve()
+    storage_root = Path(config.STORAGE_DIR).resolve()
+
+    try:
+        archivo_path.relative_to(storage_root)
+    except ValueError:
+        logger.warning(f"Intento de acceso fuera de STORAGE_DIR: {archivo_path}")
+        raise HTTPException(status_code=403, detail="Ruta fuera del almacenamiento permitido")
+
+    if not archivo_path.is_file():
+        raise HTTPException(status_code=404, detail="Archivo físico no encontrado")
+
+    formato = (doc.get("archivo") or {}).get("formato", "").lower()
+    media_type = {
+        "pdf": "application/pdf",
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+        "png": "image/png",
+    }.get(formato, "application/octet-stream")
+
+    nombre_original = (doc.get("archivo") or {}).get("nombre_original") or archivo_path.name
+    disposition = "attachment" if descargar else "inline"
+    headers = {"Content-Disposition": f'{disposition}; filename="{nombre_original}"'}
+
+    logger.info(f"Sirviendo archivo: cedula={cedula}, doc={documento_id}, descargar={descargar}")
+    return FileResponse(str(archivo_path), media_type=media_type, headers=headers)
