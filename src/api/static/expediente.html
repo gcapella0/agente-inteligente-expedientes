@@ -118,6 +118,47 @@
       </table>
     </div>
 
+    <!-- Asistente IA del expediente -->
+    <div class="bg-white/5 border border-white/10 rounded-lg overflow-hidden mt-5">
+      <div class="px-4 py-3 border-b border-white/10">
+        <h2 class="text-sm font-medium text-white/80">Asistente IA del expediente</h2>
+        <p class="text-xs text-white/40 mt-0.5">Haz preguntas sobre este docente. Las respuestas se basan solo en su expediente.</p>
+      </div>
+
+      <!-- Conversación -->
+      <div class="p-4 space-y-3 max-h-96 overflow-y-auto" x-ref="chatLog">
+        <template x-for="(t, i) in conversacion" :key="i">
+          <div>
+            <div class="text-xs text-white/40 mb-1" x-text="t.rol === 'usuario' ? 'Tú' : 'Asistente'"></div>
+            <div :class="t.rol === 'usuario'
+                  ? 'bg-blue-500/10 border-blue-500/20 text-blue-100'
+                  : 'bg-white/5 border-white/10 text-white/90'"
+                 class="border rounded-md px-3 py-2 text-sm whitespace-pre-wrap" x-text="t.texto"></div>
+          </div>
+        </template>
+        <div x-show="conversacion.length === 0" class="text-center text-xs text-white/40 py-6">
+          Ejemplos: "¿Cuántos documentos tiene?" · "¿Qué le falta para ser apto?" · "¿En qué se especializa según su CV?"
+        </div>
+        <div x-show="esperandoRespuesta" class="text-xs text-white/40 italic">El asistente está pensando...</div>
+      </div>
+
+      <!-- Input -->
+      <div class="border-t border-white/10 p-3 flex gap-2">
+        <input type="text"
+               x-model="preguntaActual"
+               @keydown.enter.prevent="enviarPregunta()"
+               :disabled="esperandoRespuesta"
+               maxlength="500"
+               placeholder="Escribe tu pregunta..."
+               class="flex-1 bg-white/5 border border-white/20 text-white rounded-md px-3 py-2 text-sm placeholder-white/40 disabled:opacity-50">
+        <button @click="enviarPregunta()"
+                :disabled="esperandoRespuesta || !preguntaActual.trim()"
+                class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">
+          Enviar
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <div x-show="!cargando && !docente" class="py-12 text-center text-white/40 text-sm">Docente no encontrado</div>
@@ -287,6 +328,9 @@ function expedienteApp() {
     ocrModal: { visible: false, doc: null, tab: "documento" },
     estadoModal: { visible: false, docId: "", tipo: "", nuevoEstado: "pendiente" },
     editModal: { visible: false, form: {}, error: "", guardando: false },
+    conversacion: [],
+    preguntaActual: "",
+    esperandoRespuesta: false,
 
     async init() {
       requireAuth();
@@ -466,6 +510,39 @@ function expedienteApp() {
         window.location.href = "/ui/expedientes.html";
       } else {
         showToast("Error al eliminar", "error");
+      }
+    },
+
+    async enviarPregunta() {
+      const pregunta = (this.preguntaActual || "").trim();
+      if (!pregunta || this.esperandoRespuesta) return;
+      this.conversacion.push({ rol: "usuario", texto: pregunta });
+      this.preguntaActual = "";
+      this.esperandoRespuesta = true;
+      this.$nextTick(() => {
+        if (this.$refs.chatLog) this.$refs.chatLog.scrollTop = this.$refs.chatLog.scrollHeight;
+      });
+      try {
+        const r = await fetchApi(`/expedientes/${this.cedula}/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pregunta }),
+        });
+        if (r && r.ok) {
+          const d = await r.json();
+          this.conversacion.push({ rol: "asistente", texto: d.respuesta || "(sin respuesta)" });
+        } else {
+          const d = r ? await r.json().catch(() => ({})) : {};
+          this.conversacion.push({ rol: "asistente", texto: `Error: ${d.detail || "no se pudo obtener respuesta"}` });
+          showToast("Error al consultar al asistente", "error");
+        }
+      } catch (e) {
+        this.conversacion.push({ rol: "asistente", texto: "Error de red al consultar al asistente." });
+      } finally {
+        this.esperandoRespuesta = false;
+        this.$nextTick(() => {
+          if (this.$refs.chatLog) this.$refs.chatLog.scrollTop = this.$refs.chatLog.scrollHeight;
+        });
       }
     },
   };
