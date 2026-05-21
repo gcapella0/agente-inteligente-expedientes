@@ -36,10 +36,5 @@ src/data/vectorstore/
 !src/data/results/.gitkeep
 !src/data/vectorstore/.gitkeep
 
-# Claude / Testing cache
-.claude/
-.pytest_cache/
-CLAUDE.md
-
 # Logs (generados en runtime)
 logs/
