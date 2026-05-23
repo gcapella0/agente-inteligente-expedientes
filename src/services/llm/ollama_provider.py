@@ -237,8 +237,9 @@ class OllamaProvider(BaseLlmProvider):
             "model": self._model,
             "messages": mensajes,
             "stream": False,
+            "keep_alive": "24h",
             "options": {
-                "num_predict": self._num_predict,
+                "num_predict": 300,
                 "num_ctx": 2048,
                 "num_thread": _NUM_THREADS,
             },
