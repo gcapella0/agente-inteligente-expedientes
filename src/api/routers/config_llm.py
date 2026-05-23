@@ -70,6 +70,11 @@ class ProbarResponse(BaseModel):
     mensaje: str
 
 
+class ProbarRequest(BaseModel):
+    provider: str | None = None
+    host: str | None = None
+
+
 # ---------------------------------------------------------------------------
 # Helper: leer config vigente desde Mongo o defaults de .env
 # ---------------------------------------------------------------------------
@@ -153,13 +158,20 @@ async def actualizar_config_llm(
 
 
 @router.post("/llm/probar", response_model=ProbarResponse)
-async def probar_conexion_llm(payload: dict = Depends(verify_token)) -> dict:
-    """Testea la conexión con el proveedor LLM configurado."""
+async def probar_conexion_llm(
+    body: ProbarRequest = ProbarRequest(),
+    payload: dict = Depends(verify_token),
+) -> dict:
+    """Testea la conexión con el proveedor LLM configurado.
+
+    Si el body incluye ``provider``/``host``, los usa directamente (permite
+    probar antes de guardar). Si no, lee la config vigente desde MongoDB.
+    """
     try:
         mongo = MongoService()
         cfg = _leer_config(mongo)
-        provider = cfg.get("provider", config.LLM_PROVIDER)
-        host = cfg.get("host") or config.OLLAMA_BASE_URL
+        provider = body.provider or cfg.get("provider", config.LLM_PROVIDER)
+        host = body.host or cfg.get("host") or config.OLLAMA_BASE_URL
 
         inicio = time.perf_counter()
 

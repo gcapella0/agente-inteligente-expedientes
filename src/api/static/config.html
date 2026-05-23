@@ -155,7 +155,7 @@
           <span class="text-sm text-white/80">OpenRouter</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" x-model="form.provider" value="ollama" @change="form.model = ''" class="text-blue-500" />
+          <input type="radio" x-model="form.provider" value="ollama" @change="form.model = ''; _cargarModelosOllama()" class="text-blue-500" />
           <span class="text-sm text-white/80">Ollama (local)</span>
         </label>
       </div>
@@ -278,6 +278,23 @@ function configApp() {
         this.form.host = d.host || "http://localhost:11434";
         this.modelosOR = d.available_models_openrouter || [];
         this.modelosOllama = d.available_models_ollama || [];
+        // Si el proveedor activo es Ollama, consultar los modelos reales instalados
+        if (this.form.provider === "ollama") await this._cargarModelosOllama();
+      } catch {}
+    },
+
+    async _cargarModelosOllama() {
+      try {
+        const r = await fetchApi("/config/llm/probar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ provider: "ollama", host: this.form.host }),
+        });
+        if (!r || !r.ok) return;
+        const d = await r.json();
+        if (d.ok && d.modelos_disponibles?.length) {
+          this.modelosOllama = d.modelos_disponibles;
+        }
       } catch {}
     },
 
@@ -285,15 +302,21 @@ function configApp() {
       this.probando = true;
       this.testResult = null;
       try {
-        const body = { provider: this.form.provider, model: this.form.model };
+        const body = { provider: this.form.provider };
         if (this.form.provider === "ollama") body.host = this.form.host;
         const r = await fetchApi("/config/llm/probar", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-        if (r) this.testResult = await r.json();
-        else this.testResult = { ok: false, error: "Sin respuesta" };
+        if (!r) { this.testResult = { ok: false, error: "Sin respuesta" }; return; }
+        const d = await r.json();
+        this.testResult = d;
+        // Si Ollama responde con éxito, actualizar el dropdown con los modelos reales
+        if (d.ok && this.form.provider === "ollama" && d.modelos_disponibles?.length) {
+          this.modelosOllama = d.modelos_disponibles;
+          if (!this.modelosOllama.includes(this.form.model)) this.form.model = "";
+        }
       } catch (e) {
         this.testResult = { ok: false, error: e.message };
       } finally {
