@@ -1,978 +1,302 @@
-# Agente Inteligente para la Gestion de Expedientes Docentes - UNEG
+# Agente Inteligente para la Gestión de Expedientes Docentes — UNEG
 
-Sistema desarrollado en **Python**, diseñado para automatizar la gestion de expedientes docentes mediante **agentes autonomos** capaces de:
-
-- Monitorear correos institucionales y detectar nuevos expedientes.
-- Procesar documentos adjuntos mediante **OCR con docTR** (python-doctr).
-- Clasificar documentos automaticamente via **LLM** (OpenRouter o Ollama).
-- Comprimir automaticamente PDFs e imagenes antes del almacenamiento.
-- Almacenar y organizar la informacion en **MongoDB**.
-- Exponer los expedientes a traves de una **API REST** con autenticacion JWT.
-- Controlar y monitorear los agentes desde una interfaz web (frontend MVP en progreso).
+Sistema desarrollado en Python para automatizar la gestión de expedientes docentes mediante una cadena de agentes autónomos: monitoreo de correo IMAP, OCR, clasificación con LLM y almacenamiento persistente. Se expone a través de una API REST con autenticación JWT y una interfaz web incluida.
 
 ---
 
-## Objetivos del proyecto
+## Arquitectura
 
-1. Automatizar la recepcion y clasificacion de expedientes docentes.
-2. Implementar un flujo de agentes con comportamiento autonomo:
-   - **WatcherAgent** → supervisa el correo institucional.
-   - **OcrAgent** → procesa adjuntos con OCR via docTR.
-   - **ClassifierAgent** → clasifica documentos y extrae campos via LLM.
-   - **StorageAgent** → comprime archivos, persiste metadatos en MongoDB y organiza el almacenamiento.
-3. Facilitar la consulta y recuperacion de expedientes desde UNEG.
-4. Exponer la informacion a traves de una **API REST FastAPI** con autenticacion JWT, endpoints de lectura/escritura, busqueda de texto completo, exportacion (JSON/XML/CSV), auditoria admin, control de agentes y streaming de logs via SSE.
+El sistema tiene cuatro agentes que se encadenan en un pipeline lineal:
+
+```
+WatcherAgent (IMAP)
+  └─▶ data/input/{docente}/
+        └─▶ OcrAgent (docTR)
+              └─▶ ClassifierAgent (LLM: OpenRouter | Ollama)
+                    └─▶ StorageAgent (MongoDB + sistema de archivos)
+```
+
+### WatcherAgent — `src/agents/watcher_agent.py`
+
+Polling IMAP contra Gmail (u otro servidor). Descarga adjuntos de correos que coinciden con palabras clave en asunto o cuerpo y los guarda en `data/input/{nombre_docente}/`. Implementa deduplicación en dos niveles: por UID de correo y por huella SHA-256 del contenido (cubre reenvíos). Búsqueda en tres niveles: X-GM-RAW, IMAP estándar ASCII y fallback por fecha con filtrado local insensible a acentos.
+
+### OcrAgent — `src/agents/ocr_agent.py`
+
+Recorre `data/input/` y extrae texto de PDFs e imágenes usando `docTR` (`python-doctr[torch]`). Produce `texto_completo`, `json_ligero` (texto por bloque, optimizado para LLM), confianza promedio, páginas e idioma detectado. El modelo (~500 MB) se carga una sola vez. Salta archivos ya procesados por hash SHA-256.
+
+### ClassifierAgent — `src/agents/classifier_agent.py`
+
+Recibe el resultado OCR y lo envía al LLM configurado. Devuelve un dict con `valido`, `tipo` (uno de 22 tipos), `campos_extraidos`, `confianza_clasificacion` y metadatos del modelo. El prompt del sistema vive en `src/prompts/classify_document.py`.
+
+### StorageAgent — `src/agents/storage_agent.py`
+
+Valida el documento clasificado, extrae y normaliza la cédula, comprueba duplicados por hash, crea o recupera el perfil del docente en MongoDB, inserta el documento, actualiza la completitud del expediente y mueve el archivo. Antes de mover, comprime PDFs con Ghostscript (calidad `ebook`) e imágenes con Pillow (JPEG 85%). Si la compresión falla o produce un archivo más grande, usa el original.
 
 ---
 
-## Estructura del proyecto
+## API REST — `src/api/`
 
-```
-├── src/
-│   ├── main.py                      # Punto de entrada: main() (loop continuo) / test_*()
-│   ├── config.py                    # Configuracion y variables de entorno
-│   ├── agents/
-│   │   ├── watcher_agent.py         # Agente de monitoreo IMAP
-│   │   ├── ocr_agent.py             # Agente de procesamiento OCR
-│   │   ├── classifier_agent.py      # Agente de clasificacion con LLM
-│   │   └── storage_agent.py         # Agente de almacenamiento y compresion
-│   ├── services/
-│   │   ├── ocr_service.py           # Servicio OCR con docTR
-│   │   ├── llm_service.py           # Orquestador LLM (OpenRouter / Ollama)
-│   │   ├── mongo_service.py         # Servicio de persistencia en MongoDB
-│   │   ├── file_service.py          # Servicio de gestion de archivos
-│   │   └── llm/
-│   │       ├── base_provider.py     # Clase base abstracta para proveedores LLM
-│   │       ├── openrouter_provider.py # Proveedor OpenRouter (OpenAI SDK)
-│   │       ├── ollama_provider.py   # Proveedor Ollama (requests)
-│   │       └── llm_factory.py       # Factory: crea el proveedor segun LLM_PROVIDER
-│   ├── models/
-│   │   ├── docente.py               # Modelo Pydantic del docente
-│   │   ├── documento.py             # Modelo Pydantic de documentos
-│   │   └── usuario.py               # Modelo Pydantic de usuario (JWT)
-│   ├── core/
-│   │   └── logger.py                # Logging con Loguru (audit + por agente)
-│   ├── prompts/
-│   │   └── classify_document.py     # Prompt de clasificacion para el LLM
-│   └── api/
-│       ├── main.py                  # App FastAPI, routers, middleware
-│       ├── schemas.py               # Modelos Pydantic para respuestas
-│       ├── security.py              # JWT: create_access_token, verify_token, bcrypt
-│       ├── dependencies.py          # Depends: verify_token, verify_admin
-│       └── routers/
-│           ├── expedientes.py       # GET docentes, expediente, documentos, resumen
-│           ├── expedientes_escribir.py # PUT/DELETE expediente
-│           ├── documentos.py        # GET documento, validacion
-│           ├── documentos_escribir.py  # POST agregar, PATCH validacion, DELETE
-│           ├── busqueda.py          # GET buscar-texto (full-text)
-│           ├── exportacion.py       # GET exportar (JSON/XML/CSV)
-│           ├── estadisticas.py      # GET expedientes/documentos/completitud
-│           ├── validacion.py        # GET validar expediente
-│           ├── config.py            # GET tipos-documento/estados
-│           ├── auth.py              # POST login/crear-usuario/cambiar-password
-│           ├── auditoria.py         # GET auditoria expediente/documento (admin)
-│           ├── agentes.py           # GET /agentes, POST ejecutar, POST stop
-│           ├── config_llm.py        # GET/PUT /config/llm, POST /config/llm/probar
-│           ├── config_agentes.py    # GET/PUT /config/agentes (parametros de cada agente)
-│           ├── metricas.py          # GET /metricas/ (4 KPIs del sistema)
-│           ├── usuarios.py          # CRUD usuarios (solo admin)
-│           ├── logs.py              # GET /logs/stream (SSE), GET /logs/descargar
-│           └── health.py            # GET /health, /, /info
-│   └── static/                      # Frontend MVP servido en /ui
-│       ├── login.html               # Login JWT
-│       ├── index.html               # Dashboard: KPIs, cards agentes, mini-log SSE
-│       ├── expedientes.html         # Listado con busqueda y paginacion cursor
-│       ├── expediente.html          # Detalle expediente con modales y exportacion
-│       ├── config.html              # Configuracion agentes y LLM
-│       ├── admin.html               # CRUD usuarios (solo admin)
-│       ├── logs.html                # Visor SSE con filtros
-│       └── assets/
-│           ├── app.js               # Helpers compartidos (fetchApi, requireAuth, SSE)
-│           ├── nav.html             # Navbar reutilizable
-│           └── logo_uneg.png        # Logo UNEG
-├── tests/
-│   ├── test_watcher_agent.py        # Tests del WatcherAgent (47)
-│   ├── test_ocr.py                  # Tests del OcrAgent y OcrService (57)
-│   ├── test_classifier.py           # Tests del ClassifierAgent y LlmService (48)
-│   ├── test_storage.py              # Tests del StorageAgent (83)
-│   ├── test_llm_providers.py        # Tests de OpenRouterProvider y OllamaProvider (30)
-│   ├── test_api_fase1.py            # Tests API: health, expedientes, documentos (30)
-│   ├── test_api_fase2.py            # Tests API: estadisticas y validacion (31)
-│   ├── test_api_fase3.py            # Tests API: busqueda, exportacion, paginacion (22)
-│   ├── test_api_fase4.py            # Tests API: escritura CRUD (26)
-│   ├── test_api_fase5.py            # Tests API: autenticacion JWT y auditoria (32)
-│   ├── test_api_fase6.py            # Tests API: agentes, config LLM, logs SSE (34)
-│   ├── test_metricas.py             # Tests del endpoint /metricas/ (10)
-│   ├── test_config_agentes.py       # Tests de GET/PUT /config/agentes (14)
-│   └── test_usuarios.py             # Tests CRUD usuarios (23)
-├── data/
-│   ├── input/                       # Expedientes descargados por docente
-│   ├── storage/                     # Archivos almacenados por cedula
-│   ├── processed_uids.json          # Estado de correos procesados (UIDs + fingerprints)
-│   └── processed_pipeline.json      # Hashes de archivos ya clasificados
-├── logs/
-│   ├── watcher.log                  # Log del WatcherAgent
-│   ├── ocr.log                      # Log del OcrAgent
-│   ├── classifier.log               # Log del ClassifierAgent
-│   ├── storage.log                  # Log del StorageAgent
-│   ├── audit.jsonl                  # Log de auditoria estructurado (JSON)
-│   ├── api.log                      # Log de la API REST
-│   └── operational.log              # Log operacional unificado (JSON, todos los agentes)
-├── .env                             # Variables de entorno (no versionado)
-├── .env.example                     # Plantilla de variables de entorno
-└── requirements.txt                 # Dependencias Python
-```
+FastAPI v2.2.0. Swagger en `/docs`. Interfaz web estática en `/ui`.
+
+| Prefijo | Descripción |
+|---|---|
+| `/auth` | Login JWT, creación de usuarios, cambio de contraseña |
+| `/expedientes` | Listado, búsqueda, detalle, resumen, exportación (JSON/XML/CSV) |
+| `/expedientes/{cedula}/chat` | Chat IA sobre el expediente usando el LLM configurado |
+| `/documentos` | Consulta, validación, alta, edición y baja de documentos |
+| `/estadisticas` | Dashboards de expedientes, documentos y completitud |
+| `/validacion` | Auditoría de completitud y estado general del expediente |
+| `/agentes` | Estado y ejecución de los 4 agentes (modo independiente o pipeline) |
+| `/config/llm` | Proveedor LLM activo (OpenRouter / Ollama), modelo y test de conexión |
+| `/config/agentes` | Parámetros de timeout, reintentos y temperatura por agente |
+| `/logs/stream` | Streaming de logs en tiempo real (SSE) |
+| `/logs/descargar` | Descarga de `audit.jsonl` |
+| `/metricas` | KPIs del sistema (documentos, completitud, docentes aptos) |
+| `/usuarios` | CRUD de usuarios (solo admin) |
+| `/admin/auditoria` | Historial de eventos por expediente o documento (solo admin) |
+| `/health` | Estado del servicio |
+
+### Autenticación
+
+JWT con 8 h de expiración. Credenciales por defecto al iniciar por primera vez: `admin@uneg.edu.ve` / `admin123`. Todos los endpoints de escritura requieren token. Los endpoints de auditoría requieren rol `admin`.
 
 ---
 
-## WatcherAgent
+## Proveedores LLM
 
-Agente principal que monitorea una casilla de correo Gmail via IMAP y procesa los correos entrantes relacionados con expedientes docentes.
+El proveedor activo se selecciona con `LLM_PROVIDER` en `.env` o desde la interfaz web (se guarda en MongoDB y tiene precedencia sobre el `.env`).
 
-### Flujo de procesamiento
+**OpenRouter** — recomendado para producción. Requiere `OPENROUTER_API_KEY`. Rota automáticamente entre modelos fallback en caso de rate limit.
 
-```
-1. Conectar al servidor IMAP (Gmail)
-2. Buscar correos que coincidan con keywords + tengan adjuntos
-3. Para cada correo:
-   a. Verificar si ya fue procesado (por UID)
-   b. Decodificar email (asunto, cuerpo, adjuntos)
-   c. Verificar duplicado por contenido (fingerprint SHA-256)
-   d. Validar keywords en asunto O cuerpo
-   e. Validar adjuntos requeridos (PDF/JPG)
-   f. Extraer nombre del docente del asunto
-   g. Crear carpeta del expediente
-   h. Guardar cuerpo del email en archivo .txt
-   i. Guardar adjuntos
-   j. Marcar como leido en Gmail
-   k. Registrar UID + fingerprint en archivo de estado
-```
+**Ollama** — para desarrollo local sin costo. Requiere Ollama corriendo en `OLLAMA_BASE_URL`. Modelos recomendados para CPU sin GPU:
 
-### Funcionalidades clave
+| Modelo | RAM aprox. | Tiempo estimado (i5) | Calidad |
+|---|---|---|---|
+| `phi3:mini` | ~2.2 GB | 30–60 s | Buena |
+| `qwen2.5:0.5b` | ~0.8 GB | 10–20 s | Básica |
 
-| Funcionalidad | Descripcion |
-|---|---|
-| **Monitoreo IMAP** | Conexion a Gmail con soporte SSL y busqueda en 3 niveles: X-GM-RAW → keywords ASCII → fallback por fecha |
-| **Filtrado por keywords** | Busca multiples palabras clave en asunto y cuerpo, con matching accent-insensitive via `_normalize_text()` |
-| **Validacion de adjuntos** | Solo acepta archivos PDF (`.pdf`) y JPG (`.jpg`, `.jpeg`) |
-| **Deduplicacion por UID** | Omite correos ya procesados por su identificador unico |
-| **Deduplicacion por fingerprint** | Hash SHA-256 de remitente + asunto + cuerpo + adjuntos para detectar reenvios |
-| **Extraccion de nombre** | Parseo del nombre del docente desde el asunto usando regex y keywords |
-| **Nombres de archivo seguros** | Normalizacion Unicode y sanitizado de caracteres especiales |
-| **Persistencia de estado** | Archivo JSON con UIDs y fingerprints, compatible con formatos anteriores |
-| **Shutdown graceful** | Manejo de SIGTERM para cierre controlado |
-
-### Deduplicacion por fingerprint
-
-Cuando un correo es reenviado (Fwd:), Gmail le asigna un nuevo UID. Para evitar procesar el mismo contenido dos veces, se calcula un hash SHA-256 que incluye:
-
-- **Remitente** (`From`): permite procesar el mismo contenido enviado por distintas personas.
-- **Asunto** (sin prefijos Fwd:/Re:)
-- **Cuerpo** del email (text/plain)
-- **Nombre y contenido** de cada adjunto
-
-Si el fingerprint ya existe en el estado, el correo se omite y se registra como duplicado.
-
-### Keywords
-
-Las keywords se configuran como listas separadas por comas en el archivo `.env`:
-
-```env
-SUBJECT_KEYWORD=Certificado, Diploma, Hoja de vida, Curriculum, CV, Titulo, Documentacion, Constancia
-BODY_KEYWORD=Certificado, Diploma, Hoja de vida, Curriculum, CV, Titulo, Documentacion, Constancia
-```
-
-La busqueda es **case-insensitive** y **accent-insensitive** (ej: "Currículum" coincide con "Curriculum"). Basta con que **una** keyword coincida en el asunto **o** en el cuerpo para que el correo sea aceptado.
-
-### Estrategia de busqueda IMAP
-
-La busqueda de correos usa 3 niveles de fallback:
-
-1. **X-GM-RAW** (Gmail-specific): query combinada con `has:attachment`. Rapido pero no disponible en todas las cuentas.
-2. **IMAP estandar SUBJECT/BODY**: busqueda por keyword individual, **solo keywords ASCII** (Gmail no soporta `CHARSET UTF-8` ni matching accent-insensitive en servidor).
-3. **Fallback por fecha** (`SINCE <7 dias>`): captura emails recientes que las keywords ASCII no encuentran (ej: asuntos con acentos). Se filtran localmente con `_normalize_text()`.
+No usar `mistral` en CPU: supera el timeout de 120 s.
 
 ---
 
-## OcrAgent + OcrService
+## Interfaz web — `src/api/static/`
 
-Sistema de reconocimiento optico de caracteres basado en **docTR** (`python-doctr[torch]`) para extraer texto de los documentos adjuntos descargados por el WatcherAgent.
+HTML estático servido por FastAPI en `/ui`. Sin build step; usa Alpine.js 3.x y Tailwind CSS vía CDN.
 
-### OcrService (`src/services/ocr_service.py`)
-
-Servicio que encapsula docTR. Inicializa `ocr_predictor(pretrained=True)` **una sola vez** (el modelo pesa ~500MB).
-
-**Formatos soportados:** `.pdf`, `.jpg`, `.jpeg`, `.png`
-
-**Resultado de `process_file(path)`:**
-
-| Campo | Tipo | Descripcion |
-|---|---|---|
-| `texto_completo` | `str` | Texto extraido completo |
-| `json_export` | `dict` | Exportacion estructurada de docTR |
-| `json_ligero` | `dict` | JSON simplificado (solo texto por pagina/bloque, diseñado para consumo LLM) |
-| `confianza_promedio` | `float` | Confianza promedio (0-1) |
-| `paginas` | `int` | Numero de paginas procesadas |
-| `idioma_detectado` | `str` | Idioma detectado en el texto |
-| `palabras_detectadas` | `int` | Cantidad de palabras extraidas |
-
-### OcrAgent (`src/agents/ocr_agent.py`)
-
-Recibe `OcrService` por inyeccion de dependencias. `process_directory(skip_hashes=set())` escanea los subdirectorios de `data/input/`, procesa archivos de imagen/PDF e ignora archivos `.txt`. Cuando se proporcionan `skip_hashes`, calcula el SHA-256 **antes** del OCR y omite archivos ya procesados.
-
-**Resultado por archivo:**
-
-| Campo | Descripcion |
+| Archivo | Función |
 |---|---|
-| `archivo_path` | Ruta completa del archivo |
-| `archivo_nombre` | Nombre del archivo |
-| `carpeta_origen` | Carpeta del docente |
-| `formato` | Extension del archivo |
-| `tamano_bytes` | Tamaño en bytes |
-| `hash_sha256` | Hash SHA-256 del contenido |
-| `ocr_resultado` | Resultado del OCR (o `null` si falla) |
-
----
-
-## ClassifierAgent + LlmService
-
-Sistema de clasificacion automatica de documentos basado en **LLM** para categorizar los documentos procesados por OCR. Soporta dos proveedores: **OpenRouter** (produccion) y **Ollama** (local/CPU).
-
-### Arquitectura de proveedores (`src/services/llm/`)
-
-Patron plugin con clase base abstracta `BaseLlmProvider`:
-
-- **`OpenRouterProvider`**: usa el SDK de OpenAI apuntado a OpenRouter. Soporta rotacion de modelos ante rate limit (primary + fallback models). Retorna `tokens_usados` desde el API.
-- **`OllamaProvider`**: usa `requests.post` al endpoint `/api/chat` de Ollama. Texto truncado a 1500 caracteres antes de enviar. Opciones: `num_predict=400`, `num_ctx=2048`. Modelos recomendados para CPU: `phi3:mini`.
-- **`create_llm_provider()`** (factory en `llm_factory.py`): consulta primero la coleccion `sistema_config` de MongoDB (doc `_id="llm_config"`) y, si existe, sobrescribe los valores de `config.*` en runtime. Si no hay doc o MongoDB no esta disponible, usa las variables de `.env` como fallback. Esto permite cambiar el proveedor y modelo en caliente desde la API sin reiniciar el servidor.
-
-### LlmService (`src/services/llm_service.py`)
-
-Orquestador dual:
-- **Con proveedor inyectado** (`LlmService(create_llm_provider())`): delega al proveedor segun `LLM_PROVIDER`. Modo usado en produccion y pipeline.
-- **Sin proveedor** (legacy): usa OpenRouter directamente con rotacion de modelos y backoff exponencial: `delay = 10 * 2^intento` → 10s, 20s, 40s (maximo 3 intentos).
-
-**Parametros de inferencia:** `temperature=0.1`, `max_tokens=1000`
-
-**Resultado de `classify_and_extract(texto_ocr)`:**
-
-| Campo | Tipo | Descripcion |
-|---|---|---|
-| `valido` | `bool` | Si el documento es un tipo reconocido |
-| `tipo` | `str` | Tipo de documento (22 tipos definidos) |
-| `razon_rechazo` | `str` | Razon si no es valido |
-| `campos_extraidos` | `dict` | Campos especificos extraidos segun el tipo |
-| `confianza_clasificacion` | `float` | Confianza del modelo (0-1) |
-| `modelo_llm` | `str` | Modelo utilizado en la clasificacion |
-| `tokens_usados` | `int` | Tokens consumidos (None en Ollama) |
-
-### ClassifierAgent (`src/agents/classifier_agent.py`)
-
-Recibe `LlmService` por inyeccion de dependencias. `classify(ocr_result)` toma el resultado del OcrAgent, extrae `json_ligero` (con fallback a `texto_completo`) y envia al LLM para clasificacion.
-
-**22 tipos de documento soportados:** cedula, RIF, partida de nacimiento, titulo de bachiller, titulo universitario, titulo de postgrado, certificados de notas, acta de grado, fondo negro, nostrificacion, resolucion de nombramiento, evaluacion docente, diplomas (curso/taller/congreso), constancias (trabajo/estudio), carta de recomendacion, curriculo vitae, y otros.
-
-**Auditoria:**
-- `clasificado`/`ok`: documento valido clasificado exitosamente
-- `clasificado`/`rechazado`: documento no reconocido o irrelevante
-- `clasificacion_fallida`/`error`: fallo en la comunicacion con el LLM
-
----
-
-## StorageAgent
-
-Agente de almacenamiento que recibe el resultado clasificado, comprime el archivo, persiste los metadatos en MongoDB y organiza los archivos en disco.
-
-### Flujo de `process(classified_result)`
-
-```
-1. Validar que el documento sea valido y tenga cedula
-2. Normalizar cedula (solo digitos)
-3. Verificar duplicado por hash SHA-256 en MongoDB
-4. Crear o recuperar el registro del docente
-5. Comprimir el archivo (PDF con Ghostscript, imagen con Pillow)
-6. Insertar documento en MongoDB con metadatos de compresion
-7. Actualizar completitud del expediente
-8. Mover archivo comprimido a data/storage/{cedula}/{tipo}_{fecha}{ext}
-9. Limpiar directorio de entrada si quedo vacio
-```
-
-**Retorna:** `{"exito": bool, "accion": "insert"|"skip"|"error", "docente_id": str, "documento_id": str}`
-
-### Compresion de archivos
-
-La compresion se aplica automaticamente antes del almacenamiento:
-
-| Formato | Herramienta | Parametros |
-|---|---|---|
-| PDF | Ghostscript (`gs`) | `-dPDFSETTINGS=/ebook -r150x150`, calidad equilibrada |
-| JPG / JPEG / PNG | Pillow | `quality=85, optimize=True`, conversion a RGB |
-
-- Si la compresion falla (Ghostscript no instalado, error de Pillow), se usa el archivo original como fallback silencioso.
-- Si el archivo comprimido resulta **mayor o igual** al original, se descarta y se usa el original.
-- Los archivos temporales se guardan en `data/storage/{cedula}/temp/` y se eliminan tras el movimiento.
-- Los metadatos de compresion se almacenan en el documento MongoDB: `comprimido`, `metodo_compresion`, `ratio_compresion`, `tamano_original_bytes`, `tamano_almacenado_bytes`.
-
-### MongoService (`src/services/mongo_service.py`)
-
-Servicio de persistencia con `pymongo`. Colecciones: `docentes` y `documentos`.
-
-**Metodos principales:**
-
-| Metodo | Descripcion |
-|---|---|
-| `find_docente_by_cedula(cedula)` | Busca docente por cedula |
-| `find_documento_by_hash(hash)` | Busca documento por SHA-256 (deduplicacion) |
-| `insert_docente(data)` | Valida con Pydantic e inserta docente |
-| `insert_documento(data)` | Valida con Pydantic e inserta documento |
-| `update_completitud(cedula)` | Recalcula porcentaje de completitud del expediente |
-| `generate_expediente_numero()` | Genera numero secuencial: `EXP-{año}-{seq:06d}` |
-| `update_archivo_ruta(id, ruta)` | Actualiza la ruta del archivo almacenado |
-| `enriquecer_docente_desde_cv(cedula, campos)` | Completa el perfil del docente con datos del CV |
-| `update_cedula_provisional(prov, real)` | Reemplaza cedula provisional por cedula real |
-
-**Completitud:** calcula el porcentaje de los 10 documentos requeridos presentes en el expediente (excluyendo los rechazados). Almacena tambien la lista de IDs de documentos en `completitud.documentos_ids`.
-
-### FileService (`src/services/file_service.py`)
-
-| Metodo | Descripcion |
-|---|---|
-| `move_to_storage(src, cedula, tipo, fecha)` | Mueve archivo a `data/storage/{cedula}/{tipo}_{fecha}{ext}` (con sufijo numerico si ya existe) |
-| `compute_hash(path)` | Calcula SHA-256 hex del archivo |
-| `cleanup_input_directory(dir)` | Elimina todos los archivos y el directorio si queda vacio |
-
----
-
-## API REST (`src/api/`)
-
-Interfaz HTTP FastAPI sobre MongoDB. Version **2.2.0**. Iniciada con:
-
-```bash
-uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-Swagger UI disponible en `http://localhost:8000/docs`.
-
-### Autenticacion JWT (`src/api/security.py`, `src/api/dependencies.py`)
-
-- `POST /auth/login` — devuelve token JWT (8h). Credenciales por defecto: `admin@uneg.edu.ve` / `admin123`.
-- `POST /auth/crear-usuario` (solo admin) — crea usuario con rol `admin|usuario|sistema`.
-- `POST /auth/cambiar-password` — cambia la contraseña del usuario autenticado.
-- Todos los endpoints de escritura (`POST`, `PUT`, `PATCH`, `DELETE`) requieren `Authorization: Bearer <token>`.
-- Contraseñas hasheadas con bcrypt (`passlib`). `JWT_SECRET_KEY` en `.env` (cambiar en produccion).
-
-### Endpoints de lectura
-
-| Ruta | Descripcion |
-|---|---|
-| `GET /expedientes/docentes` | Lista docentes con paginacion por offset o cursor |
-| `GET /expedientes/docentes/buscar` | Filtros: nombre, departamento, sede, status |
-| `GET /expediente/{cedula}` | Docente + documentos completos |
-| `GET /expediente/{cedula}/documentos` | Documentos con filtros tipo/validacion |
-| `GET /expediente/{cedula}/resumen` | Resumen en JSON o texto plano |
-| `GET /documentos/{id}` | Documento completo por ObjectId |
-| `GET /documentos/{id}/validacion` | Estado de validacion del documento |
-| `GET /expedientes/buscar-texto` | Full-text search con `$text` de MongoDB |
-| `GET /expedientes/{cedula}/exportar` | Exporta expediente como JSON, XML o CSV |
-| `GET /estadisticas/expedientes` | Agrupacion de docentes por status/departamento/sede |
-| `GET /estadisticas/documentos` | Tipos con menor presencia, distribucion por estado |
-| `GET /estadisticas/completitud` | Distribucion por rangos de completitud |
-| `GET /validacion/expediente/{cedula}` | Auditoria del expediente (apto/requiere_atencion/critico) |
-| `GET /config/tipos-documento` | Catalogo de los 22 tipos de documento |
-| `GET /config/estados-validacion` | Catalogo de estados de validacion |
-| `GET /config/tipos-documento` | Catalogo de los 22 tipos de documento |
-| `GET /config/estados-validacion` | Catalogo de estados de validacion |
-| `GET /config/estados-docente` | Catalogo de estados del docente |
-| `GET /config/llm` | Configuracion actual del proveedor LLM |
-| `GET /agentes` | Estado actual de cada agente y del pipeline |
-| `GET /health` | Estado del servicio |
-
-### Endpoints de escritura (requieren JWT)
-
-| Ruta | Descripcion |
-|---|---|
-| `PUT /expedientes/{cedula}` | Actualiza campos del docente (patch parcial) |
-| `DELETE /expedientes/{cedula}` | Elimina docente y todos sus documentos (cascada) |
-| `POST /documentos/{cedula}/agregar-documento` | Inserta documento y recalcula completitud |
-| `PATCH /documentos/{documento_id}/validacion` | Actualiza estado de validacion |
-| `DELETE /documentos/{documento_id}` | Elimina documento y recalcula completitud |
-| `PUT /config/llm` | Actualiza proveedor y modelo LLM (persiste en MongoDB) |
-| `POST /config/llm/probar` | Verifica conectividad con el proveedor LLM activo |
-| `POST /agentes/{nombre}/ejecutar` | Dispara ejecucion manual de un agente (`?modo=independiente\|pipeline`) |
-| `POST /agentes/{nombre}/stop` | Marca el agente como detenido y limpia el estado del pipeline |
-| `GET /logs/descargar` | Descarga `audit.jsonl` como adjunto |
-| `GET /logs/stream` | Stream en tiempo real de `operational.log` via SSE |
-
-### Auditoria admin (solo rol admin)
-
-| Ruta | Descripcion |
-|---|---|
-| `GET /admin/auditoria/expediente/{cedula}` | Eventos de auditoria de un expediente (filtro por dias, max 100) |
-| `GET /admin/auditoria/documento/{documento_id}` | Historial de cambios de un documento |
-
-### Agentes (control manual)
-
-El router `/agentes` permite disparar y monitorear los agentes desde la API:
-
-- `GET /agentes` devuelve el estado de cada agente (`idle|running|error`), `total_procesados`, `ultimo_run` y si hay un pipeline activo.
-- `POST /agentes/{nombre}/ejecutar?modo=independiente` corre un solo agente en background y retorna 202 inmediatamente.
-- `POST /agentes/{nombre}/ejecutar?modo=pipeline` encadena los agentes desde `{nombre}` hasta `storage` (orden: `watcher→ocr→classifier→storage`), con 2 segundos de pausa entre cada uno. El pipeline se detiene si alguno falla.
-- `POST /agentes/{nombre}/stop` marca el agente como detenido e interrumpe el pipeline en el siguiente checkpoint. **No aborta** una ejecucion ya en curso (BackgroundTasks no es cancelable), pero evita el encadenamiento de los siguientes pasos.
-
-**Agentes validos:** `watcher`, `ocr`, `classifier`, `storage`.
-
-**Reset en startup:** al iniciar la API, todos los agentes con estado `running` se marcan automaticamente como `idle`. Esto evita que un crash previo de uvicorn deje estados bloqueados que el frontend interprete como agentes activos.
-
-### Configuracion LLM en caliente
-
-`PUT /config/llm` persiste la configuracion en MongoDB (`sistema_config`, doc `llm_config`). Al siguiente llamado a `create_llm_provider()`, el factory lee esa configuracion antes que `.env`, permitiendo cambiar proveedor y modelo sin reiniciar el servidor.
-
-**Providers disponibles:** `openrouter`, `ollama`. Cuando `provider=ollama`, el campo `host` es obligatorio (ej: `http://localhost:11434`).
-
-### Logs y auditoria
-
-- `GET /logs/descargar` — descarga `audit.jsonl` como archivo adjunto (`Content-Disposition: attachment`).
-- `GET /logs/stream` — stream SSE sobre `operational.log` (JSON serializado, captura todos los agentes). Soporta filtros `?agente=watcher&nivel=INFO`. Emite keepalives cada 15s. **No compatible con Bruno** — usar `curl -N`.
-
-```bash
-curl -N "http://localhost:8000/logs/stream?agente=classifier" \
-  -H "Authorization: Bearer $TOKEN"
-```
-
-### Coleccion Bruno
-
-Manual de pruebas en `docs/api/bruno/` — 43 requests organizados en carpetas. Importar en Bruno y seleccionar el environment `local`. El request `auth/login.bru` guarda automaticamente el token en `{{token}}`.
-
----
-
-## Pipeline completo (`src/main.py`)
-
-`main()` ejecuta el `WatcherAgent` en modo de polling continuo (punto de entrada de produccion).
-
-`test_pipeline()` encadena los 4 agentes con deduplicacion por SHA-256:
-
-```
-WatcherAgent (1 ciclo IMAP)
-  → descarga adjuntos a data/input/{docente}/
-    → OcrAgent
-      → extrae texto via docTR
-        → ClassifierAgent
-          → clasifica y extrae campos via LLM
-            → StorageAgent
-              → comprime, persiste en MongoDB y mueve a data/storage/{cedula}/
-```
-
-**Deduplicacion a nivel de archivo:** `data/processed_pipeline.json` almacena hashes SHA-256 de archivos ya clasificados. Cada hash se persiste inmediatamente tras clasificar (resistente a crashes).
-
-**Funciones de prueba disponibles en `main.py`:**
-
-| Funcion | Descripcion |
-|---|---|
-| `test_pipeline()` | Pipeline completo: Watcher → OCR → Classifier → Storage |
-| `test_ocr()` | Solo OCR sobre `data/input/` |
-| `test_classifier()` | OCR + Clasificador (sin Watcher) |
-| `test_storage()` | Storage sobre resultados clasificados existentes |
-| `test_compression()` | Prueba de compresion sobre archivos en `data/input/` sin pipeline completo |
+| `login.html` | Autenticación JWT |
+| `index.html` | Dashboard: KPIs, estado de agentes, mini-log SSE |
+| `expedientes.html` | Listado con búsqueda y paginación |
+| `expediente.html` | Detalle del expediente, visor de documentos, edición y chat IA |
+| `config.html` | Configuración de agentes y proveedor LLM |
+| `logs.html` | Visor de logs en tiempo real (SSE) |
+| `admin.html` | CRUD de usuarios (solo admin) |
 
 ---
 
 ## Modelos de datos
 
-Modelos Pydantic v2 diseñados para almacenamiento en MongoDB.
+**`DocenteModel`** (`src/models/docente.py`) — perfil del docente con datos personales, contacto, dirección, formación académica, vinculación institucional y completitud del expediente.
 
-### DocenteModel (`src/models/docente.py`)
+**`DocumentoModel`** (`src/models/documento.py`) — documento con tipo (`TipoDocumento`, 22 valores), resultado OCR, metadatos del archivo, estado de validación y datos de auditoría.
 
-Perfil del docente con modelos anidados:
-
-- `InfoDocente`: datos personales (cedula, nombre, apellido, fecha de nacimiento, genero)
-- `ContactoDocente`: informacion de contacto (email, telefono)
-- `DireccionDocente`: direccion fisica
-- `FormacionAcademica`: titulos y formacion (titulo, institucion, fecha, area)
-- `VinculacionInstitucional`: afiliacion a UNEG (departamento, cargo, fecha de ingreso)
-- `Completitud`: seguimiento de completitud del expediente (porcentaje, documentos presentes, faltantes, IDs)
-
-**Estados:** `activo`, `inactivo`, `en_revision`, `completo`, `incompleto`
-
-### DocumentoModel (`src/models/documento.py`)
-
-Registro de documento vinculado a un docente:
-
-- `ArchivoInfo`: metadatos del archivo fisico (nombre, formato, tamaño, hash SHA-256, datos de compresion)
-- `OcrInfo`: resultado OCR (texto, confianza, idioma, paginas, campos extraidos)
-- `VerificacionVisual`: verificacion visual del documento
-- `ValidacionDocumento`: estado de validacion
-- `MetadataDocumento`: metadatos adicionales
-
-**22 tipos de documento** definidos en `TipoDocumento`.
-
-**Estados de validacion:** `pendiente`, `aprobado`, `rechazado`, `requiere_revision`
-
-**Campos de compresion en `ArchivoInfo`:**
-
-| Campo | Tipo | Descripcion |
-|---|---|---|
-| `comprimido` | `bool` | Si el archivo fue comprimido |
-| `metodo_compresion` | `str \| None` | `"ghostscript"` o `"pillow"` |
-| `ratio_compresion` | `float \| None` | Razon tamaño_comprimido / tamaño_original |
-| `tamano_original_bytes` | `int \| None` | Tamaño antes de comprimir |
-| `tamano_almacenado_bytes` | `int \| None` | Tamaño del archivo almacenado |
+Los 10 documentos requeridos para considerar un expediente completo están listados en `_DOCUMENTOS_REQUERIDOS` dentro de `src/services/mongo_service.py`.
 
 ---
 
-## Logging
+## Estructura de carpetas
 
-Sistema de logging estructurado con **Loguru** (`src/core/logger.py`).
-
-| Sink | Descripcion |
-|---|---|
-| `stdout` | Salida a consola |
-| `watcher.log` | Log del WatcherAgent |
-| `ocr.log` | Log del OcrAgent |
-| `classifier.log` | Log del ClassifierAgent |
-| `storage.log` | Log del StorageAgent |
-| `audit.jsonl` | Log de auditoria en JSON estructurado (filtrado por `audit=True`) |
-| `api.log` | Log de la API REST |
-| `operational.log` | Log operacional unificado en JSON (todos los agentes, fuente del SSE) |
-
-- `get_agent_logger("nombre")`: obtiene logger filtrado por agente
-- `audit_log(evento, datos)`: registra eventos de auditoria en `audit.jsonl`
-
----
-
-## Configuracion
-
-### Variables de entorno (`.env`)
-
-#### WatcherAgent
-
-| Variable | Descripcion | Valor por defecto |
-|---|---|---|
-| `MAIL_HOST` | Servidor IMAP | `imap.gmail.com` |
-| `MAIL_USER` | Usuario de correo | *(requerido)* |
-| `MAIL_PASS` | Contrasena de aplicacion | *(requerido)* |
-| `MAIL_SSL` | Usar conexion SSL | `true` |
-| `MAIL_FOLDER` | Carpeta a monitorear | `INBOX` |
-| `POLL_INTERVAL_SECONDS` | Intervalo de sondeo (segundos) | `60` |
-| `SUBJECT_KEYWORD` | Keywords para asunto (separadas por coma) | `Expediente Docente` |
-| `BODY_KEYWORD` | Keywords para cuerpo (separadas por coma) | `Expediente Docente` |
-
-#### LLM y clasificacion
-
-| Variable | Descripcion | Valor por defecto |
-|---|---|---|
-| `LLM_PROVIDER` | Proveedor LLM (`openrouter` o `ollama`) | `openrouter` |
-| `OPENROUTER_API_KEY` | API key de OpenRouter | *(requerido si openrouter)* |
-| `OPENROUTER_MODEL` | Modelo LLM principal | *(requerido si openrouter)* |
-| `OPENROUTER_FALLBACK_MODELS` | Modelos alternativos ante rate limit (coma separados) | *(opcional)* |
-| `OPENROUTER_BASE_URL` | URL base de OpenRouter | `https://openrouter.ai/api/v1` |
-| `OLLAMA_MODEL` | Modelo Ollama a usar | `phi3:mini` |
-| `OLLAMA_TIMEOUT_SECONDS` | Timeout para peticiones a Ollama | `120` |
-| `OLLAMA_NUM_PREDICT` | Tokens maximos a generar | `400` |
-| `OLLAMA_NUM_THREADS` | Hilos de CPU para inferencia | `os.cpu_count()` |
-
-#### Directorios y almacenamiento
-
-| Variable | Descripcion | Valor por defecto |
-|---|---|---|
-| `INPUT_DIR` | Directorio de expedientes entrantes | `data/input` |
-| `STORAGE_DIR` | Directorio de almacenamiento final | `data/storage` |
-| `PROCESSED_UIDS_FILE` | Archivo de estado del watcher | `data/processed_uids.json` |
-| `LOG_DIR` | Directorio de logs | `logs` |
-| `LOG_LEVEL` | Nivel de logging | `INFO` |
-
-#### Base de datos
-
-| Variable | Descripcion | Valor por defecto |
-|---|---|---|
-| `MONGO_URI` | URI de conexion a MongoDB | `mongodb://localhost:27017` |
-| `MONGO_DB` | Nombre de la base de datos | `expedientes_uneg` |
-
-#### API REST y seguridad
-
-| Variable | Descripcion | Valor por defecto |
-|---|---|---|
-| `JWT_SECRET_KEY` | Clave secreta para firmar tokens JWT | *(valor inseguro incluido — **cambiar en produccion**)* |
-
-### Archivo de estado (`processed_uids.json`)
-
-```json
-{
-  "uids": ["10552", "20001"],
-  "fingerprints": ["a1b2c3d4e5f6...", "f6e5d4c3b2a1..."]
-}
+```
+.
+├── src/
+│   ├── main.py                    # Punto de entrada del WatcherAgent y funciones de prueba
+│   ├── config.py                  # Variables de entorno y paths
+│   ├── agents/
+│   │   ├── watcher_agent.py
+│   │   ├── ocr_agent.py
+│   │   ├── classifier_agent.py
+│   │   └── storage_agent.py
+│   ├── api/
+│   │   ├── main.py                # App FastAPI, middlewares, startup
+│   │   ├── routers/               # Un archivo por grupo de endpoints
+│   │   ├── schemas.py             # Modelos Pydantic de respuesta
+│   │   ├── security.py            # JWT
+│   │   ├── dependencies.py        # Dependencias FastAPI (verify_token, verify_admin)
+│   │   └── static/                # Interfaz web (HTML + JS + CSS vía CDN)
+│   ├── services/
+│   │   ├── ocr_service.py         # Wrapper de docTR
+│   │   ├── llm_service.py         # Orquestador LLM (modo provider o legacy)
+│   │   ├── mongo_service.py       # Wrapper de pymongo
+│   │   ├── file_service.py        # Movimiento y hash de archivos
+│   │   └── llm/
+│   │       ├── abstract_llm_provider.py
+│   │       ├── llm_factory.py     # Mongo-first factory
+│   │       ├── openrouter_provider.py
+│   │       └── ollama_provider.py
+│   ├── models/
+│   │   ├── docente.py
+│   │   ├── documento.py
+│   │   └── usuario.py
+│   ├── prompts/
+│   │   ├── classify_document.py   # Prompt del clasificador (21 tipos + reglas)
+│   │   └── chat_expediente.py     # System prompt del chat IA
+│   └── core/
+│       └── logger.py              # Loguru: stdout, watcher.log, audit.jsonl, operational.log
+├── tests/                         # 504 tests (pytest)
+├── data/
+│   ├── input/                     # Adjuntos descargados por WatcherAgent
+│   └── storage/                   # Archivos comprimidos organizados por cédula
+├── logs/                          # watcher.log, audit.jsonl, operational.log, ocr.log, …
+├── docs/api/bruno/                # Colección Bruno (47 requests, entorno local)
+├── .env.example
+├── requirements.txt
+└── CLAUDE.md
 ```
 
-Compatible con formatos anteriores (lista de UIDs o diccionario sin fingerprints).
-
 ---
 
-## Instalacion y ejecucion
-
-### Requisitos
+## Requisitos
 
 - Python 3.12+
-- Cuenta Gmail con contrasena de aplicacion habilitada
-- MongoDB en ejecucion local o remoto
-- Ghostscript instalado en el sistema (para compresion PDF)
-- Ollama instalado (opcional, para clasificacion local sin API)
+- MongoDB 6+ corriendo localmente o en red
+- Ghostscript instalado en el sistema (para compresión de PDFs)
+- Ollama (solo si `LLM_PROVIDER=ollama`)
 
-### Instalacion
+---
+
+## Variables de entorno
+
+Copiar `.env.example` a `.env` y completar los valores. Las variables marcadas como requeridas deben estar presentes antes de iniciar.
+
+### Seguridad
+
+| Variable | Descripción | Requerida |
+|---|---|---|
+| `JWT_SECRET_KEY` | Clave para firmar tokens JWT. Cambiar en producción | Sí |
+
+### Correo IMAP (WatcherAgent)
+
+| Variable | Descripción | Default |
+|---|---|---|
+| `MAIL_HOST` | Servidor IMAP | — |
+| `MAIL_USER` | Dirección de correo | — |
+| `MAIL_PASS` | Contraseña de aplicación (no la del correo) | — |
+| `MAIL_SSL` | Usar SSL | `true` |
+| `MAIL_FOLDER` | Carpeta IMAP a monitorear | `INBOX` |
+| `POLL_INTERVAL_SECONDS` | Segundos entre ciclos de polling | `60` |
+| `SUBJECT_KEYWORD` | Palabras clave en asunto (separadas por coma) | — |
+| `BODY_KEYWORD` | Palabras clave en cuerpo (separadas por coma) | — |
+
+### MongoDB
+
+| Variable | Descripción | Default |
+|---|---|---|
+| `MONGO_URI` | URI de conexión | `mongodb://localhost:27017` |
+| `MONGO_DB` | Nombre de la base de datos | `expedientes_uneg` |
+
+### LLM — General
+
+| Variable | Descripción | Default |
+|---|---|---|
+| `LLM_PROVIDER` | Proveedor activo: `openrouter` o `ollama` | `openrouter` |
+
+### LLM — OpenRouter
+
+| Variable | Descripción |
+|---|---|
+| `OPENROUTER_API_KEY` | API key de OpenRouter |
+| `OPENROUTER_MODEL` | Modelo principal (ej. `minimax/minimax-m2.5:free`) |
+| `OPENROUTER_FALLBACK_MODELS` | Modelos fallback separados por coma |
+| `OPENROUTER_BASE_URL` | URL base de la API (default: `https://openrouter.ai/api/v1`) |
+
+### LLM — Ollama
+
+| Variable | Descripción | Default |
+|---|---|---|
+| `OLLAMA_BASE_URL` | URL del servidor Ollama | `http://localhost:11434` |
+| `OLLAMA_MODEL` | Modelo a usar (ej. `phi3:mini`) | `mistral` |
+| `OLLAMA_TIMEOUT_SECONDS` | Timeout por petición en segundos | `120` |
+| `OLLAMA_NUM_PREDICT` | Máximo de tokens en la respuesta | `1000` |
+| `OLLAMA_NUM_THREADS` | Hilos de CPU (por defecto todos los disponibles) | — |
+
+### Opcionales
+
+| Variable | Descripción | Default |
+|---|---|---|
+| `INPUT_DIR` | Directorio de entrada para adjuntos | `data/input` |
+| `STORAGE_DIR` | Directorio de almacenamiento final | `data/storage` |
+| `LOG_DIR` | Directorio de logs | `logs` |
+| `LOG_LEVEL` | Nivel de log (`DEBUG`, `INFO`, `WARNING`, `ERROR`) | `INFO` |
+| `AUDIT_RETENTION` | Retención del audit log | `90 days` |
+| `AUDIT_ROTATION` | Rotación del audit log | `50 MB` |
+
+---
+
+## Cómo correr en desarrollo
 
 ```bash
-# Clonar el repositorio
-git clone https://github.com/gcapella0/agente-inteligente-expedientes.git
-cd agente-inteligente-expedientes
-
-# Crear entorno virtual
-python -m venv venv
+# 1. Crear entorno virtual e instalar dependencias
+python3.12 -m venv venv
 source venv/bin/activate
-
-# Instalar dependencias
 pip install -r requirements.txt
 
-# Configurar variables de entorno
+# 2. Configurar variables de entorno
 cp .env.example .env
-# Editar .env con las credenciales correspondientes
+# Editar .env con los valores reales
 
-# Instalar Ghostscript (Ubuntu/Debian)
-sudo apt install ghostscript
+# 3. Levantar la API
+uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+# La interfaz web queda disponible en http://localhost:8000/ui
+# La documentación Swagger en http://localhost:8000/docs
 ```
 
----
-
-## Chat IA para Expedientes
-
-El sistema incluye un asistente IA que responde preguntas sobre expedientes basandose en documentos adjuntos procesados con OCR.
-
-### Caracteristicas
-
-- **RAG (Retrieval-Augmented Generation):** contexto basado en datos reales del expediente (docente + documentos + OCR)
-- **Multiples Proveedores:** OpenRouter (con fallback automatico a modelos alternativos) u Ollama (local, sin costo)
-- **OCR Estructurado:** extrae `campos_extraidos` de cada documento; para CVs parsea la seccion Education con fechas, universidades y especializacion
-- **Respuestas Precisas:** temperatura 0.2, max_tokens 300 para respuestas cortas y exactas
-- **Cancela preguntas:** boton "Parar" en el frontend para abortar una peticion en curso
-
-### Uso desde el frontend
-
-1. Ir a **Expedientes** → clickear un docente → se abre el detalle del expediente
-2. Al final de la pagina hay la seccion **"Preguntar al Agente IA"**
-3. Ejemplos de preguntas:
-   - "¿Cuál es el promedio de notas de bachillerato?"
-   - "¿En qué año hizo el doctorado?"
-   - "¿En qué universidad estudió?"
-
-### Endpoint
-
-```
-POST /expedientes/{cedula}/chat
-Authorization: Bearer <token>
-
-{
-  "pregunta": "¿Cuál es el título académico más alto?"
-}
-```
-
-Respuesta:
-
-```json
-{
-  "exito": true,
-  "respuesta": "Doctorado en Ciencias de la Computación (2012-2014) — Universidad Rafael Belloso Chacin",
-  "cedula": "27504759",
-  "modelo": "google/gemma-4-31b-it:free",
-  "latencia_ms": 1240
-}
-```
-
-### Configuracion del proveedor
-
-**OpenRouter (recomendado para demostracion):**
-
-```env
-LLM_PROVIDER=openrouter
-OPENROUTER_API_KEY=sk-or-v1-xxxxx
-OPENROUTER_MODEL=google/gemma-4-31b-it:free
-OPENROUTER_FALLBACK_MODELS=google/gemma-3-27b-it:free,minimax/minimax-m2.5:free
-```
-
-**Ollama (local, sin costo):**
+### Comandos de prueba individuales
 
 ```bash
-# Instalar Ollama: https://ollama.com
-ollama pull phi3:mini
-```
+# Prueba del pipeline completo (Watcher → OCR → Clasificador → Storage)
+python -c "from src.main import test_pipeline; test_pipeline()"
 
-```env
-LLM_PROVIDER=ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=phi3:mini
-OLLAMA_TIMEOUT_SECONDS=120
-```
+# Solo OCR sobre archivos en data/input/
+python -c "from src.main import test_ocr; test_ocr()"
 
-El proveedor tambien se puede cambiar en caliente desde **Configuracion → LLM** en la interfaz web.
+# Solo clasificación (OCR + LLM)
+python -c "from src.main import test_classifier; test_classifier()"
 
-### Estructura de documentos OCR en MongoDB
+# Solo almacenamiento (OCR + LLM + MongoDB)
+python -c "from src.main import test_storage; test_storage()"
 
-```javascript
-{
-  tipo: "diploma_curso",
-  ocr: {
-    procesado: true,
-    motor: "doctr",
-    confianza_promedio: 0.93,
-    campos_extraidos: {
-      nombre_titular: "Genghis Capella",
-      institucion_emisora: "Educacion IT",
-      fecha_emision: "2026-02-11",
-      duracion_horas: "18"
-    },
-    texto_completo: "..."
-  }
-}
-```
-
-Para **curriculo_vitae**, la seccion Education se parsea automaticamente extrayendo titulo, especializacion, fechas (inicio-fin) e institucion por cada entrada.
-
----
-
-### Ejecucion
-
-```bash
-# Modo produccion: WatcherAgent en polling continuo
+# Probar compresión sin mover archivos
 python -m src.main
 
-# Test de compresion: prueba reduccion de tamaño sobre data/input/
-# (Cambiar __main__ en src/main.py para llamar a test_compression())
-python -m src.main
+# Enriquecer perfiles de docentes desde CVs ya almacenados (utilidad única)
+python -c "from src.main import enriquecer_expedientes_desde_cv; enriquecer_expedientes_desde_cv()"
+
+# WatcherAgent en modo continuo (producción)
+python -c "from src.main import main; main()"
 ```
 
 ### Tests
 
 ```bash
-# Ejecutar todos los tests (496 tests)
+# Suite completa (504 tests, Python 3.12+ requerido)
 pytest tests/ -v
 
-# Solo tests del WatcherAgent
+# Por módulo
 pytest tests/test_watcher_agent.py -v
-
-# Solo tests de OCR
 pytest tests/test_ocr.py -v
-
-# Solo tests del ClassifierAgent
 pytest tests/test_classifier.py -v
-
-# Solo tests del StorageAgent
 pytest tests/test_storage.py -v
-
-# Solo tests de proveedores LLM
 pytest tests/test_llm_providers.py -v
-
-# Solo tests de la API REST (Fases 1-6)
-pytest tests/test_api_fase1.py tests/test_api_fase2.py tests/test_api_fase3.py tests/test_api_fase4.py tests/test_api_fase5.py tests/test_api_fase6.py -v
-
-# Solo tests del Chat IA
+pytest tests/test_api_fase1.py tests/test_api_fase2.py tests/test_api_fase3.py \
+       tests/test_api_fase4.py tests/test_api_fase5.py tests/test_api_fase6.py -v
 pytest tests/test_expedientes_chat.py -v
 
-# Un test especifico
-pytest tests/test_ocr.py -k "test_name_here" -v
+# Test específico por nombre
+pytest tests/test_ocr.py -k "nombre_del_test" -v
 ```
 
-La suite de tests incluye **496 pruebas** organizadas por agente y fase:
+### Prueba manual de la API
 
-**WatcherAgent (47 tests):**
-- Procesamiento basico de emails y creacion de expedientes
-- Extraccion de nombres con distintos separadores y formatos
-- Filtrado de adjuntos por extension (PDF, JPG, JPEG, mayusculas)
-- Matching de keywords en asunto y cuerpo (case-insensitive y accent-insensitive)
-- Deduplicacion por UID y por fingerprint
-- Correos reenviados (Fwd:) y respondidos (Re:)
-- Emails sin asunto, con cuerpo vacio o solo HTML
-- Migracion de formatos anteriores del archivo de estado
-- Recuperacion ante archivo de estado corrupto
-- Busqueda con fallback por fecha y shutdown graceful con SIGTERM
-
-**OcrAgent + OcrService (57 tests):**
-- Calculo de confianza promedio y conteo de palabras
-- Procesamiento de archivos PDF, JPG, JPEG, PNG
-- Validacion de extensiones y manejo de errores
-- Escaneo de directorios y procesamiento por lotes
-- Extraccion de metadatos y calculo de hash SHA-256
-- Generacion de `json_ligero` para consumo LLM
-- Deduplicacion por `skip_hashes`
-- Casos limite (directorios vacios, archivos inexistentes, fallos de docTR)
-
-**ClassifierAgent + LlmService (48 tests):**
-- Clasificacion de documentos por tipo (22 tipos)
-- Extraccion de campos especificos por tipo de documento
-- Rechazo de documentos irrelevantes con razon
-- Parseo de JSON desde respuestas con markdown fences
-- Rotacion de modelos LLM ante rate limit
-- Reintentos con backoff exponencial
-- Fallback de `json_ligero` a `texto_completo`
-
-**StorageAgent (83 tests):**
-- Flujo completo de almacenamiento (insert, skip por duplicado, error)
-- Normalizacion de cedula (V-, E-, solo digitos)
-- Deduplicacion por hash SHA-256 en MongoDB
-- Creacion de expediente nuevo vs recuperacion de existente
-- Compresion PDF (parametros Ghostscript, FileNotFoundError, timeout, error de retorno)
-- Compresion de imagen (JPEG quality=85, conversion PNG→JPEG, error Pillow)
-- Fallback a original cuando la compresion falla o el resultado es mayor
-- Metadatos de compresion almacenados en MongoDB
-- Enriquecimiento del perfil del docente desde curriculo vitae
-- Limpieza de directorios de entrada
-
-**Proveedores LLM (30 tests):**
-- OpenRouterProvider: clasificacion exitosa, rotacion de modelos, rate limit, error de JSON
-- OllamaProvider: clasificacion exitosa, truncado de texto, fallo de conexion, timeout
-- Factory `create_llm_provider()`: seleccion por `LLM_PROVIDER`
-- Health check de ambos proveedores
-
-**API REST Fase 1 (30 tests):**
-- Health, info y raiz
-- Listado de docentes con paginacion por offset y cursor
-- Detalle de expediente y documentos por cedula
-- Resumen en JSON y texto plano
-- Detalle y validacion de documento por ObjectId
-- Catalogos: tipos de documento, estados de validacion, estados de docente
-
-**API REST Fase 2 (31 tests):**
-- Estadisticas de expedientes por status/departamento/sede/completitud
-- Estadisticas de documentos: tipos, estados, OCR
-- Completitud por rangos y alertas de departamento critico
-- Validacion de expediente: estado general, alertas, aptitud para presentacion
-- Busqueda de docentes con filtros combinados
-
-**API REST Fase 3 (22 tests):**
-- Busqueda full-text con `$text` de MongoDB
-- Exportacion de expediente como JSON, XML y CSV
-- Cursor-based pagination en listado y busqueda
-- Manejo de formatos de exportacion desconocidos (415)
-
-**API REST Fase 4 (26 tests):**
-- PUT expediente: actualizacion parcial de campos del docente
-- DELETE expediente: eliminacion en cascada con documentos
-- POST agregar-documento: insercion y recalculo de completitud
-- PATCH validacion: actualizacion de estado y verificacion de argumentos MongoDB
-- DELETE documento: eliminacion y recalculo de completitud
-
-**API REST Fase 5 (32 tests):**
-- POST login: autenticacion, token JWT, actualizacion de ultimo_login
-- POST crear-usuario: creacion con rol, validacion de permisos admin
-- POST cambiar-password: verificacion de password actual y actualizacion
-- GET auditoria expediente/documento: historial de eventos con filtros
-- Proteccion de endpoints: token invalido (401), rol insuficiente (403)
-
-**API REST Fase 6 (34 tests):**
-- GET agentes: estado idle/running/error, defaults cuando la coleccion esta vacia, siguiente_en_pipeline
-- POST agentes ejecutar: 202 en llamadas validas, 400 en nombre/modo invalido, 409 en agente ya en ejecucion o pipeline activo
-- Funcion `_ejecutar` directamente: encadenamiento en modo pipeline, detencion ante fallo, sleep entre pasos
-- GET/PUT config/llm: lectura de defaults y desde MongoDB, upsert, 400 en ollama sin host
-- POST config/llm/probar: simulacion de exito y fallo en Ollama y OpenRouter
-- GET logs/stream: 200 con content-type text/event-stream, keepalive SSE
-- GET logs/descargar: 200 con Content-Disposition attachment, 404 si no existe audit.jsonl
-
-**Metricas (10 tests):**
-- GET /metricas/: totalDocumentos, completitudPromedio, docentesAptos, docentesTotales
-- Autenticacion requerida (401 sin token)
-
-**Config Agentes (14 tests):**
-- GET /config/agentes: defaults hardcodeados si no hay doc en Mongo, lectura desde MongoDB
-- PUT /config/agentes: upsert completo, validacion de campos Pydantic
-
-**Usuarios (23 tests):**
-- GET /usuarios/: lista sin exponer password_hash, solo admin
-- POST /usuarios/crear: validacion email, password min 6 chars, roles validos
-- PUT /usuarios/{id}/rol: actualizacion de rol por ObjectId
-- DELETE /usuarios/{id}: eliminacion por ObjectId
-- Proteccion admin: 403 para usuarios sin rol admin
-
-**Chat IA (6 tests):**
-- POST /expedientes/{cedula}/chat: respuesta exitosa con contexto RAG
-- 404 cuando la cedula no existe
-- 400 cuando la pregunta esta vacia o es solo espacios
-- 503 cuando el proveedor LLM falla
-- Verificacion de que el provider.chat no se llama en el path 404
-
----
-
-## Frontend MVP (`/ui`)
-
-Interfaz web estatica servida por FastAPI en `http://localhost:8000/ui`. Stack: **Alpine.js 3.x + Tailwind CSS** (vía CDN). Sin build step.
-
-| Pagina | Ruta | Descripcion |
-|---|---|---|
-| Login | `/ui/login.html` | Autenticacion JWT, POST a `/auth/login` con JSON |
-| Dashboard | `/ui/index.html` | KPIs, cards de agentes (Ejecutar / En cadena / Detener), mini-log SSE |
-| Expedientes | `/ui/expedientes.html` | Listado con busqueda debounce, filtros, paginacion cursor |
-| Expediente | `/ui/expediente.html` | Detalle: documentos, modales OCR/validacion/edicion, exportacion |
-| Configuracion | `/ui/config.html` | Tabs Agentes/LLM: parametros de cada agente, proveedor y modelo LLM |
-| Admin | `/ui/admin.html` | CRUD usuarios (solo admin). Proteccion JWT en cliente |
-| Logs | `/ui/logs.html` | Visor SSE con filtros agente/nivel, pausa, auto-scroll |
-
-**Convenciones clave:**
-- JWT en `localStorage.token`. `fetchApi()` lo inyecta en `Authorization: Bearer` automaticamente.
-- SSE pasa JWT como `?token=XXX` (EventSource no soporta headers). Incluye `Content-Encoding: identity` para evitar buffering del GZipMiddleware.
-- El botón **Detener** aparece en cada card solo cuando `agente.estado === 'running'`. Llama a `POST /agentes/{nombre}/stop`.
-- El polling de estado (cada 2s) se inicia automaticamente al ejecutar un agente y se detiene cuando todos estan `idle`. Al reiniciar el servidor, el estado se resetea automaticamente para evitar polling fantasma.
-
----
-
-## Dependencias principales
-
-| Paquete | Version | Uso |
-|---|---|---|
-| `fastapi` | 0.115.0 | Framework web (API futura) |
-| `uvicorn` | 0.31.0 | Servidor ASGI |
-| `python-dotenv` | 1.0.1 | Carga de variables de entorno |
-| `pydantic` | 2.9.2 | Modelos de datos y validacion |
-| `loguru` | 0.7.2 | Logging estructurado |
-| `python-doctr[torch]` | >=0.9.0 | OCR con deep learning |
-| `pillow` | 11.0.0 | Compresion y procesamiento de imagenes |
-| `pymongo` | 4.10.1 | Conexion a MongoDB |
-| `motor` | 3.6.0 | Driver async para MongoDB |
-| `openai` | >=1.50.0 | Cliente para OpenRouter |
-| `requests` | 2.32.3 | Cliente HTTP (Ollama, probar conexion LLM) |
-| `aiofiles` | >=23.2.0 | Lectura async de archivos (SSE de logs) |
-| `aiohttp` | 3.10.5 | Peticiones HTTP asincronas |
-| `email-validator` | 2.2.0 | Validacion de emails (Pydantic) |
-| `passlib[bcrypt]` | >=1.7.4 | Hash de contraseñas con bcrypt |
-| `python-jose[cryptography]` | >=3.3.0 | Generacion y verificacion de tokens JWT |
-| `pytest` | 8.3.3 | Framework de testing |
-
-**Dependencias del sistema:**
-- `ghostscript`: compresion de PDFs (paquete `ghostscript` en apt/yum)
-
----
-
-## Limitaciones conocidas
-
-- Los correos **solo HTML** (sin parte `text/plain`) no matchean keywords en el cuerpo.
-- El sistema depende de la disponibilidad del servidor IMAP de Gmail.
-- Gmail IMAP no soporta busqueda accent-insensitive en servidor ni `CHARSET UTF-8`. El sistema compensa con busqueda por fecha + filtrado local.
-- La extraccion del nombre del docente requiere que el asunto siga un patron especifico con keyword seguida de separador (`:`, `-`, `–`, `—`).
-- El modelo OCR de docTR pesa ~500MB y se descarga en la primera ejecucion.
-- La compresion PDF requiere Ghostscript instalado en el sistema; sin el, se usa el archivo original sin comprimir.
-- Ollama en CPU puede tardar 30-60s por clasificacion con `phi3:mini`. Para produccion se recomienda `LLM_PROVIDER=openrouter`.
-
----
-
-## Roadmap
-
-- [x] **WatcherAgent**: Monitoreo IMAP, filtrado por keywords, deduplicacion, extraccion de nombre
-- [x] **OcrAgent**: Procesamiento OCR de documentos PDF/imagenes con docTR
-- [x] **ClassifierAgent**: Clasificacion automatica de documentos via LLM (OpenRouter + Ollama)
-- [x] **Pipeline completo**: Watcher → OCR → Classifier → Storage con deduplicacion por SHA-256
-- [x] **StorageAgent**: Almacenamiento en MongoDB, compresion de archivos, organizacion por cedula
-- [x] **API REST Fase 1**: Health, expedientes, documentos, catalogos (11 endpoints, 30 tests)
-- [x] **API REST Fase 2**: Estadisticas, validacion de expediente, busqueda (31 tests)
-- [x] **API REST Fase 3**: Busqueda full-text, exportacion JSON/XML/CSV, cursor pagination (22 tests)
-- [x] **API REST Fase 4**: Endpoints de escritura CRUD con JWT (26 tests)
-- [x] **API REST Fase 5**: Autenticacion JWT, usuarios, auditoria admin (32 tests)
-- [x] **API REST Fase 6**: Control de agentes, configuracion LLM en caliente, logs SSE (34 tests)
-- [x] **Metricas y usuarios**: KPIs del sistema, CRUD usuarios admin (33 tests adicionales)
-- [x] **Frontend MVP**: Interfaz web completa (Alpine.js + Tailwind): dashboard, expedientes, configuracion, logs, admin
-- [x] **Control de agentes desde UI**: botones Ejecutar / En cadena / Detener, polling en tiempo real, SSE mini-log
-- [x] **Chat IA para expedientes**: endpoint `POST /expedientes/{cedula}/chat`, RAG con contexto MongoDB, OpenRouter + Ollama con fallback, parsing especial de CVs, boton Parar en frontend
-- [ ] **Busqueda semantica (RAG)**: Recuperacion de expedientes por similitud con embeddings
-- [ ] Soporte para extraccion de texto de emails HTML-only
+La colección Bruno está en `docs/api/bruno/` (47 requests). Usar el entorno `local`. El request `login.bru` guarda el token automáticamente en `{{token}}`.
