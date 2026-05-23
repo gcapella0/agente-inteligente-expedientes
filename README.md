@@ -233,6 +233,45 @@ Copiar `.env.example` a `.env` y completar los valores. Las variables marcadas c
 
 ---
 
+## Despliegue con Docker
+
+Para el servidor de producción (Debian + Docker + Compose v2). Guía completa en [deploy/README.md](deploy/README.md).
+
+**Prerequisitos en el host:** MongoDB en el puerto 27017, Ollama en el puerto 11434.
+
+```bash
+# 1. Clonar y configurar
+git clone <url-del-repositorio> agente-expedientes
+cd agente-expedientes
+cp .env.example .env
+nano .env   # completar JWT_SECRET_KEY, MAIL_USER, MAIL_PASS
+
+# 2. Crear directorios de datos
+mkdir -p data/input data/storage logs
+
+# 3. Construir y levantar
+docker compose build
+docker compose up -d
+
+# Verificar
+curl http://localhost:8000/health
+```
+
+El `docker-compose.yml` sobreescribe `MONGO_URI` y `OLLAMA_HOST` para apuntar a `host.docker.internal` automáticamente; no es necesario ajustarlos en el `.env` para el caso de servidor único.
+
+Credenciales por defecto del primer inicio: `admin@uneg.edu.ve` / `admin123`. Cambiar la contraseña inmediatamente.
+
+### Operación
+
+```bash
+docker compose logs -f          # logs en tiempo real
+docker compose restart          # reiniciar
+docker compose down             # detener
+git pull && docker compose build && docker compose up -d   # actualizar
+```
+
+---
+
 ## Cómo correr en desarrollo
 
 ```bash
