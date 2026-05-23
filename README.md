@@ -151,7 +151,6 @@ Los 10 documentos requeridos para considerar un expediente completo están lista
 ├── docs/api/bruno/                # Colección Bruno (47 requests, entorno local)
 ├── .env.example
 ├── requirements.txt
-└── CLAUDE.md
 ```
 
 ---
