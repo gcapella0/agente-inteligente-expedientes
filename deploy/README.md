@@ -5,9 +5,9 @@
 El servidor debe tener instalados y operativos:
 
 - **MongoDB** corriendo en el host en el puerto 27017
-- **Ollama** corriendo en el host en el puerto 11434 con el modelo `gemma3:12b` disponible
+- **Ollama** corriendo en el host en el puerto 11434 con el modelo `gemma4:e4b` disponible
   ```bash
-  ollama pull gemma3:12b
+  ollama pull gemma4:e4b
   ollama serve   # si no está como servicio del sistema
   ```
 - **Git** para clonar el repositorio
@@ -37,7 +37,7 @@ Variables críticas que deben completarse:
 | `MONGO_URI` | URI de conexión a MongoDB | `mongodb://host.docker.internal:27017` |
 | `MONGO_DB` | Nombre de la base de datos | `expedientes_uneg` |
 | `OLLAMA_HOST` | URL de Ollama en el host | `http://host.docker.internal:11434` |
-| `OLLAMA_MODEL` | Modelo a usar | `gemma3:12b` |
+| `OLLAMA_MODEL` | Modelo a usar | `gemma4:e4b` |
 | `LLM_PROVIDER` | Proveedor LLM activo | `ollama` |
 | `MAIL_USER` | Correo Gmail para el watcher | `cuenta@gmail.com` |
 | `MAIL_PASS` | Contraseña de aplicación Gmail | (ver Google Account) |
