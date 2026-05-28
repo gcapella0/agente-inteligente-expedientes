@@ -1,6 +1,8 @@
 services:
   agente-expedientes:
     build: .
+    image: agente-expedientes:latest
+    container_name: agente-expedientes
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -9,6 +11,7 @@ services:
     environment:
       MONGO_URI: mongodb://host.docker.internal:27017
       OLLAMA_HOST: http://host.docker.internal:11434
+      OLLAMA_MODEL: gemma4:e4b
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
