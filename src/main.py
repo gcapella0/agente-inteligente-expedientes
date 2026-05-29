@@ -32,7 +32,7 @@ def test_watcher() -> None:
         logger.warning("No se pudo conectar a IMAP")
 
 
-def test_ocr() -> None:
+def test_ocr(usar_cache: bool = False) -> None:
     """Prueba del OcrAgent sobre los archivos en data/input/."""
 
     import json
@@ -45,8 +45,12 @@ def test_ocr() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     state_file = config.DATA_DIR / "processed_pipeline.json"
-    hashes_procesados = _load_processed_hashes(state_file)
-    logger.info("OCR: {} archivos ya procesados (se omitirán)", len(hashes_procesados))
+    if usar_cache:
+        hashes_procesados = _load_processed_hashes(state_file)
+        logger.info("OCR: {} archivos ya procesados (se omitirán)", len(hashes_procesados))
+    else:
+        hashes_procesados = set()
+        logger.info("OCR: modo independiente, procesando todos los archivos")
 
     logger.info("Iniciando prueba de OCR Agent")
     ocr_service = OcrService()
@@ -78,12 +82,13 @@ def test_ocr() -> None:
         else:
             logger.warning("Archivo: {} | OCR fallido", r["archivo_nombre"])
 
-    _save_processed_hashes(state_file, hashes_procesados)
+    if usar_cache:
+        _save_processed_hashes(state_file, hashes_procesados)
     logger.info("Prueba finalizada: {} archivos procesados", len(resultados))
     logger.info("JSONs guardados en: {}", output_dir)
 
 
-def test_classifier() -> None:
+def test_classifier(usar_cache: bool = False) -> None:
     """Prueba del pipeline OCR + Clasificador sobre data/input/."""
 
     import json
@@ -99,8 +104,12 @@ def test_classifier() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     state_file = config.DATA_DIR / "processed_pipeline.json"
-    hashes_procesados = _load_processed_hashes(state_file)
-    logger.info("Classifier: {} archivos ya procesados (se omitirán)", len(hashes_procesados))
+    if usar_cache:
+        hashes_procesados = _load_processed_hashes(state_file)
+        logger.info("Classifier: {} archivos ya procesados (se omitirán)", len(hashes_procesados))
+    else:
+        hashes_procesados = set()
+        logger.info("Classifier: modo independiente, procesando todos los archivos")
 
     # 1. OCR
     logger.info("=== Paso 1: OCR ===")
@@ -121,8 +130,9 @@ def test_classifier() -> None:
     for ocr_result in resultados_ocr:
         resultado = classifier.classify(ocr_result)
         resultados_clasificados.append(resultado)
-        hashes_procesados.add(resultado["hash_sha256"])
-        _save_processed_hashes(state_file, hashes_procesados)
+        if usar_cache:
+            hashes_procesados.add(resultado["hash_sha256"])
+            _save_processed_hashes(state_file, hashes_procesados)
 
     # 3. Mostrar resultados y guardar
     for r in resultados_clasificados:
@@ -167,7 +177,7 @@ def test_classifier() -> None:
     )
 
 
-def test_storage() -> None:
+def test_storage(usar_cache: bool = False) -> None:
     """Prueba del pipeline OCR → Clasificador → StorageAgent sobre data/input/."""
 
     from src.services.ocr_service import OcrService
@@ -184,8 +194,12 @@ def test_storage() -> None:
     config.ensure_directories()
 
     state_file = config.DATA_DIR / "processed_pipeline.json"
-    hashes_procesados = _load_processed_hashes(state_file)
-    logger.info("Storage: {} archivos ya procesados (se omitirán)", len(hashes_procesados))
+    if usar_cache:
+        hashes_procesados = _load_processed_hashes(state_file)
+        logger.info("Storage: {} archivos ya procesados (se omitirán)", len(hashes_procesados))
+    else:
+        hashes_procesados = set()
+        logger.info("Storage: modo independiente, procesando todos los archivos")
 
     # 1. OCR
     logger.info("=== Paso 1: OCR ===")
@@ -216,8 +230,9 @@ def test_storage() -> None:
         storage_result = storage_agent.process(resultado)
         if storage_result.get("exito"):
             almacenados += 1
-            hashes_procesados.add(resultado["hash_sha256"])
-            _save_processed_hashes(state_file, hashes_procesados)
+            if usar_cache:
+                hashes_procesados.add(resultado["hash_sha256"])
+                _save_processed_hashes(state_file, hashes_procesados)
         elif storage_result.get("accion") == "skip":
             omitidos += 1
         else:
